@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"io.github.mikip98.savethehotbar.SaveTheHotbarClient"
+		],
+		"modmenu": [
+			"io.github.mikip98.savethehotbar.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [

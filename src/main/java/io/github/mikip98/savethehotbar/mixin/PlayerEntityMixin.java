@@ -1,6 +1,6 @@
 package io.github.mikip98.savethehotbar.mixin;
 
-import io.github.mikip98.savethehotbar.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.ModConfig;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -13,33 +13,12 @@ import java.util.ArrayList;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin {
-    // TODO: Make config
-    @Unique
-    private static final boolean
-            saveHotbar = true,
-            saveArmor = true,
-            saveSecondHand = true,
-            randomSpread = false,  // Does not do anything if containDrop is true
-            containDrop = false
-    ;
-    @Unique
-    private static final float
-            randomDropChance = .0f,
-            rarityDropChanceDecrease = 2.0f
-    ;
-    @Unique
-    private static final ContainDropMode containDropMode = ContainDropMode.SACK;
-
     @Shadow
     @Nullable
     public abstract ItemEntity dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership);
 
     @Shadow
     private @Final PlayerInventory inventory;
-
-//    private ArrayList<ItemStack> hotbar = new ArrayList<>();
-//    private ArrayList<ItemStack> armor = new ArrayList<>();
-//    private ArrayList<ItemStack> secondHand = new ArrayList<>();
 
 //    @Inject(method = "dropInventory", at = @At("HEAD"))
 //    public void keepHotbar(CallbackInfo ci) {
@@ -75,9 +54,9 @@ public abstract class PlayerEntityMixin {
     @Unique
     private static float getRandomDropChance(Rarity rarity) {
         if (Rarity.COMMON.equals(rarity)) {
-            return randomDropChance;
+            return ModConfig.randomDropChance;
         } else {
-            return randomDropChance / (float) Math.pow(rarityDropChanceDecrease, rarityToPower(rarity));
+            return ModConfig.randomDropChance / (float) Math.pow(ModConfig.rarityDropChanceDecrease, rarityToPower(rarity));
         }
     }
 
@@ -93,7 +72,7 @@ public abstract class PlayerEntityMixin {
         for (int i = 0; i < this.inventory.main.size(); i++) {
             ItemStack stack = this.inventory.main.get(i);
             if (!stack.isEmpty()) {
-                if (!(PlayerInventory.isValidHotbarIndex(i) && saveHotbar) || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
+                if (!(PlayerInventory.isValidHotbarIndex(i) && ModConfig.saveHotbar) || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
                     drop.add(this.inventory.main.get(i));
                     this.inventory.main.set(i, ItemStack.EMPTY);
                 }
@@ -101,11 +80,11 @@ public abstract class PlayerEntityMixin {
         }
 
         // Keep armor
-        if (!saveArmor || randomDropChance != 0) {
+        if (!ModConfig.saveArmor || ModConfig.randomDropChance != 0) {
             for (int i = 0; i < this.inventory.armor.size(); i++) {
                 ItemStack stack = this.inventory.armor.get(i);
                 if (!stack.isEmpty()) {
-                    if (!saveArmor || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
+                    if (!ModConfig.saveArmor || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
                         drop.add(this.inventory.main.get(i));
                         this.inventory.armor.set(i, ItemStack.EMPTY);
                     }
@@ -114,11 +93,11 @@ public abstract class PlayerEntityMixin {
         }
 
         // Keep second hand
-        if (!saveSecondHand || randomDropChance != 0) {
+        if (!ModConfig.saveSecondHand || ModConfig.randomDropChance != 0) {
             for (int i = 0; i < this.inventory.offHand.size(); i++) {
                 ItemStack stack = this.inventory.offHand.get(i);
                 if (!stack.isEmpty()) {
-                    if (!saveSecondHand || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
+                    if (!ModConfig.saveSecondHand || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
                         drop.add(this.inventory.main.get(i));
                         this.inventory.offHand.set(i, ItemStack.EMPTY);
                     }
@@ -128,19 +107,19 @@ public abstract class PlayerEntityMixin {
 
         // Manage no-kept items
         if (!drop.isEmpty()) {
-            if (containDrop)  {
-                switch (containDropMode) {
+            if (ModConfig.containDrop)  {
+                switch (ModConfig.containDropMode) {
                     case SACK:
                     case GRAVE:
                         for (ItemStack stack : drop) {
-                            dropItem(stack, randomSpread, true);
+                            dropItem(stack, ModConfig.randomSpread, true);
                         }
                         return;
                 }
             }
             // !containDrop or unknown containDropMode
             for (ItemStack stack : drop) {
-                dropItem(stack, randomSpread, false);
+                dropItem(stack, ModConfig.randomSpread, false);
             }
         }
     }

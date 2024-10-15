@@ -1,5 +1,6 @@
 package io.github.mikip98.savethehotbar;
 
+import io.github.mikip98.savethehotbar.config.ConfigReader;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -19,6 +20,9 @@ public class SaveTheHotbar implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("SaveTheHotbar! has been initialized!");
+
+		// Load the configuration
+		ConfigReader.loadConfigFromFile();
 	}
 }
