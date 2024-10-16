@@ -7,8 +7,11 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
+import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
@@ -46,6 +49,8 @@ public abstract class PlayerEntityMixin {
 
     @Shadow public int totalExperience;
 
+    @Shadow @Final private static Logger LOGGER;
+
     @Unique
     private static int rarityToPower(Rarity rarity) {
         return switch (rarity) {
@@ -70,6 +75,11 @@ public abstract class PlayerEntityMixin {
      */
     @Overwrite
     public void dropInventory() {
+        if (!this.inventory.player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+            LOGGER.error("Game rule 'keepInventory' is not enabled! The mod will not work!");
+            this.inventory.player.sendMessage(Text.of("Game rule 'keepInventory' is not enabled! The mod will not work!"));
+            return;
+        }
         ArrayList<ItemStack> mainDrop = new ArrayList<>();
         ArrayList<Integer> mainDropIDs = new ArrayList<>();
 
