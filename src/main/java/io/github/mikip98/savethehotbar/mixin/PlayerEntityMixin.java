@@ -44,6 +44,8 @@ public abstract class PlayerEntityMixin {
 //        }
 //    }
 
+    @Shadow public int totalExperience;
+
     @Unique
     private static int rarityToPower(Rarity rarity) {
         return switch (rarity) {
@@ -112,7 +114,7 @@ public abstract class PlayerEntityMixin {
                 ItemStack stack = this.inventory.armor.get(i);
                 if (!stack.isEmpty()) {
                     if (!ModConfig.saveArmor || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
-                        armorDrop.add(this.inventory.main.get(i));
+                        armorDrop.add(this.inventory.armor.get(i));
                         armorDropIDs.add(i);
                         this.inventory.armor.set(i, ItemStack.EMPTY);
                     }
@@ -126,7 +128,7 @@ public abstract class PlayerEntityMixin {
                 ItemStack stack = this.inventory.offHand.get(i);
                 if (!stack.isEmpty()) {
                     if (!ModConfig.saveSecondHand || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
-                        secondHandDrop.add(this.inventory.main.get(i));
+                        secondHandDrop.add(this.inventory.offHand.get(i));
                         secondHandDropIDs.add(i);
                         this.inventory.offHand.set(i, ItemStack.EMPTY);
                     }
