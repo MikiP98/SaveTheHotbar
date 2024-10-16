@@ -76,8 +76,10 @@ public abstract class PlayerEntityMixin {
     @Overwrite
     public void dropInventory() {
         if (!this.inventory.player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-            LOGGER.error("Game rule 'keepInventory' is not enabled! The mod will not work!");
-            this.inventory.player.sendMessage(Text.of("Game rule 'keepInventory' is not enabled! The mod will not work!"));
+            // TODO: Create a config for this
+            String message = "Game rule 'keepInventory' is not enabled! `SaveTheHotbar!` mod will not work!";
+            this.inventory.player.sendMessage(Text.of(message));
+            LOGGER.error(message);
             return;
         }
         ArrayList<ItemStack> mainDrop = new ArrayList<>();
