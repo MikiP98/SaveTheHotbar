@@ -1,6 +1,8 @@
 package io.github.mikip98.savethehotbar.mixin;
 
+import io.github.mikip98.savethehotbar.ItemContainers.GravestoneHandler;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -66,14 +68,39 @@ public abstract class PlayerEntityMixin {
      */
     @Overwrite
     public void dropInventory() {
-        ArrayList<ItemStack> drop = new ArrayList<>();
+        ArrayList<ItemStack> mainDrop = new ArrayList<>();
+        ArrayList<Integer> mainDropIDs = new ArrayList<>();
+
+        ArrayList<ItemStack> armorDrop = new ArrayList<>();
+        ArrayList<Integer> armorDropIDs = new ArrayList<>();
+
+        ArrayList<ItemStack> secondHandDrop = new ArrayList<>();
+        ArrayList<Integer> secondHandDropIDs = new ArrayList<>();
+
+        // Manage Curse of Vanishing
+        for (int i = 0; i < this.inventory.main.size(); i++) {
+            if (EnchantmentHelper.hasVanishingCurse(this.inventory.main.get(i))) {
+                this.inventory.main.set(i, ItemStack.EMPTY);
+            }
+        }
+        for (int i = 0; i < this.inventory.armor.size(); i++) {
+            if (EnchantmentHelper.hasVanishingCurse(this.inventory.armor.get(i))) {
+                this.inventory.armor.set(i, ItemStack.EMPTY);
+            }
+        }
+        for (int i = 0; i < this.inventory.offHand.size(); i++) {
+            if (EnchantmentHelper.hasVanishingCurse(this.inventory.offHand.get(i))) {
+                this.inventory.offHand.set(i, ItemStack.EMPTY);
+            }
+        }
 
         // Keep hotbar
         for (int i = 0; i < this.inventory.main.size(); i++) {
             ItemStack stack = this.inventory.main.get(i);
             if (!stack.isEmpty()) {
                 if (!(PlayerInventory.isValidHotbarIndex(i) && ModConfig.saveHotbar) || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
-                    drop.add(this.inventory.main.get(i));
+                    mainDrop.add(this.inventory.main.get(i));
+                    mainDropIDs.add(i);
                     this.inventory.main.set(i, ItemStack.EMPTY);
                 }
             }
@@ -85,7 +112,8 @@ public abstract class PlayerEntityMixin {
                 ItemStack stack = this.inventory.armor.get(i);
                 if (!stack.isEmpty()) {
                     if (!ModConfig.saveArmor || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
-                        drop.add(this.inventory.main.get(i));
+                        armorDrop.add(this.inventory.main.get(i));
+                        armorDropIDs.add(i);
                         this.inventory.armor.set(i, ItemStack.EMPTY);
                     }
                 }
@@ -98,7 +126,8 @@ public abstract class PlayerEntityMixin {
                 ItemStack stack = this.inventory.offHand.get(i);
                 if (!stack.isEmpty()) {
                     if (!ModConfig.saveSecondHand || inventory.player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity())) {
-                        drop.add(this.inventory.main.get(i));
+                        secondHandDrop.add(this.inventory.main.get(i));
+                        secondHandDropIDs.add(i);
                         this.inventory.offHand.set(i, ItemStack.EMPTY);
                     }
                 }
@@ -106,18 +135,20 @@ public abstract class PlayerEntityMixin {
         }
 
         // Manage no-kept items
-        if (!drop.isEmpty()) {
+        if (!mainDrop.isEmpty() || !armorDrop.isEmpty() || !secondHandDrop.isEmpty()) {
             if (ModConfig.containDrop)  {
                 switch (ModConfig.containDropMode) {
                     case SACK:
                     case GRAVE:
-                        for (ItemStack stack : drop) {
-                            dropItem(stack, ModConfig.randomSpread, true);
-                        }
+                        System.out.println("SaveTheHotbar!: Saving inventory in a Grave");
+                        GravestoneHandler.handleGravestones(inventory.player, mainDrop, mainDropIDs, armorDrop, armorDropIDs, secondHandDrop, secondHandDropIDs);
                         return;
                 }
             }
             // !containDrop or unknown containDropMode
+            ArrayList<ItemStack> drop = mainDrop;
+            drop.addAll(armorDrop);
+            drop.addAll(secondHandDrop);
             for (ItemStack stack : drop) {
                 dropItem(stack, ModConfig.randomSpread, false);
             }
