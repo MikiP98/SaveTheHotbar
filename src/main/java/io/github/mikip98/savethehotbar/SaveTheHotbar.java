@@ -2,6 +2,7 @@ package io.github.mikip98.savethehotbar;
 
 import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.blocks.GraveContainer;
+import io.github.mikip98.savethehotbar.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.ConfigReader;
 import net.fabricmc.api.ModInitializer;
 
@@ -43,7 +44,7 @@ public class SaveTheHotbar implements ModInitializer {
 		ConfigReader.loadConfigFromFile();
 
 		// Register Sack
-		SACK = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		SACK = new Sack(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "sack"), SACK);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "sack"), new BlockItem(SACK, new FabricItemSettings()));
 
