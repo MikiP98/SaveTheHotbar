@@ -55,7 +55,7 @@ The block where the non-kept items will be stored if `containDrop` is `true`.
 - `"SACK"`  
 After player death, a sack will be spawned, containing all the non-kept items.  
 Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
-- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"`  
+- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"` ***(No block model at the moment)***  
 After player death, **mob head grave** will be spawned, containing all the non-kept items.  
 Drops items on destruction. Does not drop itself nor any XP.  
 The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  
