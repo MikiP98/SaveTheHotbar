@@ -1,6 +1,7 @@
 package io.github.mikip98.savethehotbar.mixin;
 
 import io.github.mikip98.savethehotbar.ItemContainers.GravestoneHandler;
+import io.github.mikip98.savethehotbar.ItemContainers.SackHandler;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ItemEntity;
@@ -11,10 +12,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
+
+import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin {
@@ -46,10 +48,6 @@ public abstract class PlayerEntityMixin {
 ////            this.inventory.offHand.clear();
 //        }
 //    }
-
-    @Shadow public int totalExperience;
-
-    @Shadow @Final private static Logger LOGGER;
 
     @Unique
     private static int rarityToPower(Rarity rarity) {
@@ -149,10 +147,20 @@ public abstract class PlayerEntityMixin {
         }
 
         // Manage no-kept items
+        ArrayList<ItemStack> drop = mainDrop;
+        drop.addAll(armorDrop);
+        drop.addAll(secondHandDrop);
+
         if (!mainDrop.isEmpty() || !armorDrop.isEmpty() || !secondHandDrop.isEmpty()) {
             if (ModConfig.containDrop)  {
                 switch (ModConfig.containDropMode) {
                     case SACK:
+                        System.out.println("SaveTheHotbar!: Saving inventory in a Sack");
+                        if (!drop.isEmpty()) {
+                            PlayerEntity player = this.inventory.player;
+                            SackHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                        }
+                        return;
                     case GRAVE:
                         System.out.println("SaveTheHotbar!: Saving inventory in a Grave");
                         GravestoneHandler.handleGravestones(inventory.player, mainDrop, mainDropIDs, armorDrop, armorDropIDs, secondHandDrop, secondHandDropIDs);
@@ -160,9 +168,7 @@ public abstract class PlayerEntityMixin {
                 }
             }
             // !containDrop or unknown containDropMode
-            ArrayList<ItemStack> drop = mainDrop;
-            drop.addAll(armorDrop);
-            drop.addAll(secondHandDrop);
+            System.out.println("SaveTheHotbar!: Dropping inventory");
             for (ItemStack stack : drop) {
                 dropItem(stack, ModConfig.randomSpread, false);
             }

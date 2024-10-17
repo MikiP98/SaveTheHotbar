@@ -1,12 +1,15 @@
 package io.github.mikip98.savethehotbar;
 
+import io.github.mikip98.savethehotbar.blockentities.SackBlockEntity;
 import io.github.mikip98.savethehotbar.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.ConfigReader;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -22,6 +25,9 @@ public class SaveTheHotbar implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	public static Block SACK;
+	public static BlockEntityType<SackBlockEntity> SACK_BLOCK_ENTITY;
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -34,8 +40,15 @@ public class SaveTheHotbar implements ModInitializer {
 		ConfigReader.loadConfigFromFile();
 
 		// Register Sack
-		Block SACK = new Sack(FabricBlockSettings.create().strength(0.5F, Float.MAX_VALUE));
-		net.minecraft.registry.Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "sack"), SACK);
+		SACK = new Sack(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "sack"), SACK);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "sack"), new BlockItem(SACK, new FabricItemSettings()));
+
+		// Register Sack Block Entity
+		SACK_BLOCK_ENTITY = Registry.register(
+				Registries.BLOCK_ENTITY_TYPE,
+				new Identifier(MOD_ID, "sack_block_entity"),
+				FabricBlockEntityTypeBuilder.create(SackBlockEntity::new, SACK).build()
+		);
 	}
 }
