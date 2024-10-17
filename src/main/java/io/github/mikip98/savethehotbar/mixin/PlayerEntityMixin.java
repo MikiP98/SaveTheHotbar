@@ -1,8 +1,10 @@
 package io.github.mikip98.savethehotbar.mixin;
 
 import io.github.mikip98.savethehotbar.ItemContainers.GravestoneHandler;
-import io.github.mikip98.savethehotbar.ItemContainers.SackHandler;
+import io.github.mikip98.savethehotbar.ItemContainers.InternalContainersHandler;
+import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -153,12 +155,35 @@ public abstract class PlayerEntityMixin {
 
         if (!mainDrop.isEmpty() || !armorDrop.isEmpty() || !secondHandDrop.isEmpty()) {
             if (ModConfig.containDrop)  {
+                Block head = null;
                 switch (ModConfig.containDropMode) {
                     case SACK:
                         System.out.println("SaveTheHotbar!: Saving inventory in a Sack");
                         if (!drop.isEmpty()) {
                             PlayerEntity player = this.inventory.player;
-                            SackHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                            InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                        }
+                        return;
+                    case SKELETON_HEAD:
+                        System.out.println("SaveTheHotbar!: Saving inventory in a Skeleton Head");
+                        head = SaveTheHotbar.SKELETON_HEAD_GRAVE;
+                    case ZOMBIE_HEAD:
+                        if (head == null) {
+                            System.out.println("SaveTheHotbar!: Saving inventory in a Zombie Head");
+                            head = SaveTheHotbar.ZOMBIE_HEAD_GRAVE;
+                        }
+                    case RANDOM_HEAD:
+                        if (head == null) {
+                            System.out.println("SaveTheHotbar!: Saving inventory in a Random Head");
+                            if (inventory.player.getRandom().nextFloat() < 0.5) {
+                                head = SaveTheHotbar.SKELETON_HEAD_GRAVE;
+                            } else {
+                                head = SaveTheHotbar.ZOMBIE_HEAD_GRAVE;
+                            }
+                        }
+                        if (!drop.isEmpty()) {
+                            PlayerEntity player = this.inventory.player;
+                            InternalContainersHandler.spawn_head_grave(head, player.getWorld(), player.getBlockPos(), drop);
                         }
                         return;
                     case GRAVE:

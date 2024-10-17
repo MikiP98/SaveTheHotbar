@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SackBlockEntity extends BlockEntity implements GraveInventory, SidedInventory {
+public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, SidedInventory {
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(41, ItemStack.EMPTY);
 
-    public SackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
-    public SackBlockEntity(BlockPos pos, BlockState state) { super(SaveTheHotbar.SACK_BLOCK_ENTITY, pos, state); }
+    public GraveContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
+    public GraveContainerBlockEntity(BlockPos pos, BlockState state) { super(SaveTheHotbar.GRAVE_CONTAINER_BLOCK_ENTITY, pos, state); }
 
 
     @Override

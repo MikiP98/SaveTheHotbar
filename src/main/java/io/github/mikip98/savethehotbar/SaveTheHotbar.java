@@ -1,7 +1,7 @@
 package io.github.mikip98.savethehotbar;
 
-import io.github.mikip98.savethehotbar.blockentities.SackBlockEntity;
-import io.github.mikip98.savethehotbar.blocks.Sack;
+import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
+import io.github.mikip98.savethehotbar.blocks.GraveContainer;
 import io.github.mikip98.savethehotbar.config.ConfigReader;
 import net.fabricmc.api.ModInitializer;
 
@@ -26,7 +26,10 @@ public class SaveTheHotbar implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static Block SACK;
-	public static BlockEntityType<SackBlockEntity> SACK_BLOCK_ENTITY;
+	public static Block SKELETON_HEAD_GRAVE;
+	public static Block ZOMBIE_HEAD_GRAVE;
+
+	public static BlockEntityType<GraveContainerBlockEntity> GRAVE_CONTAINER_BLOCK_ENTITY;
 
 	@Override
 	public void onInitialize() {
@@ -40,15 +43,26 @@ public class SaveTheHotbar implements ModInitializer {
 		ConfigReader.loadConfigFromFile();
 
 		// Register Sack
-		SACK = new Sack(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		SACK = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "sack"), SACK);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "sack"), new BlockItem(SACK, new FabricItemSettings()));
 
+		// Register Skeleton Head Grave
+		SKELETON_HEAD_GRAVE = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "skeleton_head_grave"), SACK);
+		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "skeleton_head_grave"), new BlockItem(SACK, new FabricItemSettings()));
+
+		// Register Zombie Head Grave
+		ZOMBIE_HEAD_GRAVE = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "zombie_head_grave"), SACK);
+		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "zombie_head_grave"), new BlockItem(SACK, new FabricItemSettings()));
+
 		// Register Sack Block Entity
-		SACK_BLOCK_ENTITY = Registry.register(
+		Block[] itemContainers = {SACK, SKELETON_HEAD_GRAVE, ZOMBIE_HEAD_GRAVE};
+		GRAVE_CONTAINER_BLOCK_ENTITY = Registry.register(
 				Registries.BLOCK_ENTITY_TYPE,
 				new Identifier(MOD_ID, "sack_block_entity"),
-				FabricBlockEntityTypeBuilder.create(SackBlockEntity::new, SACK).build()
+				FabricBlockEntityTypeBuilder.create(GraveContainerBlockEntity::new, itemContainers).build()
 		);
 	}
 }

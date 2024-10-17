@@ -1,6 +1,6 @@
 package io.github.mikip98.savethehotbar.blocks;
 
-import io.github.mikip98.savethehotbar.blockentities.SackBlockEntity;
+import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -16,13 +16,13 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class Sack extends Block implements BlockEntityProvider, Waterloggable {
+public class GraveContainer extends Block implements BlockEntityProvider, Waterloggable {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(Properties.WATERLOGGED);
     }
 
-    public Sack(Settings settings) {
+    public GraveContainer(Settings settings) {
         super(settings);
         setDefaultState(getStateManager().getDefaultState()
                 .with(Properties.WATERLOGGED, false));
@@ -43,7 +43,7 @@ public class Sack extends Block implements BlockEntityProvider, Waterloggable {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof SackBlockEntity cabinetEntity) {
+            if (blockEntity instanceof GraveContainerBlockEntity cabinetEntity) {
                 // Handle item drops and block entity cleanup here
                 DefaultedList<ItemStack> inventory = cabinetEntity.getItems();
                 for (ItemStack stack : inventory) {
@@ -58,5 +58,5 @@ public class Sack extends Block implements BlockEntityProvider, Waterloggable {
 
 
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) { return new SackBlockEntity(pos, state); }
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) { return new GraveContainerBlockEntity(pos, state); }
 }

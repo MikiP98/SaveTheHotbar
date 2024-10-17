@@ -11,7 +11,7 @@ import net.minecraft.util.collection.DefaultedList;
 
  * Originally by Juuz
  */
-public interface GraveInventory extends Inventory {
+public interface GraveContainerInventory extends Inventory {
     /**
      * Retrieves the item list of this inventory.
      * Must return the same instance every time it's called.
@@ -21,12 +21,12 @@ public interface GraveInventory extends Inventory {
     /**
      * Creates an inventory from the item list.
      */
-    static GraveInventory of(DefaultedList<ItemStack> items) { return () -> items; }
+    static GraveContainerInventory of(DefaultedList<ItemStack> items) { return () -> items; }
 
     /**
      * Creates a new inventory with the specified size.
      */
-    static GraveInventory ofSize(int size) {
+    static GraveContainerInventory ofSize(int size) {
         return of(DefaultedList.ofSize(size, ItemStack.EMPTY));
     }
 
