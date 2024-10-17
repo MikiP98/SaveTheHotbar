@@ -52,12 +52,21 @@ If `false`, all the non-kept items will be dropped after death.
 
 *Defaults to `"SACK"`*  
 The block where the non-kept items will be stored if `containDrop` is `true`.
-- `"SACK"` *(not-implemented yet)*  
-After player death a sack will be spawned, containing all the non-kept items.  
+- `"SACK"`  
+After player death, a sack will be spawned, containing all the non-kept items.  
 Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
+- `"SKELETON_HEAD"`  
+After player death, skeleton head grave will be spawned, containing all the non-kept items.  
+Drops items on destruction. Does not drop itself nor any XP.  
+The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  
+If such location won't be found, a `SACK` grave will be spawned instead.
+- `"ZOMBIE_HEAD"`  
+Same as `SKELETON_HEAD`, but with a different skin.
+- `"RANDOM_HEAD"`  
+Same as `SKELETON_HEAD`, but with a random skin.
 - `"GRAVE"`  
 __**[*GRAVESTONES*](https://modrinth.com/mod/pneumono_gravestones)&nbsp; MOD REQUIRED!!!**__  
-After player death a grave from the `Gravestones` mod will be spawned,  
+After player death, a grave from the `Gravestones` mod will be spawned,  
 containing the non-kept items and XP according to its configuration.
 
 ### Default JSON config file
