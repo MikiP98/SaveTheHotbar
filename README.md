@@ -35,6 +35,13 @@ If `true`, all the dropped items after death will be spread randomly in all dire
 If `false`, all the item will stay in the exact position of your death and can only fall downwards.  
 Does not do anything if `containDrop` is `true`.
 
+### randomDropChance
+
+*Defaults to `0.0` (0.0 -> 0%; 1.0 -> 100%)*  
+Adds a random chance to drop an otherwise kept item  
+E.g. Even when the armor should be kept, each piece will still have a change to be dropped instead, increasing the risk!  
+
+
 ### containDrop
 
 *Defaults to `false`*  
@@ -43,9 +50,8 @@ If `false`, all the non-kept items will be dropped after death.
 
 ### containDropMode
 
-Defaults to `"SACK"`.
+*Defaults to `"SACK"`*  
 The block where the non-kept items will be stored if `containDrop` is `true`.
-Options:
 - `"SACK"` *(not-implemented yet)*  
 After player death a sack will be spawned, containing all the non-kept items.  
 Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
