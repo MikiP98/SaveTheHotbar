@@ -51,10 +51,18 @@ public class InternalContainersHandler {
     }
 
     protected static void handleNoItemContainerError(World world, BlockPos position, ArrayList<ItemStack> drop) {
-        LOGGER.error("Couldn't find the spawned item container! Items will be dropped :(  EMERGENCY HOPPER SPAWN ATTEMPT!!!");
+        LOGGER.error("Couldn't find the spawned item container! Items will be dropped :(  EMERGENCY HOPPERS SPAWN ATTEMPT!!!");
 
-        // Spawn emergency hopper
+        // Spawn emergency hoppers (3x3 as 1x1 was too small to catch all the items)
         world.setBlockState(position.down(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().north(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().south(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().east(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().west(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().north().east(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().north().west(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().south().east(), Blocks.HOPPER.getDefaultState(), 3);
+        world.setBlockState(position.down().south().west(), Blocks.HOPPER.getDefaultState(), 3);
 
         // Drop items
         for (ItemStack item : drop) {
@@ -67,7 +75,7 @@ public class InternalContainersHandler {
             // +1 so that the recovered items won't just fall to the void
             position = new BlockPos(position.getX(), world.getBottomY() + 1, position.getZ());
         } else if (position.getY() > world.getTopY()) {
-            position = new BlockPos(position.getX(), world.getTopY(), position.getZ());
+            position = new BlockPos(position.getX(), world.getTopY() - 1, position.getZ());
         }
 
         return position;
