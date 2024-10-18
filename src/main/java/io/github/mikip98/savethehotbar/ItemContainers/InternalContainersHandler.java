@@ -8,7 +8,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class InternalContainersHandler {
         position = validate_position_height(world, position);
 
         world.setBlockState(position, SaveTheHotbar.SACK.getDefaultState(), 3);
+        LOGGER.info("Spawned a sack at " + position);
         BlockEntity blockEntity = world.getBlockEntity(position);
         if (blockEntity instanceof GraveContainerBlockEntity) {
             ((GraveContainerBlockEntity) blockEntity).setItems(drop);
@@ -42,7 +45,14 @@ public class InternalContainersHandler {
             LOGGER.error("Couldn't find a valid position for the head grave! Spawning a sack in the place of death instead!");
             spawn_sack(world, position, drop);
         } else {
-            world.setBlockState(gravePos, head.getDefaultState(), 3);
+            Direction facing = Direction.NORTH;
+            float random = world.random.nextFloat();
+            if (random < 0.25) facing = Direction.SOUTH;
+            else if (random < 0.5) facing = Direction.EAST;
+            else if (random < 0.75) facing = Direction.WEST;
+
+            world.setBlockState(gravePos, head.getDefaultState().with(Properties.HORIZONTAL_FACING, facing), 3);
+            LOGGER.info("Spawned a mob head grave at " + gravePos);
             BlockEntity blockEntity = world.getBlockEntity(gravePos);
             if (blockEntity instanceof GraveContainerBlockEntity) {
                 ((GraveContainerBlockEntity) blockEntity).setItems(drop);

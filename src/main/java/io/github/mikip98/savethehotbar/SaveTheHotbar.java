@@ -2,8 +2,10 @@ package io.github.mikip98.savethehotbar;
 
 import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.blocks.GraveContainer;
+import io.github.mikip98.savethehotbar.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.ConfigReader;
+import io.github.mikip98.savethehotbar.modDetection.ModDetector;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -42,6 +44,7 @@ public class SaveTheHotbar implements ModInitializer {
 
 		// Load the configuration
 		ConfigReader.loadConfigFromFile();
+		ModDetector.detectMods();
 
 		// Register Sack
 		SACK = new Sack(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
@@ -49,12 +52,12 @@ public class SaveTheHotbar implements ModInitializer {
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "sack"), new BlockItem(SACK, new FabricItemSettings()));
 
 		// Register Skeleton Head Grave
-		SKELETON_HEAD_GRAVE = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		SKELETON_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "skeleton_head_grave"), SKELETON_HEAD_GRAVE);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "skeleton_head_grave"), new BlockItem(SKELETON_HEAD_GRAVE, new FabricItemSettings()));
 
 		// Register Zombie Head Grave
-		ZOMBIE_HEAD_GRAVE = new GraveContainer(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		ZOMBIE_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "zombie_head_grave"), ZOMBIE_HEAD_GRAVE);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "zombie_head_grave"), new BlockItem(ZOMBIE_HEAD_GRAVE, new FabricItemSettings()));
 

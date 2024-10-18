@@ -4,6 +4,7 @@ import io.github.mikip98.savethehotbar.ItemContainers.GravestoneHandler;
 import io.github.mikip98.savethehotbar.ItemContainers.InternalContainersHandler;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.modDetection.DetectedMods;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ItemEntity;
@@ -14,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public abstract class PlayerEntityMixin {
 ////            this.inventory.offHand.clear();
 //        }
 //    }
+
+    @Shadow @Final private static Logger LOGGER;
 
     @Unique
     private static int rarityToPower(Rarity rarity) {
@@ -158,23 +162,23 @@ public abstract class PlayerEntityMixin {
                 Block head = null;
                 switch (ModConfig.containDropMode) {
                     case SACK:
-                        System.out.println("SaveTheHotbar!: Saving inventory in a Sack");
+                        LOGGER.info("Saving inventory in a Sack");
                         if (!drop.isEmpty()) {
                             PlayerEntity player = this.inventory.player;
                             InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
                         }
                         return;
                     case SKELETON_HEAD:
-                        System.out.println("SaveTheHotbar!: Saving inventory in a Skeleton Head");
+                        LOGGER.info("Saving inventory in a Skeleton Head");
                         head = SaveTheHotbar.SKELETON_HEAD_GRAVE;
                     case ZOMBIE_HEAD:
                         if (head == null) {
-                            System.out.println("SaveTheHotbar!: Saving inventory in a Zombie Head");
+                            LOGGER.info("Saving inventory in a Zombie Head");
                             head = SaveTheHotbar.ZOMBIE_HEAD_GRAVE;
                         }
                     case RANDOM_HEAD:
                         if (head == null) {
-                            System.out.println("SaveTheHotbar!: Saving inventory in a Random Head");
+                            LOGGER.info("Saving inventory in a Random Head");
                             if (inventory.player.getRandom().nextFloat() < 0.5) {
                                 head = SaveTheHotbar.SKELETON_HEAD_GRAVE;
                             } else {
@@ -187,8 +191,19 @@ public abstract class PlayerEntityMixin {
                         }
                         return;
                     case GRAVE:
-                        System.out.println("SaveTheHotbar!: Saving inventory in a Grave");
-                        GravestoneHandler.handleGravestones(inventory.player, mainDrop, mainDropIDs, armorDrop, armorDropIDs, secondHandDrop, secondHandDropIDs);
+                        if (DetectedMods.PNEUMONO_GRAVESTONES) {
+                            LOGGER.info("Saving inventory in a Grave");
+                            GravestoneHandler.handleGravestones(inventory.player, mainDrop, mainDropIDs, armorDrop, armorDropIDs, secondHandDrop, secondHandDropIDs);
+                        } else {
+                            String message = "ERROR: Gravestones mod by Pneumono_ is not installed or disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
+                            LOGGER.error(message);
+                            inventory.player.sendMessage(Text.of(message));
+                            LOGGER.info("Saving inventory in a Sack");
+                            if (!drop.isEmpty()) {
+                                PlayerEntity player = this.inventory.player;
+                                InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                            }
+                        }
                         return;
                 }
             }
