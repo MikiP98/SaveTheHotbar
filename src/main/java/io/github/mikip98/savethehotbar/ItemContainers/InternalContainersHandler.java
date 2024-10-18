@@ -75,6 +75,7 @@ public class InternalContainersHandler {
         world.setBlockState(position.down().south().west(), Blocks.HOPPER.getDefaultState(), 3);
 
         // Drop items
+        LOGGER.info("Dropping " + drop.size() + " items at " + position);
         for (ItemStack item : drop) {
             world.spawnEntity(new ItemEntity(world, position.getX(), position.getY(), position.getZ(), item));
         }

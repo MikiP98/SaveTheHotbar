@@ -11,6 +11,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.GameRules;
@@ -54,6 +55,8 @@ public abstract class PlayerEntityMixin {
 //    }
 
     @Shadow @Final private static Logger LOGGER;
+
+    @Shadow @Final public PlayerScreenHandler playerScreenHandler;
 
     @Unique
     private static int rarityToPower(Rarity rarity) {
@@ -208,7 +211,7 @@ public abstract class PlayerEntityMixin {
                 }
             }
             // !containDrop or unknown containDropMode
-            System.out.println("SaveTheHotbar!: Dropping inventory");
+            LOGGER.info("Dropping inventory at " + this.inventory.player.getBlockPos());
             for (ItemStack stack : drop) {
                 dropItem(stack, ModConfig.randomSpread, false);
             }
