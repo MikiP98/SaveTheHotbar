@@ -8,11 +8,13 @@ public abstract class ModConfig extends DefaultConfig {
             saveArmor = dSaveArmor,
             saveSecondHand = dSaveSecondHand,
             randomSpread = dRandomSpread,  // Does not do anything if containDrop is true
-            containDrop = dContainDrop;
+            containDrop = dContainDrop,
+            logDeathCoordinatesInChat = dLogDeathCoordinatesInChat,
+            logGraveCoordinatesInChat = dLogGraveCoordinatesInChat;
 
     public static float
             randomDropChance = dRandomDropChance,
             rarityDropChanceDecrease = dRarityDropChanceDecrease;
 
-    public static ContainDropMode containDropMode = dContainDropMode;
+    public static ContainDropMode containDropMode = dContainDropMode;  // Does not do anything if containDrop is false
 }

@@ -32,6 +32,8 @@ public class ConfigReader {
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveSecondHand");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "randomSpread");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "containDrop");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "logDeathCoordinatesInChat");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "logGraveCoordinatesInChat");
 
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "randomDropChance");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "rarityDropChanceDecrease");

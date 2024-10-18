@@ -25,6 +25,8 @@ public class ConfigSaver {
         configJson.addProperty("saveSecondHand", ModConfig.saveSecondHand);
         configJson.addProperty("randomSpread", ModConfig.randomSpread);
         configJson.addProperty("containDrop", ModConfig.containDrop);
+        configJson.addProperty("logDeathCoordinatesInChat", ModConfig.logDeathCoordinatesInChat);
+        configJson.addProperty("logGraveCoordinatesInChat", ModConfig.logGraveCoordinatesInChat);
 
         configJson.addProperty("randomDropChance", ModConfig.randomDropChance);
         configJson.addProperty("rarityDropChanceDecrease", ModConfig.rarityDropChanceDecrease);

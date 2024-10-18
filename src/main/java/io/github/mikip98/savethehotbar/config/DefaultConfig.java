@@ -8,7 +8,9 @@ public class DefaultConfig {
             dSaveArmor = true,
             dSaveSecondHand = true,
             dRandomSpread = false,  // Does not do anything if containDrop is true
-            dContainDrop = false;
+            dContainDrop = false,
+            dLogDeathCoordinatesInChat = false,
+            dLogGraveCoordinatesInChat = false;
 
     public static final float
             dRandomDropChance = .0f,

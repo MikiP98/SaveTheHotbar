@@ -50,6 +50,22 @@ public class ModConfigScreen {
         );
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startBooleanToggle(Text.literal("Log Death Coordinates in Chat"), ModConfig.logDeathCoordinatesInChat)
+                .setTooltip(Text.literal("If `True`, the death coordinates will be sent in chat upon player death"))
+                .setDefaultValue(DefaultConfig.dLogDeathCoordinatesInChat)
+                .setSaveConsumer(value -> ModConfig.logDeathCoordinatesInChat = value)
+                .build()
+        );
+
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startBooleanToggle(Text.literal("Log Grave Coordinates in Chat"), ModConfig.logGraveCoordinatesInChat)
+                .setTooltip(Text.literal("If `True`, the grave spawn coordinates will be sent in chat upon player death"))
+                .setDefaultValue(DefaultConfig.dLogGraveCoordinatesInChat)
+                .setSaveConsumer(value -> ModConfig.logGraveCoordinatesInChat = value)
+                .build()
+        );
+
+        rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Contain Drop"), ModConfig.containDrop)
                 .setTooltip(Text.literal("If `False`, all non-kept items will be dropped after death. If `True`, all non-kept will be stored in a block specified by the \"Contain Drop Mode\" option"))
                 .setDefaultValue(DefaultConfig.dContainDrop)

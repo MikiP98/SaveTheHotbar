@@ -11,12 +11,10 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
@@ -54,10 +52,6 @@ public abstract class PlayerEntityMixin {
 //        }
 //    }
 
-    @Shadow @Final private static Logger LOGGER;
-
-    @Shadow @Final public PlayerScreenHandler playerScreenHandler;
-
     @Unique
     private static int rarityToPower(Rarity rarity) {
         return switch (rarity) {
@@ -82,6 +76,10 @@ public abstract class PlayerEntityMixin {
      */
     @Overwrite
     public void dropInventory() {
+        if (ModConfig.logDeathCoordinatesInChat) {
+            this.inventory.player.sendMessage(Text.literal("Death coordinates: " + this.inventory.player.getX() + ", " + this.inventory.player.getY() + ", " + this.inventory.player.getZ()));
+        }
+
         if (!this.inventory.player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             // TODO: Create a config for this
             String message = "Game rule 'keepInventory' is not enabled! `SaveTheHotbar!` mod will not work!";
@@ -168,7 +166,7 @@ public abstract class PlayerEntityMixin {
                         LOGGER.info("Saving inventory in a Sack");
                         if (!drop.isEmpty()) {
                             PlayerEntity player = this.inventory.player;
-                            InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                            InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop, player);
                         }
                         return;
                     case SKELETON_HEAD:
@@ -190,12 +188,15 @@ public abstract class PlayerEntityMixin {
                         }
                         if (!drop.isEmpty()) {
                             PlayerEntity player = this.inventory.player;
-                            InternalContainersHandler.spawn_head_grave(head, player.getWorld(), player.getBlockPos(), drop);
+                            InternalContainersHandler.spawn_head_grave(head, player.getWorld(), player.getBlockPos(), drop, player);
                         }
                         return;
                     case GRAVE:
                         if (DetectedMods.PNEUMONO_GRAVESTONES) {
                             LOGGER.info("Saving inventory in a Grave");
+                            if (ModConfig.logGraveCoordinatesInChat) {
+                                this.inventory.player.sendMessage(Text.of("Grave coordinates: " + this.inventory.player.getBlockPos().getX() + ", " + this.inventory.player.getBlockPos().getY() + ", " + this.inventory.player.getBlockPos().getZ()));
+                            }
                             GravestoneHandler.handleGravestones(inventory.player, mainDrop, mainDropIDs, armorDrop, armorDropIDs, secondHandDrop, secondHandDropIDs);
                         } else {
                             String message = "ERROR: Gravestones mod by Pneumono_ is not installed or disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
@@ -204,7 +205,7 @@ public abstract class PlayerEntityMixin {
                             LOGGER.info("Saving inventory in a Sack");
                             if (!drop.isEmpty()) {
                                 PlayerEntity player = this.inventory.player;
-                                InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop);
+                                InternalContainersHandler.spawn_sack(player.getWorld(), player.getBlockPos(), drop, player);
                             }
                         }
                         return;
