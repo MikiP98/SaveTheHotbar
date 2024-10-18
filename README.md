@@ -5,7 +5,7 @@
 ## Description
 
 SaveTheHotbar! is an balanced alternative to `keepInventory` and gravestone type mods.  
-It allows you to keep the armor or the hotbar after death and drop the rest, 
+It allows you to keep the armor or the hotbar after death and drop the rest,
 so that you don't lose the armament required to get your loot back!
 
 ## Configuration
@@ -39,7 +39,7 @@ Does not do anything if `containDrop` is `true`.
 
 *Defaults to `0.0` (0.0 -> 0%; 1.0 -> 100%)*  
 Adds a random chance to drop an otherwise kept item  
-E.g. Even when the armor should be kept, each piece will still have a change to be dropped instead, increasing the risk!  
+E.g. Even when the armor should be kept, each piece will still have a change to be dropped instead, increasing the risk!
 
 
 ### containDrop
@@ -53,29 +53,29 @@ If `false`, all the non-kept items will be dropped after death.
 *Defaults to `"SACK"`*  
 The block where the non-kept items will be stored if `containDrop` is `true`.
 - `"SACK"`  
-After player death, a sack will be spawned, containing all the non-kept items.  
-Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
-- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"` ***(No block model at the moment)***  
-After player death, **mob head grave** will be spawned, containing all the non-kept items.  
-Drops items on destruction. Does not drop itself nor any XP.  
-The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  
-If such location isn't found, a `SACK` grave will be spawned instead.
+  After player death, a sack will be spawned, containing all the non-kept items.  
+  Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
+- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"` ***(invisible at the moment, MAY CRASH!!!)***  
+  After player death, **mob head grave** will be spawned, containing all the non-kept items.  
+  Drops items on destruction. Does not drop itself nor any XP.  
+  The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  
+  If such location isn't found, a `SACK` grave will be spawned instead.
 - `"GRAVE"`  
-__**[*GRAVESTONES*](https://modrinth.com/mod/pneumono_gravestones)&nbsp; MOD REQUIRED!!!**__  
-After player death, a grave from the `Gravestones` mod will be spawned,  
-containing the non-kept items and XP according to its configuration.
+  __**[*GRAVESTONES*](https://modrinth.com/mod/pneumono_gravestones)&nbsp; MOD REQUIRED!!!**__  
+  After player death, a grave from the `Gravestones` mod will be spawned,  
+  containing the non-kept items and XP according to its configuration.
 
 ### Default JSON config file
 
 ```JSON
 {
-    "saveHotbar": true,
-    "saveArmor": true,
-    "saveSecondHand": true,
-    "randomSpread": false,
-    "containDrop": true,
-    "randomDropChance": 0.0,
-    "rarityDropChanceDecrease": 0.0,
-    "containDropMode": "SACK"
+	"saveHotbar": true,
+	"saveArmor": true,
+	"saveSecondHand": true,
+	"randomSpread": false,
+	"containDrop": true,
+	"randomDropChance": 0.0,
+	"rarityDropChanceDecrease": 0.0,
+	"containDropMode": "SACK"
 }
 ```
