@@ -24,14 +24,12 @@ public class GraveContainer extends Block implements BlockEntityProvider, Waterl
 
     public GraveContainer(Settings settings) {
         super(settings);
-        setDefaultState(getStateManager().getDefaultState()
-                .with(Properties.WATERLOGGED, false));
+        setDefaultState(getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
     }
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState()
-                .with(Properties.WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
+        return this.getDefaultState().with(Properties.WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
     }
 
     @Override
