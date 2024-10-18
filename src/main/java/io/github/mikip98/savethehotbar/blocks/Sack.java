@@ -9,9 +9,7 @@ import net.minecraft.world.BlockView;
 
 public class Sack extends GraveContainer {
 
-    public Sack(Settings settings) {
-        super(settings);
-    }
+    public Sack(Settings settings) { super(settings); }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
