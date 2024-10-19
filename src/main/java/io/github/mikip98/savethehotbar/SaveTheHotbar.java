@@ -1,7 +1,6 @@
 package io.github.mikip98.savethehotbar;
 
 import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
-import io.github.mikip98.savethehotbar.blocks.GraveContainer;
 import io.github.mikip98.savethehotbar.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.ConfigReader;
