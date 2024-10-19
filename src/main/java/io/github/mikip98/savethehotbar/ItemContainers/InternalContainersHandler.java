@@ -1,5 +1,6 @@
 package io.github.mikip98.savethehotbar.ItemContainers;
 
+import com.terraformersmc.modmenu.util.mod.Mod;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
@@ -113,7 +114,7 @@ public class InternalContainersHandler {
                 x_offset = 1,
                 y_offset = 0,
                 z_offset = 0,
-                limit = 32;
+                limit = ModConfig.mobGraveMaxSpawnRadius;
 
         BlockPos temp_position;
 

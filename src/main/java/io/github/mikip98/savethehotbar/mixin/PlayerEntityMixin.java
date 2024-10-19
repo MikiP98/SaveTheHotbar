@@ -212,7 +212,11 @@ public abstract class PlayerEntityMixin {
                 }
             }
             // !containDrop or unknown containDropMode
-            LOGGER.info("Dropping inventory at " + this.inventory.player.getBlockPos());
+            String message = "Dropping inventory at " + this.inventory.player.getBlockPos();
+            LOGGER.info(message);
+            if (ModConfig.logDeathCoordinatesInChat) {
+                this.inventory.player.sendMessage(Text.of(message));
+            }
             for (ItemStack stack : drop) {
                 dropItem(stack, ModConfig.randomSpread, false);
             }

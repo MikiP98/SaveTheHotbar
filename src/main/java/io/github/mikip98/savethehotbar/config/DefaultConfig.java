@@ -17,4 +17,6 @@ public class DefaultConfig {
             dRarityDropChanceDecrease = 2.0f;
 
     public static final ContainDropMode dContainDropMode = ContainDropMode.SACK;
+
+    public static final int dMobGraveMaxSpawnRadius = 32;
 }

@@ -17,4 +17,6 @@ public abstract class ModConfig extends DefaultConfig {
             rarityDropChanceDecrease = dRarityDropChanceDecrease;
 
     public static ContainDropMode containDropMode = dContainDropMode;  // Does not do anything if containDrop is false
+
+    public static int mobGraveMaxSpawnRadius = 32;
 }

@@ -93,10 +93,19 @@ public class ModConfigScreen {
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startFloatField(Text.literal("Rarity Drop Chance Decrease"), ModConfig.rarityDropChanceDecrease)
-                .setTooltip(Text.literal("A dividor of the random drop chance for each Rarity increase (e.g. item with rarity UNCOMMON will have the drop chance halved and RARE will have the drop chance halved again)"))
+                .setTooltip(Text.literal("A divider of the random drop chance for each Rarity increase (e.g. item with rarity UNCOMMON will have the drop chance halved and RARE will have the drop chance halved again)"))
                 .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> ModConfig.rarityDropChanceDecrease = value)
+                .build()
+        );
+
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startIntField(Text.literal("Mob Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)
+                .setTooltip(Text.literal("The maximum search radius for a valid mob grave spawning position. If no valid place will be found, a Sack will be spawned instead"))
+                .setDefaultValue(DefaultConfig.dMobGraveMaxSpawnRadius)
+                .setMin(0)
+                .setSaveConsumer(value -> ModConfig.mobGraveMaxSpawnRadius = value)
                 .build()
         );
 

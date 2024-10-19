@@ -38,6 +38,8 @@ public class ConfigReader {
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "randomDropChance");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "rarityDropChanceDecrease");
 
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsInt, "mobGraveMaxSpawnRadius");
+
 //                    needsUpdating |= tryLoad(configJson, JsonElement::getAsString, "containDropMode");
                     String mode = configJson.get("containDropMode").getAsString();
                     try {

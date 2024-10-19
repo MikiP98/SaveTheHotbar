@@ -33,6 +33,8 @@ public class ConfigSaver {
 
         configJson.addProperty("containDropMode", ModConfig.containDropMode.toString());
 
+        configJson.addProperty("mobGraveMaxSpawnRadius", ModConfig.mobGraveMaxSpawnRadius);
+
         // Save the JSON object to a file
         try (FileWriter writer = new FileWriter(configFile)) {
             gson.toJson(configJson, writer);
