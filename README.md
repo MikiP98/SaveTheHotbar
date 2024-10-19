@@ -28,6 +28,7 @@ If `true`, the armor will be kept after death.
 *Defaults to `true`*  
 If `true`, the second hand will be kept after death.
 
+
 ### randomSpread
 
 *Defaults to `false`*  
@@ -59,23 +60,43 @@ The block where the non-kept items will be stored if `containDrop` is `true`.
   After player death, **mob head grave** will be spawned, containing all the non-kept items.  
   Drops items on destruction. Does not drop itself nor any XP.  
   The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  
-  If such location isn't found, a `SACK` grave will be spawned instead.
+  If such location inside `mobGraveMaxSpawnRadius` radius isn't found, a `SACK` grave will be spawned instead.
 - `"GRAVE"`  
   __**[*GRAVESTONES*](https://modrinth.com/mod/pneumono_gravestones)&nbsp; MOD REQUIRED!!!**__  
   After player death, a grave from the `Gravestones` mod will be spawned,  
   containing the non-kept items and XP according to its configuration.
 
+### mobGraveMaxSpawnRadius
+
+*Defaults to `32`*  
+The maximum search radius for a valid mob grave spawning position.  
+If no valid place will be found, a Sack will be spawned instead.
+
+
+### logDeathCoordinatesInChat
+
+*Defaults to `false`*  
+If `true`, the coordinates of the death will be logged in the chat.
+
+### logGraveCoordinatesInChat
+
+*Defaults to `false`*  
+If `true`, the coordinates of the grave will be logged in the chat.
+
 ### Default JSON config file
 
 ```JSON
 {
-	"saveHotbar": true,
-	"saveArmor": true,
-	"saveSecondHand": true,
-	"randomSpread": false,
-	"containDrop": true,
-	"randomDropChance": 0.0,
-	"rarityDropChanceDecrease": 0.0,
-	"containDropMode": "SACK"
+    "saveHotbar": true,
+    "saveArmor": true,
+    "saveSecondHand": true,
+    "randomSpread": false,
+    "containDrop": true,
+    "logDeathCoordinatesInChat": false,
+    "logGraveCoordinatesInChat": false,
+    "randomDropChance": 0.0,
+    "rarityDropChanceDecrease": 2.0,
+    "containDropMode": "GRAVE",
+    "mobGraveMaxSpawnRadius": 32
 }
 ```
