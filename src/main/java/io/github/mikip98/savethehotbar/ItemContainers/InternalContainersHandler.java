@@ -52,11 +52,7 @@ public class InternalContainersHandler {
             LOGGER.error("Couldn't find a valid position for the head grave! Spawning a sack in the place of death instead!");
             spawn_sack(world, position, drop, player);
         } else {
-            Direction facing = Direction.NORTH;
-            float random = world.random.nextFloat();
-            if (random < 0.25) facing = Direction.SOUTH;
-            else if (random < 0.5) facing = Direction.EAST;
-            else if (random < 0.75) facing = Direction.WEST;
+            Direction facing = Direction.random(world.random);
 
             world.setBlockState(gravePos, head.getDefaultState().with(Properties.HORIZONTAL_FACING, facing), 3);
             LOGGER.info("Spawned a mob head grave at " + gravePos);
