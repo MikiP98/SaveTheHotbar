@@ -1,10 +1,8 @@
 package io.github.mikip98.savethehotbar;
 
-//import io.github.mikip98.savethehotbar.models.ModModelLoadingPlugin;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.RenderLayer;
-//import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 
 public class SaveTheHotbarClient implements ClientModInitializer {
 
