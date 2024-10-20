@@ -51,12 +51,12 @@ public class SaveTheHotbar implements ModInitializer {
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "sack"), new BlockItem(SACK, new FabricItemSettings()));
 
 		// Register Skeleton Head Grave
-		SKELETON_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		SKELETON_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE).nonOpaque());
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "skeleton_head_grave"), SKELETON_HEAD_GRAVE);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "skeleton_head_grave"), new BlockItem(SKELETON_HEAD_GRAVE, new FabricItemSettings()));
 
 		// Register Zombie Head Grave
-		ZOMBIE_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE));
+		ZOMBIE_HEAD_GRAVE = new MobHeadGrave(FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE).nonOpaque());
 		Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "zombie_head_grave"), ZOMBIE_HEAD_GRAVE);
 		Registry.register(Registries.ITEM, new Identifier(MOD_ID, "zombie_head_grave"), new BlockItem(ZOMBIE_HEAD_GRAVE, new FabricItemSettings()));
 

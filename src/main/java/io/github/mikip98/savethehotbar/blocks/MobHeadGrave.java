@@ -37,7 +37,7 @@ public class MobHeadGrave extends GraveContainer {
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return VoxelShapes.cuboid(0.25, 0.0, 0.3125, 0.6875, 0.375, 0.6875);
+        return VoxelShapes.cuboid(0.125, -0.375, 0.125, 0.875, 0.4375, 0.875);
     }
 
 
@@ -45,7 +45,7 @@ public class MobHeadGrave extends GraveContainer {
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState()
                 .with(Properties.WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER)
-                .with(FACING, ctx.getPlayerLookDirection().getOpposite());
+                .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
     }
 
     @Override

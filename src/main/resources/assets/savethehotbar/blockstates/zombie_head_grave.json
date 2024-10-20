@@ -1,5 +1,9 @@
 {
 	"variants": {
-		"": { "model": "savethehotbar:block/skeleton_head_grave" }
+		"": [
+			{ "model": "savethehotbar:block/zombie/drowned_head_grave", "weight": 1 },
+			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1 },
+			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3 }
+		]
 	}
 }

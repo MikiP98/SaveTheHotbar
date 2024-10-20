@@ -1,0 +1,8 @@
+{
+	"parent": "savethehotbar:block/mob_head_grave",
+	"textures": {
+		"0": "savethehotbar:block/zombie/drowned",
+		"1": "savethehotbar:block/zombie/drowned_outer_layer",
+		"particle": "savethehotbar:block/zombie/drowned"
+	}
+}
