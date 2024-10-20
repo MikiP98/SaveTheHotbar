@@ -90,13 +90,6 @@ public abstract class PlayerEntityMixin {
             this.inventory.player.sendMessage(Text.literal("Death coordinates: " + this.inventory.player.getX() + ", " + this.inventory.player.getY() + ", " + this.inventory.player.getZ()));
         }
 
-        if (!this.inventory.player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-            // TODO: Create a config for this
-            String message = "Game rule 'keepInventory' is not enabled! `SaveTheHotbar!` mod will not work!";
-            this.inventory.player.sendMessage(Text.of(message));
-            LOGGER.error(message);
-            return;
-        }
         ArrayList<ItemStack> mainDrop = new ArrayList<>();
         ArrayList<Integer> mainDropIDs = new ArrayList<>();
 
@@ -121,6 +114,24 @@ public abstract class PlayerEntityMixin {
             if (EnchantmentHelper.hasVanishingCurse(this.inventory.offHand.get(i))) {
                 this.inventory.offHand.set(i, ItemStack.EMPTY);
             }
+        }
+
+        // Check keepInventory game rule
+        if (!this.inventory.player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+            // TODO: Create a config for this
+            String message = "Game rule 'keepInventory' is not enabled! `SaveTheHotbar!` mod will not work! Dropping all items!";
+            this.inventory.player.sendMessage(Text.of(message));
+            LOGGER.error(message);
+            for (ItemStack stack : this.inventory.main) {
+                dropItem(stack, ModConfig.randomSpread, false);
+            }
+            for (ItemStack stack : this.inventory.armor) {
+                dropItem(stack, ModConfig.randomSpread, false);
+            }
+            for (ItemStack stack : this.inventory.offHand) {
+                dropItem(stack, ModConfig.randomSpread, false);
+            }
+            return;
         }
 
         // Keep hotbar
