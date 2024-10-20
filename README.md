@@ -28,6 +28,12 @@ If `true`, the armor will be kept after death.
 *Defaults to `true`*  
 If `true`, the second hand will be kept after death.
 
+### keepExperience
+
+*Defaults to `false`*
+If `true`, the experience will be kept after death.
+If `false`, the experience will be dropped like in vanilla.
+
 
 ### randomSpread
 
@@ -56,7 +62,7 @@ The block where the non-kept items will be stored if `containDrop` is `true`.
 - `"SACK"`  
   After player death, a sack will be spawned, containing all the non-kept items.  
   Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
-- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"` ***(invisible at the moment, MAY CRASH!!!)***  
+- `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"`   
   After player death, **mob head grave** will be spawned, containing all the non-kept items.  
   Drops items on destruction. Does not drop itself nor any XP.  
   The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.  

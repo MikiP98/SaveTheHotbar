@@ -7,6 +7,7 @@ public abstract class ModConfig extends DefaultConfig {
             saveHotbar = dSaveHotbar,
             saveArmor = dSaveArmor,
             saveSecondHand = dSaveSecondHand,
+            keepExperience = dKeepExperience,
             randomSpread = dRandomSpread,  // Does not do anything if containDrop is true
             containDrop = dContainDrop,
             logDeathCoordinatesInChat = dLogDeathCoordinatesInChat,

@@ -7,6 +7,7 @@ public class DefaultConfig {
             dSaveHotbar = true,
             dSaveArmor = true,
             dSaveSecondHand = true,
+            dKeepExperience = false,
             dRandomSpread = false,  // Does not do anything if containDrop is true
             dContainDrop = false,
             dLogDeathCoordinatesInChat = false,

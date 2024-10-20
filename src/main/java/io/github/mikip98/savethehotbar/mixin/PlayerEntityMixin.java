@@ -4,16 +4,21 @@ import io.github.mikip98.savethehotbar.ItemContainers.GravestoneHandler;
 import io.github.mikip98.savethehotbar.ItemContainers.InternalContainersHandler;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.enums.ExperienceKeptCalculation;
 import io.github.mikip98.savethehotbar.modDetection.DetectedMods;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 
@@ -52,6 +57,8 @@ public abstract class PlayerEntityMixin {
 //        }
 //    }
 
+    @Shadow public int experienceLevel;
+
     @Unique
     private static int rarityToPower(Rarity rarity) {
         return switch (rarity) {
@@ -69,6 +76,9 @@ public abstract class PlayerEntityMixin {
             return ModConfig.randomDropChance / (float) Math.pow(ModConfig.rarityDropChanceDecrease, rarityToPower(rarity));
         }
     }
+
+    @Unique
+    private static final ExperienceKeptCalculation experienceKeptCalculation = ExperienceKeptCalculation.VANILLA;
 
     /**
      * @author mikip98
@@ -219,6 +229,37 @@ public abstract class PlayerEntityMixin {
             }
             for (ItemStack stack : drop) {
                 dropItem(stack, ModConfig.randomSpread, false);
+            }
+
+            // Manage EXPERIENCE
+            if (!ModConfig.keepExperience) {
+                int experienceToDrop = experienceKeptCalculation.calculateExperienceKept(this.inventory.player);
+                if (experienceToDrop > 0) {
+                    this.inventory.player.experienceProgress = 0.0F;
+                    this.inventory.player.experienceLevel = 0;
+                    this.inventory.player.totalExperience = 0;
+
+                    World world = this.inventory.player.getWorld();
+                    if (!world.isClient()) {
+                        int expEntitiesCount = world.getRandom().nextInt(7) + 1;
+
+                        int[] extEntitiesWights = new int[expEntitiesCount];
+                        int totalWeight = 0;
+                        for (int i = 0; i < expEntitiesCount; i++) {
+                            extEntitiesWights[i] = world.getRandom().nextInt(9) + 1;
+                            totalWeight += extEntitiesWights[i];
+                        }
+
+                        int[] expEntitiesExperience = new int[expEntitiesCount];
+                        for (int i = 0; i < expEntitiesCount; i++) {
+                            expEntitiesExperience[i] = extEntitiesWights[i] * experienceToDrop / totalWeight;
+                        }
+
+                        for (int i = 0; i < expEntitiesCount; i++) {
+                            world.spawnEntity(new ExperienceOrbEntity(world, this.inventory.player.getX(), this.inventory.player.getY(), this.inventory.player.getZ(), expEntitiesExperience[i]));
+                        }
+                    }
+                }
             }
         }
     }

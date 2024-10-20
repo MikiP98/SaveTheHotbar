@@ -30,6 +30,7 @@ public class ConfigReader {
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveHotbar");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveArmor");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveSecondHand");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "keepExperience");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "randomSpread");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "containDrop");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "logDeathCoordinatesInChat");

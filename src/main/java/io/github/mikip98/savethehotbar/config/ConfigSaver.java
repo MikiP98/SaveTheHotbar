@@ -23,6 +23,7 @@ public class ConfigSaver {
         configJson.addProperty("saveHotbar", ModConfig.saveHotbar);
         configJson.addProperty("saveArmor", ModConfig.saveArmor);
         configJson.addProperty("saveSecondHand", ModConfig.saveSecondHand);
+        configJson.addProperty("keepExperience", ModConfig.keepExperience);
         configJson.addProperty("randomSpread", ModConfig.randomSpread);
         configJson.addProperty("containDrop", ModConfig.containDrop);
         configJson.addProperty("logDeathCoordinatesInChat", ModConfig.logDeathCoordinatesInChat);

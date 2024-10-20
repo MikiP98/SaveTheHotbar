@@ -42,6 +42,14 @@ public class ModConfigScreen {
         );
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startBooleanToggle(Text.literal("Keep Experience"), ModConfig.containDrop)
+                .setTooltip(Text.literal("If `True`, the experience will be kept after death. If `False`, the experience will be dropped like in vanilla. GRAVESTONE's keep exp setting overrides the dropping!"))
+                .setDefaultValue(DefaultConfig.dContainDrop)
+                .setSaveConsumer(value -> ModConfig.containDrop = value)
+                .build()
+        );
+
+        rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Random Item Spread"), ModConfig.randomSpread)
                 .setTooltip(Text.literal("If `False`, all the items will drop in the exact position of your death and will not spread outwards. If `True`, all the dropped items will be spread randomly in all directions"))
                 .setDefaultValue(DefaultConfig.dRandomSpread)
@@ -75,7 +83,21 @@ public class ModConfigScreen {
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startEnumSelector(Text.literal("Contain Drop Mode"), ContainDropMode.class, ModConfig.containDropMode)
-                .setTooltip(Text.literal("Changes the block in which non-kept items will be stored after death if `Contain Drop` is `True`"))
+                .setTooltip(Text.literal("""
+                    Changes the block in which non-kept items will be stored after death if `Contain Drop` is `True`.
+                        - `"SACK"`
+                          After player death, a sack will be spawned, containing all the non-kept items.
+                          Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
+                        - `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"`
+                          After player death, **mob head grave** will be spawned, containing all the non-kept items.
+                          Drops items on destruction. Does not drop itself nor any XP.
+                          The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.
+                          If such location inside `mobGraveMaxSpawnRadius` radius isn't found, a `SACK` grave will be spawned instead.
+                        - `"GRAVE"`
+                          GRAVESTONES https://modrinth.com/mod/pneumono_gravestones MOD REQUIRED!!!
+                          After player death, a grave from the `Gravestones` mod will be spawned,
+                          containing the non-kept items and XP according to its configuration."""
+                ))
                 .setDefaultValue(DefaultConfig.dContainDropMode)
                 .setSaveConsumer(value -> ModConfig.containDropMode = value)
                 .build()
