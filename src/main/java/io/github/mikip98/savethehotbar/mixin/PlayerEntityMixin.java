@@ -55,8 +55,6 @@ public abstract class PlayerEntityMixin {
 //        }
 //    }
 
-    @Shadow public int experienceLevel;
-
     @Unique
     private static int rarityToPower(Rarity rarity) {
         return switch (rarity) {
