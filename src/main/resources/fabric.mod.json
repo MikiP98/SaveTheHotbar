@@ -3,15 +3,25 @@
 	"id": "savethehotbar",
 	"version": "${version}",
 	"name": "SaveTheHotbar!",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A balanced middle ground between keepInventory true and false",
 	"authors": [
-		"Mikołaj Pokora"
+		"Mikołaj Pokora (Miki-Liki)"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/mod/savethehotbar!",
+		"sources": "https://github.com/MikiP98/SaveTheHotbar",
+		"issues": "https://github.com/MikiP98/SaveTheHotbar/issues"
 	},
-	"license": "CC0-1.0",
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.modrinth": "https://modrinth.com/mod/savethehotbar!",
+				"modmenu.github_releases": "https://github.com/MikiP98/SaveTheHotbar/releases",
+				"modmenu.kofi": "https://ko-fi.com/miki277733"
+			}
+		}
+	},
+	"license": "GPLv3",
 	"icon": "assets/savethehotbar/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -26,19 +36,12 @@
 		]
 	},
 	"mixins": [
-		"savethehotbar.mixins.json",
-		{
-			"config": "savethehotbar.client.mixins.json",
-			"environment": "client"
-		}
+		"savethehotbar.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.7",
+		"fabricloader": ">=0.17.2",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
