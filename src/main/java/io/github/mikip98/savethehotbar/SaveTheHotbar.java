@@ -62,7 +62,7 @@ public class SaveTheHotbar implements ModInitializer {
 		);
 	}
 
-	public static Block registerWithItem(Block block, String id) {
+	protected static Block registerWithItem(Block block, String id) {
 		Registry.register(Registries.BLOCK, getId(id), block);
 		Registry.register(Registries.ITEM, getId(id), new BlockItem(block, new FabricItemSettings()));
 		return block;
