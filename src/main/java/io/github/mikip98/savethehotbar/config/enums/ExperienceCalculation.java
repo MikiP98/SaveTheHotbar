@@ -1,6 +1,9 @@
-package io.github.mikip98.savethehotbar.enums;
+package io.github.mikip98.savethehotbar.config.enums;
 
+import io.github.mikip98.savethehotbar.config.ModConfig;
 import net.minecraft.entity.player.PlayerEntity;
+
+import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 /*
 MIT License
@@ -25,26 +28,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-public enum ExperienceKeptCalculation {
+public enum ExperienceCalculation {
     ALL(entity -> entity.totalExperience),
-    THREE_QUARTERS(entity -> (int)(entity.totalExperience * 3f / 4f)),
-    TWO_THIRDS(entity -> (int)(entity.totalExperience * 2f / 3f)),
-    HALF(entity -> (int)(entity.totalExperience / 2f)),
-    ONE_THIRD(entity -> (int)(entity.totalExperience / 3f)),
-    ONE_QUARTER(entity -> (int)(entity.totalExperience / 4f)),
+    FRACTION(entity -> (int)(entity.totalExperience * ModConfig.experienceFraction)),
     VANILLA(entity -> entity.experienceLevel * 7);
 
     private final Calculation calculation;
 
-    ExperienceKeptCalculation(Calculation calculation) {
+    ExperienceCalculation(Calculation calculation) {
         this.calculation = calculation;
     }
 
-    public int calculateExperienceKept(PlayerEntity entity) {
-        return this.calculation.calculateExperienceKept(entity);
+    public int calculateExperience(PlayerEntity entity) {
+        return this.calculation.calculateExperience(entity);
     }
 
     public interface Calculation {
-        int calculateExperienceKept(PlayerEntity entity);
+        int calculateExperience(PlayerEntity entity);
     }
 }

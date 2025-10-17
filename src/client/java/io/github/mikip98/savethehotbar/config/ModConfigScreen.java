@@ -1,6 +1,9 @@
 package io.github.mikip98.savethehotbar.config;
 
-import io.github.mikip98.savethehotbar.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
+import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
+import io.github.mikip98.savethehotbar.config.io.ConfigSaver;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -18,13 +21,20 @@ public class ModConfigScreen {
         ConfigCategory rootCategory = builder.getOrCreateCategory(Text.literal("General Settings"));
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startBooleanToggle(Text.of("Enabled"), ModConfig.enabled)
+                .setTooltip(Text.of("If the mod should be enabled"))
+                .setDefaultValue(ModConfig.dEnabled)
+                .setSaveConsumer(value -> ModConfig.enabled = value)
+                .build()
+        );
+
+        rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Save Hotbar"), ModConfig.saveHotbar)
                 .setTooltip(Text.literal("Keep the all the hotbar items after death"))
                 .setDefaultValue(DefaultConfig.dSaveHotbar)
                 .setSaveConsumer(value -> ModConfig.saveHotbar = value)
                 .build()
         );
-
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Save Armor"), ModConfig.saveArmor)
                 .setTooltip(Text.literal("Keep the all the armor pieces after death"))
@@ -32,7 +42,6 @@ public class ModConfigScreen {
                 .setSaveConsumer(value -> ModConfig.saveArmor = value)
                 .build()
         );
-
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Save Second Hand"), ModConfig.saveSecondHand)
                 .setTooltip(Text.literal("Keep the second hand item after death"))
@@ -42,12 +51,43 @@ public class ModConfigScreen {
         );
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Keep Experience"), ModConfig.containDrop)
-                .setTooltip(Text.literal("If `True`, the experience will be kept after death. If `False`, the experience will be dropped like in vanilla. GRAVESTONE's keep exp setting overrides the dropping!"))
-                .setDefaultValue(DefaultConfig.dContainDrop)
-                .setSaveConsumer(value -> ModConfig.containDrop = value)
+                .startEnumSelector(Text.of("Experience Behaviour"), ExperienceMode.class, ModConfig.experienceBehaviour)
+                .setTooltip(Text.of("""
+                        Determines what will happen to the player's experience after death.
+                        - DROP -> Experience will drop in the place of death
+                        - STORE -> Expereince will be kept safe in the grave (required Contain Drop to be enabled)
+                        - KEEP -> Experience is kept after death
+                        The experience amount, either dropped, stored or kept, is determined by Experience Calculation Mode
+                        """))
+                .setDefaultValue(ModConfig.dExperienceBehaviour)
+                .setSaveConsumer(value -> ModConfig.experienceBehaviour = value)
                 .build()
         );
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startEnumSelector(Text.of("Experience Calculation Mode"), ExperienceCalculation.class, ModConfig.experienceCalculationMode)
+                .setTooltip(Text.of("""
+                        Determines the amount of EXP that will be dropped, stored or kept after death.=
+                        - ALL -> The experience stays unchanged
+                        - FRACTION -> The experience is multiplied by Experience Fraction
+                        - VANILLA -> New experience will be equal to '{player_level} * 7'
+                        The modes are sorted from the most to the least forgiving
+                        ALL wil result in the most EXP, VANILLA with the least*
+                        *FRACTION mode depends on the 'Experience Fraction' setting, if set very low it can result in less exp than VANILLA
+                        """))
+                .setDefaultValue(ModConfig.dExperienceCalculationMode)
+                .setSaveConsumer(value -> ModConfig.experienceCalculationMode = value)
+                .build()
+        );
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startFloatField(Text.of("Experience Fraction"), ModConfig.experienceFraction)
+                .setTooltip(Text.of("The fraction of experience that should be dropped/stored/kept after death"))
+                .setDefaultValue(ModConfig.dExperienceFraction)
+                .setMax(1.0f)
+                .setMin(0.0f)
+                .setSaveConsumer(value -> ModConfig.experienceFraction = value)
+                .build()
+        );
+
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(Text.literal("Random Item Spread"), ModConfig.randomSpread)
@@ -115,12 +155,20 @@ public class ModConfigScreen {
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startFloatField(Text.literal("Rarity Drop Chance Decrease"), ModConfig.rarityDropChanceDecrease)
-                .setTooltip(Text.literal("A divider of the random drop chance for each Rarity increase (e.g. item with rarity UNCOMMON will have the drop chance halved and RARE will have the drop chance halved again)"))
+                .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, rdcd = 20%, UNCOMMON item will have 16% change to drop)"))
                 .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> ModConfig.rarityDropChanceDecrease = value)
                 .build()
         );
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startFloatField(Text.literal("Luck Drop Chance Decrease"), ModConfig.luckDropChanceDecrease)
+                .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, ldcd = 20%, with luck 1, item will have 16% change to drop)"))
+                .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
+                .setMin(0.0f)
+                .setSaveConsumer(value -> ModConfig.luckDropChanceDecrease = value)
+                .build()
+        ); // TODO
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startIntField(Text.literal("Mob Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)
@@ -130,8 +178,33 @@ public class ModConfigScreen {
                 .setSaveConsumer(value -> ModConfig.mobGraveMaxSpawnRadius = value)
                 .build()
         );
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startIntField(Text.literal("Mob Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)
+                .setTooltip(Text.literal("The maximum search radius for a valid mob grave spawning position. If no valid place will be found, a Sack will be spawned instead"))
+                .setDefaultValue(DefaultConfig.dMobGraveMaxSpawnRadius)
+                .setMin(0)
+                .setSaveConsumer(value -> ModConfig.mobGraveMaxSpawnRadius = value)
+                .build()
+        ); // TODO
+        rootCategory.addEntry(ConfigEntryBuilder.create()
+                .startIntField(Text.literal("Mob Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)
+                .setTooltip(Text.literal("The maximum search radius for a valid mob grave spawning position. If no valid place will be found, a Sack will be spawned instead"))
+                .setDefaultValue(DefaultConfig.dMobGraveMaxSpawnRadius)
+                .setMin(0)
+                .setSaveConsumer(value -> ModConfig.mobGraveMaxSpawnRadius = value)
+                .build()
+        ); // TODO
+
+        ConfigCategory modSupportCategory = builder.getOrCreateCategory(Text.literal("Mod Support Settings"));
+
+        modSupportCategory.addEntry(ConfigEntryBuilder.create()
+                .startBooleanToggle(Text.of("Save Arsenal Back Slot"), ModConfig.saveArsenal)
+                .setTooltip(Text.of("Keep Arsenal's back slot after death"))
+                .setDefaultValue(ModConfig.dSaveArsenal)
+                .setSaveConsumer(value -> ModConfig.saveArsenal = value)
+                .build()
+        );
 
         return builder.build();
     }
-
 }
