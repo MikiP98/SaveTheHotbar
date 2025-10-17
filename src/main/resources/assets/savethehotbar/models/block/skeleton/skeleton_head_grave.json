@@ -1,8 +1,6 @@
 {
 	"parent": "savethehotbar:block/mob_head_grave",
 	"textures": {
-		"0": "savethehotbar:block/skeleton/skeleton",
-		"1": "savethehotbar:block/transparent",
-		"particle": "savethehotbar:block/skeleton/skeleton"
+		"0": "savethehotbar:block/skeleton/skeleton"
 	}
 }

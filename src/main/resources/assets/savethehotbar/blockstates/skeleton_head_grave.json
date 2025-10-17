@@ -1,23 +1,23 @@
 {
 	"variants": {
 		"facing=north": [
-			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1 },
 			{ "model": "savethehotbar:block/skeleton/skeleton_head_grave", "weight": 3 },
+			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1 },
 			{ "model": "savethehotbar:block/skeleton/stray_head_grave", "weight": 1 }
 		],
 		"facing=south": [
-			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 180 },
 			{ "model": "savethehotbar:block/skeleton/skeleton_head_grave", "weight": 3, "y": 180 },
+			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 180 },
 			{ "model": "savethehotbar:block/skeleton/stray_head_grave", "weight": 1, "y": 180 }
 		],
 		"facing=west": [
-			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 270 },
 			{ "model": "savethehotbar:block/skeleton/skeleton_head_grave", "weight": 3, "y": 270 },
+			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 270 },
 			{ "model": "savethehotbar:block/skeleton/stray_head_grave", "weight": 1, "y": 270 }
 		],
 		"facing=east": [
-			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 90 },
 			{ "model": "savethehotbar:block/skeleton/skeleton_head_grave", "weight": 3, "y": 90 },
+			{ "model": "savethehotbar:block/skeleton/bogged_head_grave", "weight": 1, "y": 90 },
 			{ "model": "savethehotbar:block/skeleton/stray_head_grave", "weight": 1, "y": 90 }
 		]
 	}
