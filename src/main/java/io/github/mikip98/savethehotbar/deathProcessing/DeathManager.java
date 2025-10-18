@@ -53,8 +53,8 @@ public class DeathManager {
         LOGGER.info("Calculating new EXP amount...");
         final int exp = ModConfig.experienceCalculationMode.calculateExperience(player);
 
-        final SlotHandler slotHandler = new SlotHandler(inventory);
         LOGGER.info("Checking for non-kept items...");
+        final SlotHandler slotHandler = new SlotHandler(inventory);
         final SlotHandler.NonKeptItems nonKeptItems = slotHandler.getNonKeptItems();
 
         LOGGER.info("Handling the non-kept items...");
@@ -72,7 +72,8 @@ public class DeathManager {
         player.totalExperience = 0;
         if (exp > 0) {
             LOGGER.info("Handling not stored experience...");
-            if (ModConfig.experienceBehaviour == ExperienceMode.DROP) dropEXP(exp);
+            // Drop teh EXP if the mode is set to 'DROP' or 'containDrop' is false as no grave will spawn
+            if (ModConfig.experienceBehaviour == ExperienceMode.DROP || !ModConfig.containDrop) dropEXP(exp);
             else if (ModConfig.experienceBehaviour == ExperienceMode.KEEP) player.addExperience(exp);
         }
     }

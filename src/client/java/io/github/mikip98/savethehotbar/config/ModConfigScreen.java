@@ -157,6 +157,7 @@ public class ModConfigScreen {
                 .startFloatField(Text.literal("Rarity Drop Chance Decrease"), ModConfig.rarityDropChanceDecrease)
                 .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, rdcd = 20%, UNCOMMON item will have 16% change to drop)"))
                 .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
+                .setMax(1.0f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> ModConfig.rarityDropChanceDecrease = value)
                 .build()
@@ -165,10 +166,11 @@ public class ModConfigScreen {
                 .startFloatField(Text.literal("Luck Drop Chance Decrease"), ModConfig.luckDropChanceDecrease)
                 .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, ldcd = 20%, with luck 1, item will have 16% change to drop)"))
                 .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
+                .setMax(1.0f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> ModConfig.luckDropChanceDecrease = value)
                 .build()
-        ); // TODO
+        );
 
         rootCategory.addEntry(ConfigEntryBuilder.create()
                 .startIntField(Text.literal("Mob Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)

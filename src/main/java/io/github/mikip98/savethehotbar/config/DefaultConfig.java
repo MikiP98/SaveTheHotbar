@@ -24,8 +24,8 @@ public abstract class DefaultConfig {
 
     public static final float
             dRandomDropChance = .0f,
-            dRarityDropChanceDecrease = 20.0f,
-            dLuckDropChanceDecrease = 20.0f;
+            dRarityDropChanceDecrease = 0.2f,
+            dLuckDropChanceDecrease = 0.2f;
 
     public static final ContainDropMode dContainDropMode = ContainDropMode.SACK;
 

@@ -31,12 +31,7 @@ public class SlotHandler implements SlotSupport {
     // ------------ CHECK FOR NON-KEPT ITEMS ---------------------------------------------------------------------------
     public NonKeptItems getNonKeptItems() {
         LOGGER.info("Checking for vanilla non-kept items...");
-        VanillaDropSet vanillaDropSet = null;
-        try {
-            vanillaDropSet = getVanillaNonKeptItems();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        final VanillaDropSet vanillaDropSet = getVanillaNonKeptItems();
         LOGGER.info("Checking for modded non-kept items...");
         return new NonKeptItems(vanillaDropSet.vanillaDrop, vanillaDropSet.vanillaDropIDs, getModdedNonKeptItems());
     }
@@ -108,10 +103,10 @@ public class SlotHandler implements SlotSupport {
 
         // Luck
         final StatusEffectInstance luck = player.getStatusEffect(StatusEffects.LUCK);
-        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.luckDropChanceDecrease) / 100.0f;
+        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.luckDropChanceDecrease);
 
         // Item rarity
-        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.rarityDropChanceDecrease) / 100.0f;
+        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.rarityDropChanceDecrease);
 
         // rdc = 20%
         // rrdcd = 20%
