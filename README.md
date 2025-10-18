@@ -7,9 +7,10 @@
 ## Description
 
 **`SaveTheHotbar!`** is a balanced alternative to `keepInventory` and gravestone type mods.  
-It allows you to keep the armour or the hotbar after death and drop the rest,
-so that you don't lose the armament required to get your loot back!
+It allows you to keep the armour or the hotbar after death and drop the rest of the inventory,  
+so that you don't lose the armament required to get the rest of your loot back!
 
+<br>
 <hr>
 
 ## Configuration
@@ -148,9 +149,10 @@ If `true`, the coordinates of the death will be logged in the chat.
 
 ### logGraveCoordinatesInChat
 
-*Defaults to `false`*  
+*Defaults to `false`*
 If `true`, the coordinates of the grave will be logged in the chat.
 
+<br>
 <hr>
 
 ## Roadmap:
