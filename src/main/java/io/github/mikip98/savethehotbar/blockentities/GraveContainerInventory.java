@@ -37,6 +37,14 @@ public interface GraveContainerInventory extends Inventory {
     default int size() {
         return getItems().size();
     }
+    default int itemCount() {
+        final DefaultedList<ItemStack> items = getItems();
+        int count = 0;
+        for (ItemStack item : items) {
+            if (!item.isEmpty()) ++count;
+        }
+        return count;
+    }
 
     /**
      * Checks if the inventory is empty.
@@ -111,12 +119,10 @@ public interface GraveContainerInventory extends Inventory {
     /**
      * Marks the state as dirty.
      * Must be called after changes in the inventory, so that the game can properly save
-     * the inventory contents and notify neighboring blocks of inventory changes.
+     * the inventory contents and notify neighbouring blocks of inventory changes.
      */
     @Override
-    default void markDirty() {
-        // Override if you want behavior.
-    }
+    default void markDirty() {}
 
     /**
      * @return true if the player can use the inventory, false otherwise.

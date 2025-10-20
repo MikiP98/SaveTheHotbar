@@ -1,9 +1,24 @@
 {
 	"variants": {
-		"": [
+		"facing=north": [
+			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3 },
 			{ "model": "savethehotbar:block/zombie/drowned_head_grave", "weight": 1 },
-			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1 },
-			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3 }
+			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1 }
+		],
+		"facing=south": [
+			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3, "y": 180 },
+			{ "model": "savethehotbar:block/zombie/drowned_head_grave", "weight": 1, "y": 180 },
+			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1, "y": 180 }
+		],
+		"facing=west": [
+			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3, "y": 270 },
+			{ "model": "savethehotbar:block/zombie/drowned_head_grave", "weight": 1, "y": 270 },
+			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1, "y": 270 }
+		],
+		"facing=east": [
+			{ "model": "savethehotbar:block/zombie/zombie_head_grave", "weight": 3, "y": 90 },
+			{ "model": "savethehotbar:block/zombie/drowned_head_grave", "weight": 1, "y": 90 },
+			{ "model": "savethehotbar:block/zombie/husk_head_grave", "weight": 1, "y": 90 }
 		]
 	}
 }

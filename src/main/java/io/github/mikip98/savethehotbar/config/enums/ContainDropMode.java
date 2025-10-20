@@ -1,4 +1,4 @@
-package io.github.mikip98.savethehotbar.enums;
+package io.github.mikip98.savethehotbar.config.enums;
 
 public enum ContainDropMode {
     SACK,

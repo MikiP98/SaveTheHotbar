@@ -1,7 +1,8 @@
-package io.github.mikip98.savethehotbar.ItemContainers;
+package io.github.mikip98.savethehotbar.deathProcessing.moddedGraveHandlers;
 
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;
+import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -28,7 +29,10 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 /*
 MIT License
@@ -54,31 +58,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 public class GravestoneHandler extends GravestoneCreation {
+    @FunctionalInterface
+    public interface DropFunction {
+        void dropItem(ItemStack stack);
+    }
 
     // Overwrite
     public static void handleGravestones(
             PlayerEntity player,
-            ArrayList<ItemStack> mainDrop, ArrayList<Integer> mainDropIDs,
-            ArrayList<ItemStack> armorDrop, ArrayList<Integer> armorDropIDs,
-            ArrayList<ItemStack> secondHandDrop, ArrayList<Integer> secondHandDropIDs
+            List<ItemStack> vanillaDrop, List<Integer> vanillaDropIDs,
+            Map<SupportedSlotMods, List<ItemStack>> moddedDrop,
+            DropFunction dropFunction
     ) {
         logger("----- ----- Beginning Gravestone Work ----- -----");
         logger("This mostly exists for debugging purposes, but might be useful for server owners. " +
                 "If you don't want to see all this every time someone dies, disable 'console_info' in the config!");
 
-        World world = player.getWorld();
-        BlockPos playerPos = player.getBlockPos();
-        String playerName = player.getName().getString();
-        GameProfile playerProfile = player.getGameProfile();
+        final World world = player.getWorld();
+        final BlockPos playerPos = player.getBlockPos();
+        final String playerName = player.getName().getString();
+        final GameProfile playerProfile = player.getGameProfile();
 
-        // Removed the check
-//        if (world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-//            logger("Nevermind, keepInventory is on!");
-//            logger("----- ----- Ending Gravestone Work ----- -----");
-//            return;
-//        }
-
-        BlockPos gravestonePos = GravestonePlacement.placeGravestone(world, playerPos);
+        final BlockPos gravestonePos = GravestonePlacement.placeGravestone(world, playerPos);
 
         if (gravestonePos == null) {
             logger("Gravestone was not placed successfully! The items have been dropped on the floor", LoggerInfoType.ERROR);
@@ -89,7 +90,7 @@ public class GravestoneHandler extends GravestoneCreation {
             }
             Gravestones.LOGGER.info("Placed {}'s{} Gravestone at {}", playerName, uuid, posToString(gravestonePos));
 
-            MinecraftServer server = world.getServer();
+            final MinecraftServer server = world.getServer();
             if (server != null && Gravestones.BROADCAST_COORDINATES_IN_CHAT.getValue()) {
                 server.getPlayerManager().broadcast(Text.translatable("gravestones.grave_spawned", playerName, posToString(gravestonePos)).formatted(Formatting.AQUA), false);
             }
@@ -99,9 +100,9 @@ public class GravestoneHandler extends GravestoneCreation {
                 gravestone.setSpawnDate(GravestoneTime.getCurrentTimeAsString(), world.getTime());
                 insertPlayerItemsAndExperience(
                         gravestone, player,
-                        mainDrop, mainDropIDs,
-                        armorDrop, armorDropIDs,
-                        secondHandDrop, secondHandDropIDs
+                        vanillaDrop, vanillaDropIDs,
+                        moddedDrop,
+                        dropFunction
                 );  // Added drop
                 insertModData(player, gravestone);
 
@@ -166,32 +167,31 @@ public class GravestoneHandler extends GravestoneCreation {
     public static void insertPlayerItemsAndExperience(
             TechnicalGravestoneBlockEntity gravestone,
             PlayerEntity player,
-            ArrayList<ItemStack> mainDrop, ArrayList<Integer> mainDropIDs,
-            ArrayList<ItemStack> armorDrop, ArrayList<Integer> armorDropIDs,
-            ArrayList<ItemStack> secondHandDrop, ArrayList<Integer> secondHandDropIDs
+            List<ItemStack> vanillaDrop, List<Integer> vanillaDropIDs,
+            Map<SupportedSlotMods, List<ItemStack>> moddedDrop,
+            DropFunction dropFunction
     ) {
         logger("Inserting Inventory items and experience into grave...");
 
-        // Get the items from the specified lists instead of the inventory
-//        PlayerInventory inventory = player.getInventory();
-//
-//        for (int i = 0; i < inventory.size(); i++) {
-//            if (!EnchantmentHelper.hasVanishingCurse(inventory.getStack(i))) {
-//                gravestone.setStack(i, inventory.removeStack(i));
-//            } else {
-//                inventory.removeStack(i);
-//            }
-//        }
-
         // Main -> Armor -> Offhand
-        for (int i = 0; i < mainDrop.size(); i++) {
-            gravestone.setStack(mainDropIDs.get(i), mainDrop.get(i));
+        for (int i = 0; i < vanillaDrop.size(); i++) {
+            gravestone.setStack(vanillaDropIDs.get(i), vanillaDrop.get(i));
         }
-        for (int i = 0; i < armorDrop.size(); i++) {
-            gravestone.setStack(armorDropIDs.get(i) + mainDrop.size(), armorDrop.get(i));
-        }
-        for (int i = 0; i < secondHandDrop.size(); i++) {
-            gravestone.setStack(secondHandDropIDs.get(i) + mainDrop.size() + armorDrop.size(), secondHandDrop.get(i));
+        // Modded
+        int j = vanillaDrop.size();
+        for (List<ItemStack> drop : moddedDrop.values()) {
+            for (ItemStack item : drop) {
+                if (item.isEmpty()) continue;
+                if (j > gravestone.size() - 1) {
+                    final String message = "WARNING: Item did not fit in the Gravestone!!! Dropping it on the ground!";
+                    LOGGER.warn(message);
+                    player.sendMessage(Text.literal(message).formatted(Formatting.YELLOW), false);
+                    dropFunction.dropItem(item);
+                } else {
+                    gravestone.setStack(j, item);
+                    ++j;
+                }
+            }
         }
 
         logger("Items inserted!");

@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -21,6 +21,24 @@ repositories {
 	maven { url "https://maven.terraformersmc.com/releases/" }
 
 	maven { url "https://jitpack.io" }
+
+	// Arsenal
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
+	// Cardinal Components API (required for Arsenal)
+	maven {
+		name = 'Ladysnake Mods'
+		url = 'https://maven.ladysnake.org/releases'
+	}
 }
 
 loom {
@@ -51,13 +69,17 @@ dependencies {
 
 	modImplementation files("./libs/gravestones-1.0.9-1.20.1.jar")
 	modImplementation "com.github.pneumonoisnotavailable:pneumonocore:v1.1.4-1.20.1"
+
+	modCompileOnly "maven.modrinth:arsenal:${arsenal_version}"
+	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
+	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
 }
 
 processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": inputs.properties.version
 	}
 }
 
@@ -76,8 +98,10 @@ java {
 }
 
 jar {
+	inputs.property "archivesName", project.base.archivesName
+
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
 

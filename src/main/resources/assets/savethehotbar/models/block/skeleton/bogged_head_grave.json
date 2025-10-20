@@ -1,8 +1,7 @@
 {
-	"parent": "savethehotbar:block/mob_head_grave",
+	"parent": "savethehotbar:block/mob_head_grave_overlay",
 	"textures": {
 		"0": "savethehotbar:block/skeleton/bogged",
-		"1": "savethehotbar:block/skeleton/bogged_overlay",
-		"particle": "savethehotbar:block/skeleton/bogged"
+		"1": "savethehotbar:block/skeleton/bogged_overlay"
 	}
 }

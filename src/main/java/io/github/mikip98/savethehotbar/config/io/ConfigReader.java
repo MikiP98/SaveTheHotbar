@@ -1,9 +1,12 @@
-package io.github.mikip98.savethehotbar.config;
+package io.github.mikip98.savethehotbar.config.io;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.github.mikip98.savethehotbar.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
+import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
@@ -27,10 +30,17 @@ public class ConfigReader {
                 boolean needsUpdating = false;
                 if (configJson != null) {
                     // Load the static fields from the JSON object
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "enabled");
+
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveHotbar");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveArmor");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveSecondHand");
-                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "keepExperience");
+
+                    needsUpdating |= tryLoadEnum(configJson, "experienceBehaviour", ExperienceMode::valueOf);
+
+                    needsUpdating |= tryLoadEnum(configJson, "experienceCalculationMode", ExperienceCalculation::valueOf);
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "experienceFraction");
+
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "randomSpread");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "containDrop");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "logDeathCoordinatesInChat");
@@ -38,17 +48,16 @@ public class ConfigReader {
 
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "randomDropChance");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "rarityDropChanceDecrease");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsFloat, "luckDropChanceDecrease");
 
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsInt, "sackMaxSpawnRadius");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsInt, "mobGraveMaxSpawnRadius");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "allowGravesToSpawnOnSlabs");
 
-//                    needsUpdating |= tryLoad(configJson, JsonElement::getAsString, "containDropMode");
-                    String mode = configJson.get("containDropMode").getAsString();
-                    try {
-                        ModConfig.containDropMode = ContainDropMode.valueOf(mode);
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.warn("Invalid containDropMode value: {}, setting to default: {}", mode, DefaultConfig.dContainDropMode);
-                        needsUpdating = true;
-                    }
+                    needsUpdating |= tryLoadEnum(configJson, "containDropMode", ContainDropMode::valueOf);
+
+                    // ------------ MOD SUPPORT ------------
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveArsenal");
                 }
 
                 if (needsUpdating) {
@@ -59,14 +68,24 @@ public class ConfigReader {
                 e.printStackTrace();
             }
         }
-//        else {
-//            saveConfigToFile();  // Create the config file
-//        }
+        else {
+            ConfigSaver.saveConfigToFile();  // Create the config file
+        }
     }
     private static <T> boolean tryLoad(JsonObject configJson, Function<JsonElement, T> getter, String fieldName) {
         try {
             T value = getter.apply(configJson.get(fieldName));
             ModConfig.class.getField(fieldName).set(ModConfig.class, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
+        return false;
+    }
+    private static <V> boolean tryLoadEnum(JsonObject configJson, String fieldName, Function<String, V> setter) {
+        try {
+            String value = configJson.get(fieldName).getAsString();
+            ModConfig.class.getField(fieldName).set(ModConfig.class, setter.apply(value));
         } catch (Exception e) {
             e.printStackTrace();
             return true;

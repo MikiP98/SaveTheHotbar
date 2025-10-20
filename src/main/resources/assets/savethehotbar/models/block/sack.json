@@ -4,7 +4,7 @@
 	"textures": {
 		"0": "item/leather",
 		"1": "block/black_wool",
-		"particle": "item/leather"
+		"particle": "#0"
 	},
 	"elements": [
 		{
