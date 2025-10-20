@@ -157,18 +157,4 @@ If `true`, the coordinates of the grave will be logged in the chat.
 
 ## Roadmap:
 
-### done:
-
-- Graves can now store EXP
-- Implemented new EXP calculation modes and added a setting to control it
-- Added Arsenal mod support, the back slot can now be kept/dropped after death
-- Fixed some bugs
-- Sacks now have a small spawning radius to prevent destroying blocks at the death location
-- More config options
-- Luck effect can now decrease the chance of the item dropping randomly after death
-- Auto KeepInventory configuration if KeepInventory false is detected and the mod is enabled
-- Added global on/off toggle
-
-### TODO:
-
 - Make config translations translatable through translation files
