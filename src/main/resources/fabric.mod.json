@@ -47,5 +47,8 @@
 	},
 	"recommends": {
 		"modmenu": "*"
+	},
+	"breaks": {
+		"gravestones": ">1.0.12"
 	}
 }
