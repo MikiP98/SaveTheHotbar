@@ -17,10 +17,10 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 
+	// cloth-config
 	maven { url "https://maven.shedaniel.me/" }
+	// Mod Menu
 	maven { url "https://maven.terraformersmc.com/releases/" }
-
-	maven { url "https://jitpack.io" }
 
 	// Arsenal
 	exclusiveContent {
@@ -67,10 +67,10 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 
-	modImplementation files("./libs/gravestones-1.0.9-1.20.1.jar")
-	modImplementation "com.github.pneumonoisnotavailable:pneumonocore:v1.1.4-1.20.1"
+	modCompileOnly "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}"
+	modCompileOnly "maven.modrinth:pneumono_core:${project.pneumonocore_version}"
 
-	modCompileOnly "maven.modrinth:arsenal:${arsenal_version}"
+	modCompileOnly "maven.modrinth:arsenal:${project.arsenal_version}"
 	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
 	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
 }
