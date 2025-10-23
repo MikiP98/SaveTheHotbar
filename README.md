@@ -158,3 +158,14 @@ If `true`, the coordinates of the grave will be logged in the chat.
 ## Roadmap:
 
 - Make config translations translatable through translation files
+- Update Pneumono Gravestones support to the latest Pneumono Gravestones version
+  - Last working version of PG is `1.0.12-1.20.1`
+  - Need to wait for an API update
+- Add an option so that after internal grave destruction, items are given to the player instead of being dropped
+  - Add an option for them to be returned into their original slot they were taken from
+- Port to newer MC versions:
+  - 1.20.6
+  - 1.21.1
+  - 1.21.4
+  - 1.21.6
+  - 1.21.10
