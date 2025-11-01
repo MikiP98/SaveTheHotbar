@@ -3,7 +3,6 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
-import io.github.mikip98.savethehotbar.deathProcessing.moddedGraveHandlers.GravestoneHandler;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.block.Block;
@@ -95,14 +94,10 @@ public class ContainerHandler {
                 spawnHeadGrave(head);
             }
             case GRAVE -> {
-                if (SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
-                    if (ModConfig.logGraveCoordinatesInChat)
-                        player.sendMessage(Text.of("Grave coordinates: " + position));
-                    GravestoneHandler.handleGravestones(player, vanillaDrop, vanillaSlotIds, moddedDrop, this::dropItem);
-                } else {
-                    String message = "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
+                if (!SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
+                    final String message = "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
                     LOGGER.error(message);
-                    player.sendMessage(Text.literal(message).formatted(Formatting.RED));
+                    player.sendMessage(Text.literal(message).formatted(Formatting.RED), false);
                     spawnSack();
                 }
             }

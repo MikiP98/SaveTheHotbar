@@ -49,6 +49,6 @@
 		"modmenu": "*"
 	},
 	"breaks": {
-		"gravestones": ">1.0.12"
+		"gravestones": "<1.2.2"
 	}
 }
