@@ -88,7 +88,10 @@ public class SlotHandler implements SlotSupport {
     // -----------------------------------------------------------------------------------------------------------------
 
     protected boolean shouldDrop(ItemStack stack, boolean shouldKeep) {
-        return !stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack));
+        return shouldDrop(stack, shouldKeep, player);
+    }
+    public static boolean shouldDrop(ItemStack stack, boolean shouldKeep, PlayerEntity player) {
+        return !stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack, player));
     }
     /**
      * Helper function that determines if the given item stack should be randomly dropped on death
@@ -96,6 +99,9 @@ public class SlotHandler implements SlotSupport {
      * @return Whether the item should be randomly dropped
      */
     protected boolean shouldDropRandomly(ItemStack stack) {
+        return shouldDropRandomly(stack, player);
+    }
+    public static boolean shouldDropRandomly(ItemStack stack, PlayerEntity player) {
         return player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity(), player);
     }
     protected static float getRandomDropChance(Rarity rarity, PlayerEntity player) {
