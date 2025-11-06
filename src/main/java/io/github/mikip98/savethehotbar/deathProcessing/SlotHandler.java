@@ -1,9 +1,12 @@
 package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.SlotSupport;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
+import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfig;
+import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -87,12 +90,35 @@ public class SlotHandler implements SlotSupport {
     }
     // -----------------------------------------------------------------------------------------------------------------
 
-    protected boolean shouldDrop(ItemStack stack, boolean shouldKeep) {
-        return shouldDrop(stack, shouldKeep, player);
+    protected boolean shouldDrop(ItemStack stack, boolean shouldKeepSlot) {
+        return shouldDrop(stack, shouldKeepSlot, player);
     }
-    public static boolean shouldDrop(ItemStack stack, boolean shouldKeep, PlayerEntity player) {
-        return !stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack, player));
+    public static boolean shouldDrop(ItemStack stack, boolean shouldKeepSlot, PlayerEntity player) {
+        return !stack.isEmpty() && (!shouldKeep(shouldKeepSlot, shouldKeepItem(stack)) || shouldDropRandomly(stack, player));
     }
+    public static boolean shouldKeep(boolean shouldKeepSlot, boolean shouldKeepItemType) {
+        return ModConfig.itemKeepingLogicOperator.apply(shouldKeepSlot, shouldKeepItemType);
+    }
+    public static boolean shouldKeepItem(ItemStack itemStack) {
+        boolean other = true;
+        for (VanillaItemTypes type : VanillaItemTypes.values()) {
+            if (type == VanillaItemTypes.OTHER) continue;
+            final ItemTypeConfig config = ItemTypesConfiguration.vanillaItemTypes.get(type);
+            if (
+                    itemStack.isIn(config.getTagOverride())
+                    || config.getTags().stream().anyMatch(itemStack::isIn)
+                    || config.getClasses().stream().anyMatch(clazz -> clazz.isInstance(itemStack.getItem()))
+                    || config.getPredicate() != null && config.getPredicate().apply(itemStack.getItem())
+            ) {
+                other = false;
+                if (ModConfig.vanillaItemTypesKeepingMap.get(type))
+                    return true;
+            }
+        }
+        return other ? ModConfig.vanillaItemTypesKeepingMap.get(VanillaItemTypes.OTHER) : false;
+    }
+
+
     /**
      * Helper function that determines if the given item stack should be randomly dropped on death
      * @param stack ItemStack, which can be randomly dropped
