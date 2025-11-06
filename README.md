@@ -1,117 +1,132 @@
-# SaveTheHotbar!
+## ✅ SaveTheHotbar!
 
-**`keepInventory` GameRule should be set to `true`** for the mod to work
+*Requires `/gamerule keepInventory true` to work*
 
-<hr>
+---
 
-## Description
+## ⚖️ Strike the balance between `keepInventory` *True* and *False*
 
-**`SaveTheHotbar!`** is a balanced alternative to `keepInventory` and gravestone type mods  
-It allows you to keep the armour and the hotbar after death while dropping the rest of the inventory  
-This way you don't lose the armament required to get the rest of your loot back!
+<font color="#60dae8">**SaveTheHotbar!**</font> is a *balanced* and *configurable* alternative to `keepInventory` and gravestone-style mods.  
+Instead of keeping or dropping *everything*, it lets you <font color="#60dae8">**keep your armament**</font>.  
+While still <font color="#60dae8">**dropping the rest**</font> of your loot to keep the death meaningful!
 
-### High configurability
+No more <font color="#ff7373">rage-quitting</font> after losing your equipment you <font color="#60c060">grinded</font> hours for.  
+No more feeling invincible because `keepInventory` makes death meaningless.  
+Just a middle ground that keeps adventure exciting.
 
-You can control which slots and item types should be kept after death  
-What should happen to your exp and the non-kept items
-Prevent items from disappearing by containing them in a grave like block.
+> ⚔️ *A fair balance between losing everything... and losing the thrill.*
 
-### Default behaviour:
+### 🤝 You Decide
 
-After death you will keep all the items located in your:
-- hotbar
-- armour slots
-- second hand
-- modded slots
+* <font color="#60dae8">How much, and what you want to lose after</font> <font color="#ff7373">death</font>
+* <font color="#60dae8">What should happen to the non-kept items after</font> <font color="#ff7373">death</font>  
+* <font color="#60dae8">Whether you want to introduce a random</font> <font color="#f0c015">risk factor</font> <font color="#60dae8">to your</font> <font color="#ff7373">death</font>
 
-The non kept items will be dropped to the ground in the exact place of death, without getting thrown all over the place  
-The experience loss will be reduced, and the exp will drop in the place of death.
+---
 
-<br>
-<hr>
+## ⚙️ **How It Works**
 
-## Configuration
+By default, after <font color="#ff7373">death</font> you will keep:
 
-You can access and edit the config in game by entering the configuration through the Mod Menu
+* 🧰 Items in your <font color="#60dae8">**hotbar**</font>
+* 🛡️ All equipped <font color="#60dae8">**armor pieces**</font>
+* 🖐️ Your <font color="#60dae8">**off-hand item**</font>
+* 🎒 Any <font color="#60dae8">**supported modded slots**</font> *(like Arsenal’s back slot)*
 
-<hr>
+<font color="#60dae8">**Everything else**</font> drops neatly on the ground, **without scattering** all over the place  
+<font color="#60c060">**Experience**</font> is reduced but not as much as in Vanilla, and dropped at the <font color="#ff7373">death location</font>
 
-### Enabled
+---
 
-*Defaults to `true`*  
-A global toggle for the mod
+## 🧩 **Fully Configurable In-Game**
 
-### Item Keeping Logic Operator
+Every aspect of **SaveTheHotbar!** can be tweaked to **fit your playstyle**!  
+You can access the config through **Mod Menu** or edit the config file directly
 
-*Defaults to `AND`*
-Controls what conditions have to be met for an item to be kept after death:
-- `AND` -> Item needs to be in saved slot __**AND**__ of saved category to be kept after death
-- `OR` -> Item needs to be in saved slot __**OR**__ of saved category to be kept after death
+### 🔧 <font color="#60dae8">Slot Control</font>
 
-### Slot Control
+Choose which slots are kept:
 
-Category including the configuration of which slots should be kept after death  
-This includes:
-- Hotbar
-- Armour Slots
-- Second hand
-- {modded slots}
+* Hotbar
+* Armor slots
+* Off-hand
+* Modded slots (e.g. Arsenal)
+* Or even your full inventory
 
-### Item Type Control
+### ⚔️ <font color="#60dae8">Item Type Control</font>
 
-Category including the configuration of which item types should be kept after death  
-Currently that includes:
-- Tools
-- Weapons
-- Ammunition
-- Armour
-- Equipment
-- Food
-- Potions
-- Light sources
-- Other
+Fine-tune which **item types** stay with you:
 
-### Exp Control
+* Tools, Weapons, Armor
+* Food, Potions, Torches
+* Or everything else you deem essential
 
-Category controlling what should happen to player experience after death
+### 🌟 <font color="#60dae8">Item Keeping Logic</font>
 
-### Random Drop Control
+Decide how rules combine:
 
-Category for introducing a risc of otherwise kept items to drop randomly on death, 
-and how things like the *Luck* effect affect this chance
+* `AND` → Items must be in a kept *slot* **and** of a kept *type*
+* `OR` → Items can match *either* condition to be kept
 
-### Drop Control
+### 🧠 <font color="#60dae8">Experience Control</font>
 
-Category controlling what happens to all the non-kept items on death  
-Should the items be dropped or contained?  
-Should the dropped items be spread around?
-Where should the grave like container spawn?
+Set how <font color="#60c060">EXP</font> behaves:
 
-### Util
+* `DROP` → Drop at death location
+* `STORE` → Safely stored in your grave (if containment is enabled)
+* `KEEP` → Keep it on respawn
 
-Category containing optional quality of life improvements like logging death coordinates in chat and a ***/back*** command
+Also choose how much <font color="#60c060">EXP</font> is retained (all, fraction, or match Vanilla).
 
-<br>
-<hr>
+### 🎲 <font color="#60dae8">Random Drop Control</font>
 
-## Roadmap:
+Want some risk?
+Add a random chance for even kept items to drop — modified by **luck** and item **rarity**.
 
-### Done:
+### ⚰️ <font color="#60dae8">Drop & Grave Control</font>
 
-- Update Pneumono Gravestones support to the latest Pneumono Gravestones version
-- Make config translations translatable through translation files
+Control what happens to dropped items:
 
-### TODO:
+* Drop on the spot or spread around
+* Contain them safely in a **sack**, **mob head grave**, or **Pneumono Gravestone**
+* Configure how and where the graves can spawn
 
-- Add an option so that after internal grave destruction, items are given to the player instead of being dropped
-  - Add an option for them to be returned into their original slot they were taken from
+### 💬 <font color="#60dae8">Utilities</font>
+
+* Log **death coordinates** or **grave coordinates** in chat
+* Optional **`/back` command** to return to your death location
+
+---
+
+## 🌍 **Compatibility**
+
+* Optional integration with [**Pneumono Gravestones**](https://modrinth.com/mod/pneumono_gravestones) mod
+* Arsenal mod back slot support
+
+If you want support for another mod to be added, feel free to submit an [issue](https://github.com/MikiP98/SaveTheHotbar/issues) on [GitHub](https://github.com/MikiP98/SaveTheHotbar)
+
+---
+
+## 🗺️ **Roadmap**
+
+### ✅ Done (available on GitHub)
+
+- Updated support for latest *Pneumono Gravestones*
+- Moved config names and tooltips to MC language files
+
+### 🧭 Upcoming
+
 - Add item filtering by type: weapon, armour, food, potion, etc.
-- Colour the config tooltips
-- Add optional '/back' command that teleport player to the last player location
-  - Add an optional parameter that will teleport the player to an older death location
-- Port to newer MC versions:
-  - 1.20.6
-  - 1.21.1
-  - 1.21.4
-  - 1.21.6
-  - 1.21.10
+- Option to **return items directly** to inventory after grave destruction
+  - Add an option for them to be returned into their original slot they were taken from
+- **Coloured tooltips** in the config
+- **`/back` command** with history support
+- Ports for newer MC versions: `1.20.6`, `1.21.1`, `1.21.4`, `1.21.6`, `1.21.10`
+
+---
+
+### 💖 **Like the mod? Check out my other work!**
+
+[![Modrinth](https://img.shields.io/badge/Miki--Liki-2088FF?style=for-the-badge&logo=modrinth&logoColor=white)](https://modrinth.com/user/Miki-Liki)
+[![GitHub](https://img.shields.io/badge/GitHub-333?style=for-the-badge&logo=github)](https://github.com/MikiP98)
+[![Ko-fi](https://img.shields.io/badge/Support%20me%20on%20Ko--fi-ff5e5b?style=for-the-badge&logo=kofi&logoColor=white)](https://ko-fi.com/miki277733)
