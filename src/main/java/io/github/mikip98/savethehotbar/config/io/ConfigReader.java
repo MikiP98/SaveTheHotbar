@@ -77,7 +77,7 @@ public class ConfigReader {
             T value = getter.apply(configJson.get(fieldName));
             ModConfig.class.getField(fieldName).set(ModConfig.class, value);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to load config field '{}'", fieldName, e);
             return true;
         }
         return false;
