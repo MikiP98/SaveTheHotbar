@@ -2,6 +2,8 @@ package io.github.mikip98.savethehotbar.content.blockentities;
 
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventories;
@@ -25,6 +27,8 @@ import java.util.stream.Stream;
 public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, SidedInventory {
     protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(41, ItemStack.EMPTY);
     protected final EnumMap<SupportedSlotMods, DefaultedList<ItemStack>> moddedItems = createEnumMap();
+    @Setter
+    @Getter
     protected int exp = 0;
 
     protected EnumMap<SupportedSlotMods, DefaultedList<ItemStack>> createEnumMap() {
@@ -46,9 +50,6 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         for (int i = 0; i < allItems.size(); i++) { defaultedList.set(i, allItems.get(i)); }
         return defaultedList;
     }
-    public int getExp() {
-        return exp;
-    }
 
     public void setItems(List<ItemStack> vanillaItems, Map<SupportedSlotMods, List<ItemStack>> moddedItems) {
         this.items.clear();
@@ -65,9 +66,6 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
                 this.moddedItems.put(mod, defaultedList);
             }
         }
-    }
-    public void setExp(int exp) {
-        this.exp = exp;
     }
 
     @Override
