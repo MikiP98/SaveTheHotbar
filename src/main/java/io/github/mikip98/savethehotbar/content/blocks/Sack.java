@@ -1,4 +1,4 @@
-package io.github.mikip98.savethehotbar.blocks;
+package io.github.mikip98.savethehotbar.content.blocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;

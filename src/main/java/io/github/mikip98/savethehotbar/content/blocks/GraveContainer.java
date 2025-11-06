@@ -1,6 +1,6 @@
-package io.github.mikip98.savethehotbar.blocks;
+package io.github.mikip98.savethehotbar.content.blocks;
 
-import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
+import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;

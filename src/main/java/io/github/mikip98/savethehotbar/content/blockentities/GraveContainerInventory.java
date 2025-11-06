@@ -1,4 +1,4 @@
-package io.github.mikip98.savethehotbar.blockentities;
+package io.github.mikip98.savethehotbar.content.blockentities;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;

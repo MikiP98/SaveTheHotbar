@@ -1,7 +1,7 @@
 package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
-import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
+import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;

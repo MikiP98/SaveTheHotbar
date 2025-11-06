@@ -1,4 +1,4 @@
-package io.github.mikip98.savethehotbar.blockentities;
+package io.github.mikip98.savethehotbar.content.blockentities;
 
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
@@ -21,8 +21,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, SidedInventory {
     protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(41, ItemStack.EMPTY);
