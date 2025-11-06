@@ -1,11 +1,12 @@
 package io.github.mikip98.savethehotbar;
 
-import io.github.mikip98.savethehotbar.blockentities.GraveContainerBlockEntity;
-import io.github.mikip98.savethehotbar.blocks.MobHeadGrave;
-import io.github.mikip98.savethehotbar.blocks.Sack;
+import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
+import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
+import io.github.mikip98.savethehotbar.content.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.io.ConfigReader;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
+import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -62,6 +63,9 @@ public class SaveTheHotbar implements ModInitializer {
 						SACK, SKELETON_HEAD_GRAVE, ZOMBIE_HEAD_GRAVE
 				).build()
 		);
+
+
+		ItemTypesConfiguration.registerConfiguration();
 
 
 		// Register Pneumono Gravestones Callbacks
