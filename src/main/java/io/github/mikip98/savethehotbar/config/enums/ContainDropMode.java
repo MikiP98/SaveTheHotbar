@@ -2,8 +2,8 @@ package io.github.mikip98.savethehotbar.config.enums;
 
 public enum ContainDropMode {
     SACK,
-    GRAVE,
+    RANDOM_HEAD,
     SKELETON_HEAD,
     ZOMBIE_HEAD,
-    RANDOM_HEAD
+    GRAVE
 }
