@@ -3,219 +3,272 @@ package io.github.mikip98.savethehotbar.config;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
+import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import io.github.mikip98.savethehotbar.config.io.ConfigSaver;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import me.shedaniel.clothconfig2.gui.entries.*;
 import me.shedaniel.clothconfig2.impl.builders.SubCategoryBuilder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 public class ModConfigScreen {
     public static Screen createScreen(Screen parentScreen) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setSavingRunnable(ConfigSaver::saveConfigToFile)
                 .setParentScreen(parentScreen)
-                .setTitle(Text.of("SaveTheHotbar! Configuration Screen"));
+                .setTitle(getTranslationKey("screen.main"));
 
         // Create a root category
         ConfigCategory rootCategory = builder.getOrCreateCategory(Text.literal("General Settings"));
 
         // --- Main toggle ---
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.of("Enabled"), ModConfig.enabled)
-                .setTooltip(Text.of("Should the mod be enabled"))
-                .setDefaultValue(ModConfig.dEnabled)
-                .setSaveConsumer(value -> ModConfig.enabled = value)
-                .build()
-        );
+        rootCategory.addEntry(getBooleanEntry(
+                "enable",
+                ModConfig.enable, ModConfig.dEnable,
+                value -> ModConfig.enable = value
+        ));
+        rootCategory.addEntry(getEnumEntry(
+                "item_keeping_logic_operator",
+                LogicOperator.class,
+                ModConfig.itemKeepingLogicOperator, ModConfig.dItemKeepingLogicOperator,
+                value -> ModConfig.itemKeepingLogicOperator = value
+        ));
 
-        // --- Item Slots ---
-        // Vanilla
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Save Hotbar"), ModConfig.saveHotbar)
-                .setTooltip(Text.literal("Keep the all the hotbar items after death"))
-                .setDefaultValue(DefaultConfig.dSaveHotbar)
-                .setSaveConsumer(value -> ModConfig.saveHotbar = value)
-                .build()
-        );
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Save Armor"), ModConfig.saveArmor)
-                .setTooltip(Text.literal("Keep the all the armor pieces after death"))
-                .setDefaultValue(DefaultConfig.dSaveArmor)
-                .setSaveConsumer(value -> ModConfig.saveArmor = value)
-                .build()
-        );
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Save Second Hand"), ModConfig.saveSecondHand)
-                .setTooltip(Text.literal("Keep the second hand item after death"))
-                .setDefaultValue(DefaultConfig.dSaveSecondHand)
-                .setSaveConsumer(value -> ModConfig.saveSecondHand = value)
-                .build()
-        );
-        // Modded
-        SubCategoryBuilder moddedSlotSettings = ConfigEntryBuilder.create().startSubCategory(Text.of("Modded Slot Settings"));
-        moddedSlotSettings.add(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.of("Save Arsenal Back Slot"), ModConfig.saveArsenal)
-                .setTooltip(Text.of("Keep Arsenal's back slot after death"))
-                .setDefaultValue(ModConfig.dSaveArsenal)
-                .setSaveConsumer(value -> ModConfig.saveArsenal = value)
-                .build()
-        );
-        rootCategory.addEntry(moddedSlotSettings.build());
+        rootCategory.addEntry(getSlotControlCategory());
+        rootCategory.addEntry(getItemTypeControlCategory());
+        rootCategory.addEntry(getExpControlCategory());
+        rootCategory.addEntry(getRandomDropControlCategory());
+        rootCategory.addEntry(getDropControlCategory());
 
-        // --- EXP ---
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startEnumSelector(Text.of("Experience Behaviour"), ExperienceMode.class, ModConfig.experienceBehaviour)
-                .setTooltip(Text.of("""
-                        Determines what will happen to the player's experience after death.
-                        - DROP -> Experience will drop in the place of death
-                        - STORE -> Expereince will be kept safe in the grave (required Contain Drop to be enabled)
-                        - KEEP -> Experience is kept after death
-                        The experience amount, either dropped, stored or kept, is determined by Experience Calculation Mode
-                        """))
-                .setDefaultValue(ModConfig.dExperienceBehaviour)
-                .setSaveConsumer(value -> ModConfig.experienceBehaviour = value)
-                .build()
-        );
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startEnumSelector(Text.of("Experience Calculation Mode"), ExperienceCalculation.class, ModConfig.experienceCalculationMode)
-                .setTooltip(Text.of("""
-                        Determines the amount of EXP that will be dropped, stored or kept after death.=
-                        - ALL -> The experience stays unchanged
-                        - FRACTION -> The experience is multiplied by Experience Fraction
-                        - VANILLA -> New experience will be equal to '{player_level} * 7'
-                        The modes are sorted from the most to the least forgiving
-                        ALL wil result in the most EXP, VANILLA with the least (unless 'Experience Fraction' is set very low)
-                        """))
-                .setDefaultValue(ModConfig.dExperienceCalculationMode)
-                .setSaveConsumer(value -> ModConfig.experienceCalculationMode = value)
-                .build()
-        );
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startFloatField(Text.of("Experience Fraction"), ModConfig.experienceFraction)
-                .setTooltip(Text.of("The fraction of experience that should be dropped/stored/kept after death"))
-                .setDefaultValue(ModConfig.dExperienceFraction)
-                .setMax(1.0f)
-                .setMin(0.0f)
-                .setSaveConsumer(value -> ModConfig.experienceFraction = value)
-                .build()
-        );
-
-
-        SubCategoryBuilder randomItemLoseChanceSettings = ConfigEntryBuilder.create().startSubCategory(Text.of("Random Item Lose Chance Settings"));
-        randomItemLoseChanceSettings.add(ConfigEntryBuilder.create()
-                .startFloatField(Text.literal("Random Drop Chance"), ModConfig.randomDropChance)
-                .setTooltip(Text.literal("The chance that a normally kept item will be randomly dropped/stored (e.g. a hotbar item) (0.0 -> 0%; 1.0 -> 100%)"))
-                .setDefaultValue(DefaultConfig.dRandomDropChance)
-                .setMax(1.0f)
-                .setMin(0.0f)
-                .setSaveConsumer(value -> ModConfig.randomDropChance = value)
-                .build()
-        );
-        randomItemLoseChanceSettings.add(ConfigEntryBuilder.create()
-                .startFloatField(Text.literal("Rarity Drop Chance Decrease"), ModConfig.rarityDropChanceDecrease)
-                .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, rdcd = 20%, UNCOMMON item will have 16% change to drop)"))
-                .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
-                .setMax(1.0f)
-                .setMin(0.0f)
-                .setSaveConsumer(value -> ModConfig.rarityDropChanceDecrease = value)
-                .build()
-        );
-        randomItemLoseChanceSettings.add(ConfigEntryBuilder.create()
-                .startFloatField(Text.literal("Luck Drop Chance Decrease"), ModConfig.luckDropChanceDecrease)
-                .setTooltip(Text.literal("A percentage by which the random drop chance will be decreased (e.g. rdc = 20%, ldcd = 20%, with luck 1, item will have 16% change to drop)"))
-                .setDefaultValue(DefaultConfig.dRarityDropChanceDecrease)
-                .setMax(1.0f)
-                .setMin(0.0f)
-                .setSaveConsumer(value -> ModConfig.luckDropChanceDecrease = value)
-                .build()
-        );
-        rootCategory.addEntry(randomItemLoseChanceSettings.build());
-
-
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Random Item Spread"), ModConfig.randomSpread)
-                .setTooltip(Text.literal("If `False`, all the items will drop in the exact position of your death and will not spread outwards.\nIf `True`, all the dropped items will be spread randomly in all directions like in vanilla"))
-                .setDefaultValue(DefaultConfig.dRandomSpread)
-                .setSaveConsumer(value -> ModConfig.randomSpread = value)
-                .build()
-        );
-
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Contain Drop"), ModConfig.containDrop)
-                .setTooltip(Text.literal("If `False`, all non-kept items will be dropped after death. If `True`, all non-kept will be stored in a block specified by the \"Contain Drop Mode\" option"))
-                .setDefaultValue(DefaultConfig.dContainDrop)
-                .setSaveConsumer(value -> ModConfig.containDrop = value)
-                .build()
-        );
-
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startEnumSelector(Text.literal("Contain Drop Mode"), ContainDropMode.class, ModConfig.containDropMode)
-                .setTooltip(Text.literal("""
-                    Changes the block in which non-kept items will be stored after death if `Contain Drop` is `True`.
-                        - `"SACK"`
-                          After player death, a sack will be spawned, containing all the non-kept items.
-                          Drops items on destruction. Can be waterlogged. Does not drop itself nor any XP.
-                        - `"SKELETON_HEAD"` / `"ZOMBIE_HEAD"` / `"RANDOM_HEAD"`
-                          After player death, **mob head grave** will be spawned, containing all the non-kept items.
-                          Drops items on destruction. Does not drop itself nor any XP.
-                          The Grave will be spawned in the first found valid spawn location, which is a full block with replaceable block on top.
-                          If such location inside `mobGraveMaxSpawnRadius` radius isn't found, a `SACK` grave will be spawned instead.
-                        - `"GRAVE"`
-                          GRAVESTONES https://modrinth.com/mod/pneumono_gravestones MOD REQUIRED!!!
-                          After player death, a grave from the `Gravestones` mod will be spawned,
-                          containing the non-kept items and XP according to its configuration."""
-                ))
-                .setDefaultValue(DefaultConfig.dContainDropMode)
-                .setSaveConsumer(value -> ModConfig.containDropMode = value)
-                .build()
-        );
-
-        SubCategoryBuilder graveSpawningLogic = ConfigEntryBuilder.create().startSubCategory(Text.of("Grave Spawning Logic"));
-        graveSpawningLogic.add(ConfigEntryBuilder.create()
-                .startIntField(Text.literal("Sack Max Spawn Radius"), ModConfig.sackMaxSpawnRadius)
-                .setTooltip(Text.literal("The maximum search radius for a valid sack spawning position. If no valid place is found, a Sack will be spawned directly at the death position replacing whatever block was there."))
-                .setDefaultValue(DefaultConfig.dSackMaxSpawnRadius)
-                .setMin(0)
-                .setSaveConsumer(value -> ModConfig.sackMaxSpawnRadius = value)
-                .build()
-        );
-        graveSpawningLogic.add(ConfigEntryBuilder.create()
-                .startIntField(Text.literal("Mob Head Grave Max Spawn Radius"), ModConfig.mobGraveMaxSpawnRadius)
-                .setTooltip(Text.literal("The maximum search radius for a valid mob grave spawning position. If no valid place will be found, a Sack will be spawned instead"))
-                .setDefaultValue(DefaultConfig.dMobGraveMaxSpawnRadius)
-                .setMin(0)
-                .setSaveConsumer(value -> ModConfig.mobGraveMaxSpawnRadius = value)
-                .build()
-        );
-        graveSpawningLogic.add(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.of("Allow Mob Head Graves To Spawn On Slabs"), ModConfig.allowGravesToSpawnOnSlabs)
-                .setTooltip(Text.of("If `True`, a top slab block will also be considered a valid grave spawning block"))
-                .setDefaultValue(DefaultConfig.dAllowGravesToSpawnOnSlabs)
-                .setSaveConsumer(value -> ModConfig.allowGravesToSpawnOnSlabs = value)
-                .build()
-        );
-        rootCategory.addEntry(graveSpawningLogic.build());
-
-
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Log Death Coordinates in Chat"), ModConfig.logDeathCoordinatesInChat)
-                .setTooltip(Text.literal("If `True`, the death coordinates will be sent in chat upon player death"))
-                .setDefaultValue(DefaultConfig.dLogDeathCoordinatesInChat)
-                .setSaveConsumer(value -> ModConfig.logDeathCoordinatesInChat = value)
-                .build()
-        );
-
-        rootCategory.addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(Text.literal("Log Grave Coordinates in Chat"), ModConfig.logGraveCoordinatesInChat)
-                .setTooltip(Text.literal("If `True`, the grave spawn coordinates will be sent in chat upon player death"))
-                .setDefaultValue(DefaultConfig.dLogGraveCoordinatesInChat)
-                .setSaveConsumer(value -> ModConfig.logGraveCoordinatesInChat = value)
-                .build()
-        );
-
+        rootCategory.addEntry(getBooleanEntry(
+                "log_death_coordinates_in_chat",
+                ModConfig.logDeathCoordinatesInChat, ModConfig.dLogDeathCoordinatesInChat,
+                value -> ModConfig.logDeathCoordinatesInChat = value
+        ));
+        rootCategory.addEntry(getBooleanEntry(
+                "log_grave_coordinates_in_chat",
+                ModConfig.logGraveCoordinatesInChat, ModConfig.dLogGraveCoordinatesInChat,
+                value -> ModConfig.logGraveCoordinatesInChat = value
+        ));
 
         return builder.build();
+    }
+
+
+    // --- Item Slots ---
+    protected static SubCategoryListEntry getSlotControlCategory() {
+        SubCategoryBuilder slotControlCategory = getSubCategory("slot_control");
+
+        // Vanilla
+        slotControlCategory.add(getBooleanEntry(
+                "save_hotbar",
+                ModConfig.saveHotbar, ModConfig.dSaveHotbar,
+                value -> ModConfig.saveHotbar = value
+        ));
+        slotControlCategory.add(getBooleanEntry(
+                "save_armour",
+                ModConfig.saveArmor, ModConfig.dSaveArmor,
+                value -> ModConfig.saveArmor = value
+        ));
+        slotControlCategory.add(getBooleanEntry(
+                "save_second_hand",
+                ModConfig.saveSecondHand, ModConfig.dSaveSecondHand,
+                value -> ModConfig.saveSecondHand = value
+        ));
+        slotControlCategory.add(getBooleanEntry(
+                "save_main_inventory",
+                ModConfig.saveMainInventory, ModConfig.dSaveMainInventory,
+                value -> ModConfig.saveMainInventory = value
+        ));
+
+        // Modded
+        SubCategoryBuilder moddedSlotsSettings = getSubCategory("modded_slots_settings");
+        moddedSlotsSettings.add(getBooleanEntry(
+                "save_arsenal_back_slot",
+                ModConfig.saveArsenal, ModConfig.dSaveArsenal,
+                value -> ModConfig.saveArsenal = value
+        ));
+        slotControlCategory.add(moddedSlotsSettings.build());
+
+        return slotControlCategory.build();
+    }
+
+
+    // --- Item Types ---
+    protected static SubCategoryListEntry getItemTypeControlCategory() {
+        SubCategoryBuilder itemTypeControlCategory = getSubCategory("item_type_control");
+
+        for (VanillaItemTypes type : VanillaItemTypes.values()) {
+            itemTypeControlCategory.add(getBooleanEntry(
+                    "keep_" + type.name().toLowerCase(),
+                    ModConfig.vanillaItemTypesKeepingMap.get(type), ModConfig.dVanillaItemTypesKeepingMap.get(type),
+                    value -> ModConfig.vanillaItemTypesKeepingMap.put(type, value)
+            ));
+        }
+
+        return itemTypeControlCategory.build();
+    }
+
+
+    // --- EXP ---
+    protected static SubCategoryListEntry getExpControlCategory() {
+        SubCategoryBuilder expControlCategory = getSubCategory("exp_control");
+
+        expControlCategory.add(getEnumEntry(
+                "experience_behaviour", ExperienceMode.class,
+                ModConfig.experienceBehaviour, ModConfig.dExperienceBehaviour,
+                value -> ModConfig.experienceBehaviour = value
+        ));
+        expControlCategory.add(getEnumEntry(
+                "experience_calculation_mode", ExperienceCalculation.class,
+                ModConfig.experienceCalculationMode, ModConfig.dExperienceCalculationMode,
+                value -> ModConfig.experienceCalculationMode = value
+        ));
+        expControlCategory.add(getFloatEntry(
+                "experience_fraction",
+                ModConfig.experienceFraction, ModConfig.dExperienceFraction,
+                value -> ModConfig.experienceFraction = value
+        ));
+
+        return expControlCategory.build();
+    }
+
+
+    protected static SubCategoryListEntry getRandomDropControlCategory() {
+        SubCategoryBuilder randomDropControlCategory = getSubCategory("random_drop_control");
+
+        randomDropControlCategory.add(getFloatEntry(
+                "random_drop_chance",
+                ModConfig.randomDropChance, ModConfig.dRandomDropChance,
+                value -> ModConfig.randomDropChance = value
+        ));
+        randomDropControlCategory.add(getFloatEntry(
+                "rarity_drop_chance_decrease",
+                ModConfig.rarityDropChanceDecrease, ModConfig.dRarityDropChanceDecrease,
+                value -> ModConfig.rarityDropChanceDecrease = value
+        ));
+        randomDropControlCategory.add(getFloatEntry(
+                "luck_drop_chance_decrease",
+                ModConfig.luckDropChanceDecrease, ModConfig.dLuckDropChanceDecrease,
+                value -> ModConfig.luckDropChanceDecrease = value
+        ));
+
+        return randomDropControlCategory.build();
+    }
+
+
+    protected static SubCategoryListEntry getDropControlCategory() {
+        SubCategoryBuilder dropControlCategory = getSubCategory("drop_control");
+
+        dropControlCategory.add(getBooleanEntry(
+                "random_item_spread",
+                ModConfig.randomSpread, ModConfig.dRandomSpread,
+                value -> ModConfig.randomSpread = value
+        ));
+        dropControlCategory.add(getBooleanEntry(
+                "contain_drop",
+                ModConfig.containDrop, ModConfig.dContainDrop,
+                value -> ModConfig.containDrop = value
+        ));
+        dropControlCategory.add(getEnumEntry(
+                "contain_drop_mode", ContainDropMode.class,
+                ModConfig.containDropMode, ModConfig.dContainDropMode,
+                value -> ModConfig.containDropMode = value
+        ));
+
+        SubCategoryBuilder graveSpawningLogic = getSubCategory("grave_spawning_logic");
+        graveSpawningLogic.add(getIntegerEntry(
+                "sack_max_spawn_radius",
+                ModConfig.sackMaxSpawnRadius, ModConfig.dSackMaxSpawnRadius,
+                value -> ModConfig.sackMaxSpawnRadius = value
+        ));
+        graveSpawningLogic.add(getIntegerEntry(
+                "mob_head_grave_max_spawn_radius",
+                ModConfig.mobGraveMaxSpawnRadius, ModConfig.dMobGraveMaxSpawnRadius,
+                value -> ModConfig.mobGraveMaxSpawnRadius = value
+        ));
+        graveSpawningLogic.add(getBooleanEntry(
+                "allow_mob_heads_graves_to_spawn_on_slabs",
+                ModConfig.allowGravesToSpawnOnSlabs, ModConfig.dAllowGravesToSpawnOnSlabs,
+                value -> ModConfig.allowGravesToSpawnOnSlabs = value
+        ));
+        dropControlCategory.add(graveSpawningLogic.build());
+
+        return dropControlCategory.build();
+    }
+
+
+    // --- Config Entry Util ---
+    protected static BooleanListEntry getBooleanEntry(
+            String name, boolean currentValue, boolean defaultValue, Consumer<Boolean> setter
+    ) {
+        return ConfigEntryBuilder.create()
+                .startBooleanToggle(getSettingTranslationKey(name), currentValue)
+                .setTooltip(getSettingTooltipTranslationKey(name))
+                .setDefaultValue(defaultValue)
+                .setSaveConsumer(setter)
+                .build();
+    }
+    protected static <T extends Enum<?>> EnumListEntry<T> getEnumEntry(
+            String name, Class<T> enumClass, T currentValue, T defaultValue, Consumer<T> setter
+    ) {
+        return ConfigEntryBuilder.create()
+                .startEnumSelector(getSettingTranslationKey(name), enumClass, currentValue)
+                .setTooltip(getSettingTooltipTranslationKey(name))
+                .setDefaultValue(defaultValue)
+                .setSaveConsumer(setter)
+                .build();
+    }
+    protected static FloatListEntry getFloatEntry(
+            String name, float currentValue, float defaultValue, Consumer<Float> setter
+    ) {
+        return ConfigEntryBuilder.create()
+                .startFloatField(getSettingTranslationKey(name), currentValue)
+                .setTooltip(getSettingTooltipTranslationKey(name))
+                .setDefaultValue(defaultValue)
+                .setMax(1.0f)
+                .setMin(0.0f)
+                .setSaveConsumer(setter)
+                .build();
+    }
+    protected static IntegerListEntry getIntegerEntry(
+            String name, int currentValue, int defaultValue, Consumer<Integer> setter
+    ) {
+        return ConfigEntryBuilder.create()
+                .startIntField(getSettingTranslationKey(name), currentValue)
+                .setTooltip(getSettingTooltipTranslationKey(name))
+                .setDefaultValue(defaultValue)
+                .setMin(0)
+                .setSaveConsumer(setter)
+                .build();
+    }
+    protected static SubCategoryBuilder getSubCategory(@NotNull String name) {
+        return ConfigEntryBuilder.create()
+                .startSubCategory(getCategoryTranslationKey(name))
+                .setTooltip(getCategoryTooltipTranslationKey(name));
+    }
+
+
+    // --- Generic Util ---
+    protected static Text getCategoryTooltipTranslationKey(@NotNull String name) {
+        return getCategoryTranslationKey(name + ".tooltip");
+    }
+    protected static Text getCategoryTranslationKey(@NotNull String name) {
+        return getTranslationKey("category." + name);
+    }
+    protected static Text getSettingTooltipTranslationKey(@NotNull String name) {
+        return getSettingTranslationKey(name + ".tooltip");
+    }
+    protected static Text getSettingTranslationKey(@NotNull String name) {
+        return getTranslationKey("setting." + name);
+    }
+    protected static Text getTranslationKey(@NotNull String name) {
+        return Text.translatable("config.savethehotbar." + name);
     }
 }

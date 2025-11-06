@@ -3,14 +3,26 @@ package io.github.mikip98.savethehotbar.config;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
+import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 public class ModConfig extends DefaultConfig {
-    public static boolean enabled = dEnabled;
+    public static boolean enable = dEnable;
+
+    // TODO: Presets?
+
+    public static LogicOperator itemKeepingLogicOperator = dItemKeepingLogicOperator;
 
     public static boolean
             saveHotbar = dSaveHotbar,
             saveArmor = dSaveArmor,
-            saveSecondHand = dSaveSecondHand;
+            saveSecondHand = dSaveSecondHand,
+            saveMainInventory = dSaveMainInventory;
+
+    public static Map<VanillaItemTypes, Boolean> vanillaItemTypesKeepingMap = new EnumMap<>(dVanillaItemTypesKeepingMap);
 
     public static ExperienceMode experienceBehaviour = dExperienceBehaviour;
     public static ExperienceCalculation experienceCalculationMode = dExperienceCalculationMode;
