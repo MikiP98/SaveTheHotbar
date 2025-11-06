@@ -34,7 +34,7 @@ public abstract class PlayerEntityMixin {
 
     @Inject(method = "dropInventory", at = @At("HEAD"), cancellable = true)
     private void dropInventory(CallbackInfo ci) {
-        if (ModConfig.enabled) {
+        if (ModConfig.enable) {
             try {
                 final PlayerEntity player = this.inventory.player;
                 final World world = player.getWorld();
