@@ -19,7 +19,9 @@ public class ConfigSaver {
         // Create a JSON object to store the configuration
         JsonObject configJson = new JsonObject();
 
-        configJson.addProperty("enabled", true);
+        configJson.addProperty("enable", ModConfig.enable);
+
+        configJson.addProperty("itemKeepingLogicOperator", ModConfig.itemKeepingLogicOperator.toString());
 
         configJson.addProperty("saveHotbar", ModConfig.saveHotbar);
         configJson.addProperty("saveArmor", ModConfig.saveArmor);
