@@ -75,6 +75,6 @@ public class SaveTheHotbar implements ModInitializer {
 	}
 
 	public static Identifier getId(String name) {
-		return new Identifier(MOD_ID, name);
+		return Identifier.of(MOD_ID, name);
 	}
 }
