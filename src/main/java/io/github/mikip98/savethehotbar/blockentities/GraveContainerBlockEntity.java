@@ -12,6 +12,9 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+#if MC_VERSION >= 12006
+import net.minecraft.registry.RegistryWrapper;
+#endif
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -21,8 +24,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, SidedInventory {
     protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(41, ItemStack.EMPTY);
@@ -73,11 +74,11 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        Inventories.readNbt(nbt, items);
+    public void readNbt(NbtCompound nbt #if MC_VERSION >= 12006, RegistryWrapper.WrapperLookup registryLookup #endif) {
+        super.readNbt(nbt #if MC_VERSION >= 12006, registryLookup #endif);
+        Inventories.readNbt(nbt, items #if MC_VERSION >= 12006, registryLookup #endif);
         for (Map.Entry<SupportedSlotMods, DefaultedList<ItemStack>> entry : moddedItems.entrySet()) {
-            tryReadModdedItemNbt(nbt, entry.getValue(), entry.getKey());
+            tryReadModdedItemNbt(nbt, entry.getValue(), entry.getKey() #if MC_VERSION >= 12006, registryLookup #endif);
         }
         this.exp = nbt.getInt("Experience");
     }
@@ -87,7 +88,10 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
      * Located in package 'net.minecraft.inventory'
      * Modified to accept a mod
      */
-    public static void tryReadModdedItemNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod) {
+    public static void tryReadModdedItemNbt(
+            NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod
+            #if MC_VERSION >= 12006, RegistryWrapper.WrapperLookup registryLookup #endif
+    ) {
         if (!mod.isLoaded()) return;
 
         final String nbtId = "Items" + mod.modName;
@@ -99,19 +103,23 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
             NbtCompound nbtCompound = nbtList.getCompound(i);
             int j = nbtCompound.getByte("Slot") & 255;
             if (j < stacks.size()) {
+                #if MC_VERSION < 12006
                 stacks.set(j, ItemStack.fromNbt(nbtCompound));
+                #else
+                stacks.set(j, ItemStack.fromNbt(registryLookup, nbtCompound).get());
+                #endif
             }
         }
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
-        Inventories.writeNbt(nbt, items);
+    public void writeNbt(NbtCompound nbt #if MC_VERSION >= 12006, RegistryWrapper.WrapperLookup registryLookup #endif) {
+        Inventories.writeNbt(nbt, items #if MC_VERSION >= 12006, registryLookup #endif);
         for (Map.Entry<SupportedSlotMods, DefaultedList<ItemStack>> entry : moddedItems.entrySet()) {
-            writeNbt(nbt, entry.getValue(), entry.getKey());
+            writeNbt(nbt, entry.getValue(), entry.getKey() #if MC_VERSION >= 12006, registryLookup #endif);
         }
         nbt.putInt("Experience", this.exp);
-        super.writeNbt(nbt);
+        super.writeNbt(nbt #if MC_VERSION >= 12006, registryLookup #endif);
     }
 
     /**
@@ -119,7 +127,10 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
      * Located in package 'net.minecraft.inventory'
      * Modified to accept a mod
      */
-    public static void writeNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod) {
+    public static void writeNbt(
+            NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod
+            #if MC_VERSION >= 12006, RegistryWrapper.WrapperLookup registryLookup #endif
+    ) {
         if (!mod.isLoaded() || stacks.isEmpty() || stacks.stream().allMatch((stack) -> stack == ItemStack.EMPTY)) return;
         NbtList nbtList = new NbtList();
 
@@ -128,7 +139,11 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
             if (!itemStack.isEmpty()) {
                 NbtCompound nbtCompound = new NbtCompound();
                 nbtCompound.putByte("Slot", (byte) i);
+                #if MC_VERSION < 12006
                 itemStack.writeNbt(nbtCompound);
+                #else
+                itemStack.encode(registryLookup, nbtCompound);
+                #endif
                 nbtList.add(nbtCompound);
             }
         }
@@ -142,10 +157,17 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+    #if MC_VERSION < 12006
     @Override
     public NbtCompound toInitialChunkDataNbt() {
         return createNbt();
     }
+    #else
+    @Override
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+        return createNbt(registryLookup);
+    }
+    #endif
 
 
     @Override

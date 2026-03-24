@@ -1,3 +1,4 @@
+#if MC_VERSION == 12001
 package io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers;
 
 import dev.doctor4t.arsenal.cca.BackWeaponComponent;
@@ -27,3 +28,4 @@ public class Arsenal implements SlotSupport {
         return itemsToDrop;
     }
 }
+#endif

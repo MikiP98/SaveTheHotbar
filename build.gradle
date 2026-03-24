@@ -101,9 +101,11 @@ dependencies {
 	modCompileOnly "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}"
 	modCompileOnly "maven.modrinth:pneumono_core:${project.pneumonocore_version}"
 
-	modCompileOnly "maven.modrinth:arsenal:${project.arsenal_version}"
-	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
-	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
+	if (activeMcVersionNum == 12001) {
+		modCompileOnly "maven.modrinth:arsenal:${project.arsenal_version}"
+		modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
+		modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
+	}
 }
 
 processResources {

@@ -2,8 +2,10 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
+#if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
+#endif
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -85,7 +87,9 @@ public class DeathManager {
         destroyCursedItems(inventory.armor);
         destroyCursedItems(inventory.offHand);
         // --------- Modded Slots ---------
+        #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded()) Arsenal.destroyCursed(player);
+        #endif
     }
     protected static void destroyCursedItems(DefaultedList<ItemStack> slots) {
         slots.forEach(slot -> { if (EnchantmentHelper.hasVanishingCurse(slot)) slot.setCount(0); });

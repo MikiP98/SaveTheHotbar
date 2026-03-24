@@ -1,7 +1,9 @@
 package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
+#if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
+#endif
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.SlotSupport;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -80,8 +82,10 @@ public class SlotHandler implements SlotSupport {
         Map<SupportedSlotMods, List<ItemStack>> moddedDrop = new EnumMap<>(SupportedSlotMods.class);
 
         // Keep Arsenal
+        #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded())
             moddedDrop.put(SupportedSlotMods.ARSENAL, Arsenal.getItemsToDrop(player, this::shouldDrop));
+        #endif
 
         return moddedDrop;
     }

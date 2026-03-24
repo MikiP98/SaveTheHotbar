@@ -3,7 +3,10 @@ package io.github.mikip98.savethehotbar.modDetection;
 import net.fabricmc.loader.api.FabricLoader;
 
 public enum SupportedSlotMods {
-    ARSENAL("Arsenal", "arsenal", 1);
+    #if MC_VERSION == 12001
+    ARSENAL("Arsenal", "arsenal", 1)
+    #endif
+    ;
 
     public final String modName;
     public final String modId;
