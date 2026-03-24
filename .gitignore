@@ -1,3 +1,9 @@
+# Custom
+
+build.properties
+local-mods/
+
+
 # gradle
 
 .gradle/

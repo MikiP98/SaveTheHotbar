@@ -25,23 +25,23 @@
 	"icon": "assets/savethehotbar/icon.png",
 	"environment": "*",
 	"entrypoints": {
+		"modmenu": [
+			"io.github.mikip98.savethehotbar.config.ModMenuIntegration"
+		],
 		"main": [
 			"io.github.mikip98.savethehotbar.SaveTheHotbar"
 		],
 		"client": [
 			"io.github.mikip98.savethehotbar.SaveTheHotbarClient"
-		],
-		"modmenu": [
-			"io.github.mikip98.savethehotbar.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [
 		"savethehotbar.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.17.3",
-		"minecraft": "~1.20.1",
-		"java": ">=17",
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=${java_version}",
 		"fabric-api": "*",
 		"cloth-config": "*"
 	},
@@ -50,5 +50,6 @@
 	},
 	"breaks": {
 		"gravestones": "<1.2.2"
-	}
+	},
+	"configScreen": "io.github.mikip98.savethehotbar.config.ModConfigScreen"
 }
