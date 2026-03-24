@@ -5,7 +5,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
+#if MC_VERSION < 12104
 import net.minecraft.state.property.DirectionProperty;
+#else
+import net.minecraft.state.property.EnumProperty;
+#endif
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -16,7 +20,11 @@ import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.NotNull;
 
 public class MobHeadGrave extends GraveContainer {
+    #if MC_VERSION < 12104
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    #else
+    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
+    #endif
 
     protected static final VoxelShape voxelShapeNorth;
     protected static final VoxelShape voxelShapeSouth;

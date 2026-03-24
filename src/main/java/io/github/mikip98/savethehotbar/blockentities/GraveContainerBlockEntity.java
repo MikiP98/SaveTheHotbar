@@ -141,8 +141,10 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
                 nbtCompound.putByte("Slot", (byte) i);
                 #if MC_VERSION < 12006
                 itemStack.writeNbt(nbtCompound);
-                #else
+                #elif MC_VERSION < 12104
                 itemStack.encode(registryLookup, nbtCompound);
+                #else
+                itemStack.toNbt(registryLookup, nbtCompound);
                 #endif
                 nbtList.add(nbtCompound);
             }

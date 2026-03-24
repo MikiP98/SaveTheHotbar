@@ -9,6 +9,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
@@ -30,7 +31,9 @@ public abstract class PlayerEntityMixin {
     public abstract @Nullable ItemEntity dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership);
 
     @Shadow
-    private @Final PlayerInventory inventory;
+    #if MC_VERSION < 12104 private #endif
+    @Final
+    PlayerInventory inventory;
 
     @Inject(method = "dropInventory", at = @At("HEAD"), cancellable = true)
     private void dropInventory(CallbackInfo ci) {
@@ -62,12 +65,22 @@ public abstract class PlayerEntityMixin {
 
     @Unique
     private void keepInventoryCheck(World world) {
+        #if MC_VERSION < 12104
         if (!world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             doublePrintWarn("KeepInventory GameRule is False; 'SaveTheHotbar!' requires keepInventory to work; Changing keepInventory to True; If you want to disable 'SaveTheHotbar!', disable it in settings");
             if (!world.isClient()) {
                 world.getGameRules().get(GameRules.KEEP_INVENTORY).set(true, world.getServer());
             }
         }
+        #else
+        if (!world.isClient()) {
+            ServerWorld server = (ServerWorld) world;
+            if (!server.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+                doublePrintWarn("KeepInventory GameRule is False; 'SaveTheHotbar!' requires keepInventory to work; Changing keepInventory to True; If you want to disable 'SaveTheHotbar!', disable it in settings");
+                server.getGameRules().get(GameRules.KEEP_INVENTORY).set(true, world.getServer());
+            }
+        }
+        #endif
     }
 
     @Unique

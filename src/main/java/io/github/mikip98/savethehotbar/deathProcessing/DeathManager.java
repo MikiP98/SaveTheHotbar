@@ -22,6 +22,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
+import static io.github.mikip98.savethehotbar.deathProcessing.MessagingUtil.sendMessage;
 
 public class DeathManager {
     // -----------------------------------------------------------------------------------------------------------------
@@ -48,7 +49,7 @@ public class DeathManager {
 
     public void managePlayerDeath() {
         if (ModConfig.logDeathCoordinatesInChat) {
-            player.sendMessage(Text.literal("Death coordinates: " + player.getBlockPos()).formatted(Formatting.AQUA));
+            sendMessage(player, Text.literal("Death coordinates: " + player.getBlockPos()).formatted(Formatting.AQUA));
         }
 
         // --- Manage Curse of Vanishing ---

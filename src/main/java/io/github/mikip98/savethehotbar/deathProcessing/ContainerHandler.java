@@ -19,6 +19,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
+import static io.github.mikip98.savethehotbar.deathProcessing.MessagingUtil.sendMessage;
 
 public class ContainerHandler {
     protected final World world;
@@ -75,7 +77,7 @@ public class ContainerHandler {
             // Drop all items
             final String message = "Dropping inventory at " + position;
             LOGGER.info(message);
-            if (ModConfig.logDeathCoordinatesInChat) player.sendMessage(Text.of(message));
+            if (ModConfig.logDeathCoordinatesInChat) sendMessage(player, message);
 
             for (ItemStack stack : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
                 dropItem(stack);
@@ -97,7 +99,7 @@ public class ContainerHandler {
                 if (!SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
                     final String message = "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
                     LOGGER.error(message);
-                    player.sendMessage(Text.literal(message).formatted(Formatting.RED), false);
+                    sendMessage(player, Text.literal(message).formatted(Formatting.RED));
                     spawnSack();
                 }
             }
@@ -112,7 +114,7 @@ public class ContainerHandler {
         world.setBlockState(sackPos, SaveTheHotbar.SACK.getDefaultState(), 3);
         LOGGER.info("Spawned a sack at {}", sackPos);
         if (ModConfig.logGraveCoordinatesInChat) {
-            player.sendMessage(Text.literal("Grave coordinates: " + sackPos).formatted(Formatting.AQUA));
+            sendMessage(player, Text.literal("Grave coordinates: " + sackPos).formatted(Formatting.AQUA));
         }
         fillGrave(sackPos);
     }
@@ -123,11 +125,15 @@ public class ContainerHandler {
             LOGGER.error("Couldn't find a valid position for the head grave! Spawning a sack in the place of death instead!");
             spawnSack();
         } else {
+            #if MC_VERSION < 12104
             final Direction facing = Direction.fromHorizontal(world.getRandom().nextBetween(0, 3));
+            #else
+            final Direction facing = Direction.Type.HORIZONTAL.random(world.random);
+            #endif
             world.setBlockState(gravePos, head.getDefaultState().with(Properties.HORIZONTAL_FACING, facing), 3);
             LOGGER.info("Spawned a mob head grave at {}", gravePos);
             if (ModConfig.logGraveCoordinatesInChat) {
-                player.sendMessage(Text.literal("Grave coordinates: " + gravePos).formatted(Formatting.AQUA));
+                sendMessage(player, Text.literal("Grave coordinates: " + gravePos).formatted(Formatting.AQUA));
             }
             fillGrave(gravePos);
         }
@@ -144,7 +150,7 @@ public class ContainerHandler {
 
     protected void handleNoItemContainerError(BlockPos position) {
         String message = "Couldn't find the spawned item container! Items will be dropped :(  EMERGENCY HOPPERS SPAWN ATTEMPT!!!";
-        player.sendMessage(Text.literal(message).formatted(Formatting.RED));
+        sendMessage(player, Text.literal(message).formatted(Formatting.RED));
         LOGGER.error(message);
 
         // Spawn emergency hoppers (3x3 as 1x1 was too small to catch all the items)
@@ -169,7 +175,7 @@ public class ContainerHandler {
 
         // Drop items
         message = "Dropping " + vanillaDrop.size() + moddedDrop.values().stream().mapToInt(List::size).sum() + " items at " + position;
-        player.sendMessage(Text.literal(message));
+        sendMessage(player, message);
         LOGGER.info(message);
         for (ItemStack item : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
             world.spawnEntity(new ItemEntity(world, position.getX(), position.getY(), position.getZ(), item));
@@ -282,16 +288,20 @@ public class ContainerHandler {
     }
 
     protected static BlockPos validatePositionHeight(World world, BlockPos position) {
+        final int topY = getTopY(world, position);
         if (position.getY() < world.getBottomY()) {
             // +1 so that the recovered items won't just fall to the void
             position = new BlockPos(position.getX(), world.getBottomY() + 1, position.getZ());
-        } else if (position.getY() > world.getTopY()) {
-            position = new BlockPos(position.getX(), world.getTopY() - 1, position.getZ());
+        } else if (position.getY() > topY) {
+            position = new BlockPos(position.getX(), topY - 1, position.getZ());
         }
         return position;
     }
     protected static boolean fitsInHeight(World world, BlockPos position) {
         final int y = position.getY();
-        return y > world.getBottomY() && y < world.getTopY();
+        return y > world.getBottomY() && y < getTopY(world, position);
+    }
+    protected static int getTopY(World world, BlockPos pos) {
+        return world.getTopY(#if MC_VERSION >= 12104 Heightmap.Type.WORLD_SURFACE, pos.getX(), pos.getZ() #endif);
     }
 }
