@@ -1,10 +1,45 @@
+// Imports required for the 'doLast' entry in 'processResources'
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'fabric-loom' version "${loom_version}" apply false
+	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
 	id 'maven-publish'
+
+	id 'io.freefair.lombok' version "${lombok_plugin_version}"
+	id 'systems.manifold.manifold-gradle-plugin' version "${manifold_plugin_version}"
 }
 
-version = project.mod_version
+// Load version-specific properties dynamically
+def activeVersion = project.properties['active_mc_version']
+def versionPropsFile = file("versions/${activeVersion}.properties")
+if (versionPropsFile.exists()) {
+	def versionProps = new Properties()
+	versionPropsFile.withInputStream { stream -> versionProps.load(stream) }
+	versionProps.each { key, value -> project.ext.set(key, value) }
+} else {
+	throw new GradleException("Could not find property file for MC version: ${activeVersion}")
+}
+
+def activeMcVersionNum = project.mc_version_number.toInteger()
+
+// Apply the correct Loom variant dynamically
+if (activeMcVersionNum < 260000) {
+	apply plugin: 'fabric-loom'
+} else {
+	apply plugin: 'net.fabricmc.fabric-loom'
+}
+
+version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
+
+manifold {
+	manifoldVersion = project.manifold_version
+}
+
+// Auto-generate build.properties so the Manifold IDE plugin and compiler stay in sync
+file("build.properties").text = "MC_VERSION=${project.ext.mc_version_number}\n"
 
 base {
 	archivesName = project.archives_base_name
@@ -39,9 +74,6 @@ repositories {
 		name = 'Ladysnake Mods'
 		url = 'https://maven.ladysnake.org/releases'
 	}
-
-	// Lombok
-	mavenCentral()
 }
 
 loom {
@@ -57,56 +89,96 @@ loom {
 }
 
 dependencies {
-	compileOnly("org.projectlombok:lombok:1.18.42")
-	annotationProcessor("org.projectlombok:lombok:1.18.42")
+	// Manifold preprocessor
+	annotationProcessor "systems.manifold:manifold-preprocessor:${project.manifold_version}"
+	compileOnly "systems.manifold:manifold-preprocessor:${project.manifold_version}"
+
+	def loomGradle = activeMcVersionNum < 260000
+	String implementationConfig = loomGradle ? "modImplementation" : "implementation"
+	String apiConfig			= loomGradle ? "modApi"            : "api"
+	String compileOnlyConfig 	= loomGradle ? "modCompileOnly"    : "compileOnly"
+	String runtimeOnlyConfig 	= loomGradle ? "modRuntimeOnly"    : "runtimeOnly"
 
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	if (activeMcVersionNum < 260000) {
+		mappings loom.officialMojangMappings()
+	}
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	// Fabric base dependencies
+	add(implementationConfig, "net.fabricmc:fabric-loader:${project.loader_version}")
+	add(implementationConfig, "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
-	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
-	modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+	// Mod config dependencies
+	add(apiConfig, "com.terraformersmc:modmenu:${project.modmenu_version}")
+	add(apiConfig, "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 
-	modCompileOnly "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}"
-	modCompileOnly "maven.modrinth:pneumono_core:${project.pneumonocore_version}"
-//	modRuntimeOnly "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}"
-//	modRuntimeOnly "maven.modrinth:pneumono_core:${project.pneumonocore_version}"
+	// Gravestone support dependencies
+	add(compileOnlyConfig, "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}")
+	add(compileOnlyConfig, "maven.modrinth:pneumono_core:${project.pneumonocore_version}")
+	//	add(runtimeOnlyConfig, "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}")
+	//	add(runtimeOnlyConfig, "maven.modrinth:pneumono_core:${project.pneumonocore_version}")
 
-	modCompileOnly "maven.modrinth:arsenal:${project.arsenal_version}"
-	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
-	modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
+	// Modded slot support dependencies
+	if (activeMcVersionNum == 12001) {
+		add(compileOnlyConfig, "maven.modrinth:arsenal:${project.arsenal_version}")
+		add(compileOnlyConfig, "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}")
+		add(compileOnlyConfig, "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}")
+	}
 }
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "java_version", project.java_version
+	inputs.property "loader_version", project.loader_version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "minecraft_version_number", project.mc_version_number.toInteger()
+	inputs.property "resource_pack_format", project.resource_pack_format
+	inputs.property "data_pack_format", project.data_pack_format
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand "version": inputs.properties.version,
+				"java_version": inputs.properties.java_version,
+				"loader_version": inputs.properties.loader_version,
+				"minecraft_version": inputs.properties.minecraft_version
+	}
+
+	filesMatching("**/*.mcmeta") {
+		expand "resource_pack_format": inputs.properties.resource_pack_format,
+				"data_pack_format": inputs.properties.data_pack_format
+	}
+
+	doLast {
+		// Minify JSON files to reduce the mod size a bit
+		fileTree(destinationDir)
+				.matching { include "**/*.json", "**/*.mcmeta" }
+				.forEach { File f ->
+					def json = new JsonSlurper().parse(f)
+					f.text = JsonOutput.toJson(json)
+				}
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = java_version.toInteger()
 }
 
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
 	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+	// withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.valueOf("VERSION_${java_version}")
+	targetCompatibility = JavaVersion.valueOf("VERSION_${java_version}")
 }
 
 jar {
 	inputs.property "archivesName", project.base.archivesName
+
+//	entryCompression = ZipEntryCompression.STORED
 
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
@@ -129,4 +201,49 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+//// Additional task that recompresses the generated JARs using python-zopfli to reduce the file size
+//tasks.register("recompressJars", Exec) {
+//	group = "build"
+//	description = "Recompress the built JAR with advzip"
+//
+//	// Ensure the jar is built before running advzip
+//	dependsOn(tasks.named("jar"))
+//
+//	// Build the jar name based on project properties
+//	def jarFile = layout.buildDirectory.file("libs/${project.archives_base_name}-${project.version}.jar").get().asFile
+//
+//	// Configure the command
+//	workingDir projectDir
+//	commandLine "./advzip", "-z", jarFile.absolutePath, "-3", "-i", "5"
+//
+//	doFirst {
+//		if (!jarFile.exists()) {
+//			throw new GradleException("JAR file not found: ${jarFile}")
+//		}
+//		println "Recompressing ${jarFile.name} with advzip..."
+//	}
+//}
+
+//// Run the 'recompressJars' task after the 'build' task
+//tasks.named("build") {
+//	finalizedBy("recompressJars")
+//}
+
+// Sync task for standard runs (Client/Server)
+tasks.register('syncRunMods', Sync) {
+	group = "fabric"
+	description = "Syncs local mods to the run/mods directory"
+
+	from("local-mods/${activeVersion}")
+	into("run/mods")
+}
+
+tasks.named('runClient').configure {
+	dependsOn('syncRunMods')
+}
+
+tasks.named('runServer').configure {
+	dependsOn('syncRunMods')
 }
