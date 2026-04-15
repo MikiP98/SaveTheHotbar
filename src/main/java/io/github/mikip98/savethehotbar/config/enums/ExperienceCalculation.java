@@ -1,7 +1,7 @@
 package io.github.mikip98.savethehotbar.config.enums;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
@@ -39,11 +39,11 @@ public enum ExperienceCalculation {
         this.calculation = calculation;
     }
 
-    public int calculateExperience(PlayerEntity entity) {
+    public int calculateExperience(Player entity) {
         return this.calculation.calculateExperience(entity);
     }
 
     public interface Calculation {
-        int calculateExperience(PlayerEntity entity);
+        int calculateExperience(Player entity);
     }
 }

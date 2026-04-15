@@ -4,28 +4,28 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.ExperienceOrbEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class DeathManager {
     // -----------------------------------------------------------------------------------------------------------------
 
-    protected final PlayerInventory inventory;
-    protected final PlayerEntity player;
+    protected final Inventory inventory;
+    protected final Player player;
     protected final ItemDropper rawItemDropFunction;
 
-    public DeathManager(PlayerInventory inventory, ItemDropper itemDropper) {
+    public DeathManager(Inventory inventory, ItemDropper itemDropper) {
         LOGGER.info("Creating DeathManager");
         this.inventory = inventory;
         this.player = inventory.player;
@@ -43,7 +43,7 @@ public class DeathManager {
 
     public void managePlayerDeath() {
         if (ModConfig.logDeathCoordinatesInChat) {
-            player.sendMessage(Text.literal("Death coordinates: " + player.getBlockPos()).formatted(Formatting.AQUA));
+            player.sendSystemMessage(Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
         }
 
         // --- Manage Curse of Vanishing ---
@@ -74,32 +74,32 @@ public class DeathManager {
             LOGGER.info("Handling not stored experience...");
             // Drop teh EXP if the mode is set to 'DROP' or 'containDrop' is false as no grave will spawn
             if (ModConfig.experienceBehaviour == ExperienceMode.DROP || !ModConfig.containDrop) dropEXP(exp);
-            else if (ModConfig.experienceBehaviour == ExperienceMode.KEEP) player.addExperience(exp);
+            else if (ModConfig.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
         }
     }
 
     // ------------ CURSED ITEM DESTRUCTION ------------
     protected void destroyCursedItems() {
         // --------- Vanilla ---------
-        destroyCursedItems(inventory.main);
+        destroyCursedItems(inventory.items);
         destroyCursedItems(inventory.armor);
-        destroyCursedItems(inventory.offHand);
+        destroyCursedItems(inventory.offhand);
         // --------- Modded Slots ---------
         if (SupportedSlotMods.ARSENAL.isLoaded()) Arsenal.destroyCursed(player);
     }
-    protected static void destroyCursedItems(DefaultedList<ItemStack> slots) {
+    protected static void destroyCursedItems(NonNullList<ItemStack> slots) {
         slots.forEach(slot -> { if (EnchantmentHelper.hasVanishingCurse(slot)) slot.setCount(0); });
     }
     // -------------------------------------------------
 
     // ------------ DROP EXP ------------
     public void dropEXP(int exp) {
-        final World world = player.getWorld();
-        final Random random = world.getRandom();
-        dropEXP(exp, world, random, player.getBlockPos());
+        final Level world = player.level();
+        final RandomSource random = world.getRandom();
+        dropEXP(exp, world, random, player.blockPosition());
     }
-    public static void dropEXP(int exp, World world, Random random, BlockPos pos) {
-        if (!world.isClient()) {
+    public static void dropEXP(int exp, Level world, RandomSource random, BlockPos pos) {
+        if (!world.isClientSide()) {
             final int expEntitiesCount = random.nextInt(7) + 1;
 
             int[] extEntitiesWights = new int[expEntitiesCount];
@@ -115,7 +115,7 @@ public class DeathManager {
             }
 
             for (int i = 0; i < expEntitiesCount; i++) {
-                world.spawnEntity(new ExperienceOrbEntity(world, pos.getX(), pos.getY(), pos.getZ(), expEntitiesExperience[i]));
+                world.addFreshEntity(new ExperienceOrb(world, pos.getX(), pos.getY(), pos.getZ(), expEntitiesExperience[i]));
             }
         }
     }

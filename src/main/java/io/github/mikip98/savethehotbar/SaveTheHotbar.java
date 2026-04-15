@@ -12,13 +12,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class SaveTheHotbar implements ModInitializer {
 		ConfigReader.loadConfigFromFile();
 
 		// Block Registration
-		final AbstractBlock.Settings universalSettings = FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE).nonOpaque();
+		final BlockBehaviour.Properties universalSettings = FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE).noOcclusion();
 
 		SACK = registerWithItem(new Sack(universalSettings), "sack");
 		SKELETON_HEAD_GRAVE = registerWithItem(new MobHeadGrave(universalSettings), "skeleton_head_grave");
@@ -56,7 +56,7 @@ public class SaveTheHotbar implements ModInitializer {
 
 		// Register Sack Block Entity
 		GRAVE_CONTAINER_BLOCK_ENTITY = Registry.register(
-				Registries.BLOCK_ENTITY_TYPE,
+				BuiltInRegistries.BLOCK_ENTITY_TYPE,
 				getId("sack_block_entity"),
 				FabricBlockEntityTypeBuilder.create(
 						GraveContainerBlockEntity::new,
@@ -74,12 +74,12 @@ public class SaveTheHotbar implements ModInitializer {
 	}
 
 	protected static Block registerWithItem(Block block, String id) {
-		Registry.register(Registries.BLOCK, getId(id), block);
-		Registry.register(Registries.ITEM, getId(id), new BlockItem(block, new FabricItemSettings()));
+		Registry.register(BuiltInRegistries.BLOCK, getId(id), block);
+		Registry.register(BuiltInRegistries.ITEM, getId(id), new BlockItem(block, new FabricItemSettings()));
 		return block;
 	}
 
-	public static Identifier getId(String name) {
-		return new Identifier(MOD_ID, name);
+	public static ResourceLocation getId(String name) {
+		return new ResourceLocation(MOD_ID, name);
 	}
 }

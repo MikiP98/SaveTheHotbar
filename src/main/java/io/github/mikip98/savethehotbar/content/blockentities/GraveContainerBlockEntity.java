@@ -4,19 +4,19 @@ import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -24,17 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, SidedInventory {
-    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(41, ItemStack.EMPTY);
-    protected final EnumMap<SupportedSlotMods, DefaultedList<ItemStack>> moddedItems = createEnumMap();
+public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, WorldlyContainer {
+    protected final NonNullList<ItemStack> items = NonNullList.withSize(41, ItemStack.EMPTY);
+    protected final EnumMap<SupportedSlotMods, NonNullList<ItemStack>> moddedItems = createEnumMap();
     @Setter
     @Getter
     protected int exp = 0;
 
-    protected EnumMap<SupportedSlotMods, DefaultedList<ItemStack>> createEnumMap() {
-        EnumMap<SupportedSlotMods, DefaultedList<ItemStack>> moddedItems = new EnumMap<>(SupportedSlotMods.class);
+    protected EnumMap<SupportedSlotMods, NonNullList<ItemStack>> createEnumMap() {
+        EnumMap<SupportedSlotMods, NonNullList<ItemStack>> moddedItems = new EnumMap<>(SupportedSlotMods.class);
         for (SupportedSlotMods mod : SupportedSlotMods.values()) {
-            if (mod.isLoaded()) moddedItems.put(mod, DefaultedList.ofSize(mod.slotAmount, ItemStack.EMPTY));
+            if (mod.isLoaded()) moddedItems.put(mod, NonNullList.withSize(mod.slotAmount, ItemStack.EMPTY));
         }
         return moddedItems;
     }
@@ -44,9 +44,9 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     }
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
+    public NonNullList<ItemStack> getItems() {
         final List<ItemStack> allItems = Stream.concat(this.items.stream(), this.moddedItems.values().stream().flatMap(List::stream)).toList();
-        DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(allItems.size(), ItemStack.EMPTY);
+        NonNullList<ItemStack> defaultedList = NonNullList.withSize(allItems.size(), ItemStack.EMPTY);
         for (int i = 0; i < allItems.size(); i++) { defaultedList.set(i, allItems.get(i)); }
         return defaultedList;
     }
@@ -59,7 +59,7 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         for (SupportedSlotMods mod : SupportedSlotMods.values()) {
             if (mod.isLoaded()) {
                 final List<ItemStack> items = moddedItems.get(mod);
-                DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(items.size(), ItemStack.EMPTY);
+                NonNullList<ItemStack> defaultedList = NonNullList.withSize(items.size(), ItemStack.EMPTY);
                 for (int i = 0; i < items.size(); i++) {
                     defaultedList.set(i, items.get(i));
                 }
@@ -69,10 +69,10 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        Inventories.readNbt(nbt, items);
-        for (Map.Entry<SupportedSlotMods, DefaultedList<ItemStack>> entry : moddedItems.entrySet()) {
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        ContainerHelper.loadAllItems(nbt, items);
+        for (Map.Entry<SupportedSlotMods, NonNullList<ItemStack>> entry : moddedItems.entrySet()) {
             tryReadModdedItemNbt(nbt, entry.getValue(), entry.getKey());
         }
         this.exp = nbt.getInt("Experience");
@@ -83,31 +83,31 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
      * Located in package 'net.minecraft.inventory'
      * Modified to accept a mod
      */
-    public static void tryReadModdedItemNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod) {
+    public static void tryReadModdedItemNbt(CompoundTag nbt, NonNullList<ItemStack> stacks, SupportedSlotMods mod) {
         if (!mod.isLoaded()) return;
 
         final String nbtId = "Items" + mod.modName;
         if (!nbt.contains(nbtId)) return;
 
-        NbtList nbtList = nbt.getList(nbtId, 10);
+        ListTag nbtList = nbt.getList(nbtId, 10);
 
         for (int i = 0; i < nbtList.size(); i++) {
-            NbtCompound nbtCompound = nbtList.getCompound(i);
+            CompoundTag nbtCompound = nbtList.getCompound(i);
             int j = nbtCompound.getByte("Slot") & 255;
             if (j < stacks.size()) {
-                stacks.set(j, ItemStack.fromNbt(nbtCompound));
+                stacks.set(j, ItemStack.of(nbtCompound));
             }
         }
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
-        Inventories.writeNbt(nbt, items);
-        for (Map.Entry<SupportedSlotMods, DefaultedList<ItemStack>> entry : moddedItems.entrySet()) {
+    public void saveAdditional(CompoundTag nbt) {
+        ContainerHelper.saveAllItems(nbt, items);
+        for (Map.Entry<SupportedSlotMods, NonNullList<ItemStack>> entry : moddedItems.entrySet()) {
             writeNbt(nbt, entry.getValue(), entry.getKey());
         }
         nbt.putInt("Experience", this.exp);
-        super.writeNbt(nbt);
+        super.saveAdditional(nbt);
     }
 
     /**
@@ -115,16 +115,16 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
      * Located in package 'net.minecraft.inventory'
      * Modified to accept a mod
      */
-    public static void writeNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, SupportedSlotMods mod) {
+    public static void writeNbt(CompoundTag nbt, NonNullList<ItemStack> stacks, SupportedSlotMods mod) {
         if (!mod.isLoaded() || stacks.isEmpty() || stacks.stream().allMatch((stack) -> stack == ItemStack.EMPTY)) return;
-        NbtList nbtList = new NbtList();
+        ListTag nbtList = new ListTag();
 
         for (int i = 0; i < stacks.size(); i++) {
             ItemStack itemStack = stacks.get(i);
             if (!itemStack.isEmpty()) {
-                NbtCompound nbtCompound = new NbtCompound();
+                CompoundTag nbtCompound = new CompoundTag();
                 nbtCompound.putByte("Slot", (byte) i);
-                itemStack.writeNbt(nbtCompound);
+                itemStack.save(nbtCompound);
                 nbtList.add(nbtCompound);
             }
         }
@@ -134,27 +134,27 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
 
     @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        return createNbt();
+    public CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
 
     @Override
-    public int[] getAvailableSlots(Direction side) { return new int[0]; }
+    public int[] getSlotsForFace(Direction side) { return new int[0]; }
 
     @Override
-    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction dir) {
         // No input
         return false;
     }
 
     @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
         // Output from the bottom
         return dir == Direction.DOWN;
     }

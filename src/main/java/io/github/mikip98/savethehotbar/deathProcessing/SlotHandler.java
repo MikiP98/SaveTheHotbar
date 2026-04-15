@@ -7,13 +7,13 @@ import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.SlotS
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfig;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Rarity;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.core.NonNullList;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -23,10 +23,10 @@ import java.util.Map;
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class SlotHandler implements SlotSupport {
-    protected PlayerEntity player;
-    protected PlayerInventory inventory;
+    protected Player player;
+    protected Inventory inventory;
 
-    public SlotHandler(PlayerInventory inventory) {
+    public SlotHandler(Inventory inventory) {
         this.player = inventory.player;
         this.inventory = inventory;
     }
@@ -47,29 +47,29 @@ public class SlotHandler implements SlotSupport {
         List<Integer> vanillaDropIDs = new ArrayList<>();
 
         // Keep hotbar
-        checkForDropHotbar(vanillaDrop, vanillaDropIDs, ModConfig.saveHotbar, inventory.main);
+        checkForDropHotbar(vanillaDrop, vanillaDropIDs, ModConfig.saveHotbar, inventory.items);
         // Keep armor
         checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveArmor, inventory.armor);
         // Keep second hand
-        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveSecondHand, inventory.offHand);
+        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveSecondHand, inventory.offhand);
 
         return new VanillaDropSet(vanillaDrop, vanillaDropIDs);
     }
-    protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, DefaultedList<ItemStack> slots) {
+    protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
             ItemStack stack = slots.get(i);
-            if (!stack.isEmpty() && (!PlayerInventory.isValidHotbarIndex(i) || !shouldKeep || shouldDropRandomly(stack))) {
-                drop.add(slots.get(i).copyAndEmpty());
+            if (!stack.isEmpty() && (!Inventory.isHotbarSlot(i) || !shouldKeep || shouldDropRandomly(stack))) {
+                drop.add(slots.get(i).copyAndClear());
                 dropIds.add(i);
             }
         }
     }
-    protected void checkForDrop(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, DefaultedList<ItemStack> slots) {
+    protected void checkForDrop(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, NonNullList<ItemStack> slots) {
         if (!shouldKeep || ModConfig.randomDropChance != 0) {
             for (int i = 0; i < slots.size(); i++) {
                 ItemStack stack = slots.get(i);
                 if (shouldDrop(stack, shouldKeep)) {
-                    drop.add(slots.get(i).copyAndEmpty());
+                    drop.add(slots.get(i).copyAndClear());
                     dropIds.add(i);
                 }
             }
@@ -93,7 +93,7 @@ public class SlotHandler implements SlotSupport {
     protected boolean shouldDrop(ItemStack stack, boolean shouldKeepSlot) {
         return shouldDrop(stack, shouldKeepSlot, player);
     }
-    public static boolean shouldDrop(ItemStack stack, boolean shouldKeepSlot, PlayerEntity player) {
+    public static boolean shouldDrop(ItemStack stack, boolean shouldKeepSlot, Player player) {
         return !stack.isEmpty() && (!shouldKeep(shouldKeepSlot, shouldKeepItem(stack)) || shouldDropRandomly(stack, player));
     }
     public static boolean shouldKeep(boolean shouldKeepSlot, boolean shouldKeepItemType) {
@@ -105,8 +105,8 @@ public class SlotHandler implements SlotSupport {
             if (type == VanillaItemTypes.OTHER) continue;
             final ItemTypeConfig config = ItemTypesConfiguration.vanillaItemTypes.get(type);
             if (
-                    itemStack.isIn(config.getTagOverride())
-                    || config.getTags().stream().anyMatch(itemStack::isIn)
+                    itemStack.is(config.getTagOverride())
+                    || config.getTags().stream().anyMatch(itemStack::is)
                     || config.getClasses().stream().anyMatch(clazz -> clazz.isInstance(itemStack.getItem()))
                     || config.getPredicate() != null && config.getPredicate().apply(itemStack.getItem())
             ) {
@@ -127,14 +127,14 @@ public class SlotHandler implements SlotSupport {
     protected boolean shouldDropRandomly(ItemStack stack) {
         return shouldDropRandomly(stack, player);
     }
-    public static boolean shouldDropRandomly(ItemStack stack, PlayerEntity player) {
+    public static boolean shouldDropRandomly(ItemStack stack, Player player) {
         return player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity(), player);
     }
-    protected static float getRandomDropChance(Rarity rarity, PlayerEntity player) {
+    protected static float getRandomDropChance(Rarity rarity, Player player) {
         float dropChance = ModConfig.randomDropChance;
 
         // Luck
-        final StatusEffectInstance luck = player.getStatusEffect(StatusEffects.LUCK);
+        final MobEffectInstance luck = player.getEffect(MobEffects.LUCK);
         if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.luckDropChanceDecrease);
 
         // Item rarity

@@ -2,10 +2,10 @@ package io.github.mikip98.savethehotbar.modSupport;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.deathProcessing.SlotHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.pneumono.gravestones.api.SkipItemCallback;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +13,7 @@ import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class GravestoneItemSkipCallback implements SkipItemCallback {
     @Override
-    public boolean insertItem(PlayerEntity playerEntity, ItemStack itemStack, @Nullable Identifier identifier) {
+    public boolean insertItem(Player playerEntity, ItemStack itemStack, @Nullable ResourceLocation identifier) {
         LOGGER.info("Gravestone handler called");
         LOGGER.info("identifier -> {}", identifier);
 
@@ -26,7 +26,7 @@ public class GravestoneItemSkipCallback implements SkipItemCallback {
 
             return !switch (subInventory) {
                 case MAIN ->
-                        !itemStack.isEmpty() && (!PlayerInventory.isValidHotbarIndex(slotId) || !ModConfig.saveHotbar || SlotHandler.shouldDropRandomly(itemStack, playerEntity));
+                        !itemStack.isEmpty() && (!Inventory.isHotbarSlot(slotId) || !ModConfig.saveHotbar || SlotHandler.shouldDropRandomly(itemStack, playerEntity));
                 case ARMOR -> SlotHandler.shouldDrop(itemStack, ModConfig.saveArmor, playerEntity);
                 case OFF_HAND -> SlotHandler.shouldDrop(itemStack, ModConfig.saveSecondHand, playerEntity);
             };

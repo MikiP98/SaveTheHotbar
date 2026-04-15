@@ -11,8 +11,8 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.*;
 import me.shedaniel.clothconfig2.impl.builders.SubCategoryBuilder;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -25,7 +25,7 @@ public class ModConfigScreen {
                 .setTitle(getTranslationKey("screen.main"));
 
         // Create a root category
-        ConfigCategory rootCategory = builder.getOrCreateCategory(Text.literal("General Settings"));
+        ConfigCategory rootCategory = builder.getOrCreateCategory(Component.literal("General Settings"));
 
         // --- Main toggle ---
         rootCategory.addEntry(getBooleanEntry(
@@ -256,19 +256,19 @@ public class ModConfigScreen {
 
 
     // --- Generic Util ---
-    protected static Text getCategoryTooltipTranslationKey(@NotNull String name) {
+    protected static Component getCategoryTooltipTranslationKey(@NotNull String name) {
         return getCategoryTranslationKey(name + ".tooltip");
     }
-    protected static Text getCategoryTranslationKey(@NotNull String name) {
+    protected static Component getCategoryTranslationKey(@NotNull String name) {
         return getTranslationKey("category." + name);
     }
-    protected static Text getSettingTooltipTranslationKey(@NotNull String name) {
+    protected static Component getSettingTooltipTranslationKey(@NotNull String name) {
         return getSettingTranslationKey(name + ".tooltip");
     }
-    protected static Text getSettingTranslationKey(@NotNull String name) {
+    protected static Component getSettingTranslationKey(@NotNull String name) {
         return getTranslationKey("setting." + name);
     }
-    protected static Text getTranslationKey(@NotNull String name) {
-        return Text.translatable("config.savethehotbar." + name);
+    protected static Component getTranslationKey(@NotNull String name) {
+        return Component.translatable("config.savethehotbar." + name);
     }
 }

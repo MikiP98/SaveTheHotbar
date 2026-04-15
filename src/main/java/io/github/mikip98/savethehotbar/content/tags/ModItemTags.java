@@ -1,9 +1,9 @@
 package io.github.mikip98.savethehotbar.content.tags;
 
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class ModItemTags {
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             if (type == VanillaItemTypes.OTHER) continue;
             vanillaItemTypesTagOverridesMap.put(type,
-                    TagKey.of(RegistryKeys.ITEM, getId("material_type_" + type.name().toLowerCase() + "_override"))
+                    TagKey.create(Registries.ITEM, getId("material_type_" + type.name().toLowerCase() + "_override"))
             );
         }
     }

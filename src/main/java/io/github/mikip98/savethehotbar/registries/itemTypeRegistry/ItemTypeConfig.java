@@ -2,8 +2,8 @@ package io.github.mikip98.savethehotbar.registries.itemTypeRegistry;
 
 import io.github.mikip98.savethehotbar.annotations.NotEmpty;
 import lombok.Getter;
-import net.minecraft.item.Item;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
