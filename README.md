@@ -123,6 +123,14 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - **`/back` command** with history support
 - Ports for newer MC versions: `1.20.4`, `1.20.6`, `1.21.1`, `1.21.4`, `1.21.8`, `1.21.11`, `26.1.x`
 - Difficulty Random Drop Chance Increase setting
+- Add hunger related options:
+  - Keep hunger after death
+  - Min respawn hunger
+  - Max respawn hunger
+  - Keep saturation after death
+  - Min respawn saturation
+  - Max respawn saturation
+- Consider adding some presets
 
 ---
 
