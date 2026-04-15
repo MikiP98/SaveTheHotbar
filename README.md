@@ -121,7 +121,8 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - Add an option for them to be returned into their original slot they were taken from
 - **Coloured tooltips** in the config
 - **`/back` command** with history support
-- Ports for newer MC versions: `1.20.6`, `1.21.1`, `1.21.4`, `1.21.6`, `1.21.10`
+- Ports for newer MC versions: `1.20.4`, `1.20.6`, `1.21.1`, `1.21.4`, `1.21.8`, `1.21.11`, `26.1.x`
+- Difficulty Random Drop Chance Increase setting
 
 ---
 
