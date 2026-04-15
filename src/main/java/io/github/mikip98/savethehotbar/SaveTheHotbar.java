@@ -8,10 +8,8 @@ import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.fabricmc.api.ModInitializer;
-
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -48,7 +46,7 @@ public class SaveTheHotbar implements ModInitializer {
 		ConfigReader.loadConfigFromFile();
 
 		// Block Registration
-		final BlockBehaviour.Properties universalSettings = FabricBlockSettings.create().strength(0.333F, Float.MAX_VALUE).noOcclusion();
+		final BlockBehaviour.Properties universalSettings = BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();
 
 		SACK = registerWithItem(new Sack(universalSettings), "sack");
 		SKELETON_HEAD_GRAVE = registerWithItem(new MobHeadGrave(universalSettings), "skeleton_head_grave");
@@ -75,7 +73,7 @@ public class SaveTheHotbar implements ModInitializer {
 
 	protected static Block registerWithItem(Block block, String id) {
 		Registry.register(BuiltInRegistries.BLOCK, getId(id), block);
-		Registry.register(BuiltInRegistries.ITEM, getId(id), new BlockItem(block, new FabricItemSettings()));
+		Registry.register(BuiltInRegistries.ITEM, getId(id), new BlockItem(block, new Item.Properties()));
 		return block;
 	}
 
