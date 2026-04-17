@@ -6,9 +6,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.*;
 
@@ -52,10 +52,8 @@ public class ItemTypesConfiguration {
                 });
         vanillaItemTypes.get(VanillaItemTypes.POSSIBLE_LIGHT_SOURCE)
                 .addPredicate(item -> {
-                    if (item instanceof BlockItem blockItem) {
-                        final BlockState blockState = blockItem.getBlock().defaultBlockState();
-                        return hasLuminantCombination(blockState, new ArrayList<>(blockState.getProperties()), 0);
-                    }
+                    if (item instanceof BlockItem blockItem)
+                        return hasLuminantState(blockItem.getBlock());
                     return false;
                 });
 
@@ -68,19 +66,23 @@ public class ItemTypesConfiguration {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected static boolean hasLuminantCombination(BlockState base, List<Property<?>> properties, int index) {
-        if (index >= properties.size()) {
-            return base.getLightEmission() > 0;
+    private static final Map<Block, Boolean> luminanceCache = new HashMap<>();
+    protected static boolean hasLuminantState(Block block) {
+        if (luminanceCache.containsKey(block)) {
+            return luminanceCache.get(block);
         }
 
-        Property property = properties.get(index);
-        for (Object value : property.getPossibleValues()) {
-            BlockState modified = base.setValue(property, (Comparable) value);
-            if (hasLuminantCombination(modified, properties, index + 1)) {
+        if (block.defaultBlockState().getLightEmission() > 0) {
+            luminanceCache.put(block, true);
+            return true;
+        }
+        for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+            if (state.getLightEmission() > 0) {
+                luminanceCache.put(block, true);
                 return true;
             }
         }
+        luminanceCache.put(block, false);
         return false;
     }
 
