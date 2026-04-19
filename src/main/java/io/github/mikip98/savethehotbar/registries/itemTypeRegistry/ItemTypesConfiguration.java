@@ -41,17 +41,17 @@ public class ItemTypesConfiguration {
         vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class);
         vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
 
-        vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicate(Item::isEdible);
+        vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicates(Item::isEdible);
         vanillaItemTypes.get(VanillaItemTypes.POTION).addClasses(PotionItem.class);
 
         vanillaItemTypes.get(VanillaItemTypes.LIGHT_SOURCE_ON)
-                .addPredicate(item -> {
+                .addPredicates(item -> {
                     if (item instanceof BlockItem blockItem)
                         return blockItem.getBlock().defaultBlockState().getLightEmission() > 0;
                     return false;
                 });
         vanillaItemTypes.get(VanillaItemTypes.POSSIBLE_LIGHT_SOURCE)
-                .addPredicate(item -> {
+                .addPredicates(item -> {
                     if (item instanceof BlockItem blockItem)
                         return hasLuminantState(blockItem.getBlock());
                     return false;
@@ -60,30 +60,26 @@ public class ItemTypesConfiguration {
         // Validate that all Item Types have valid configurations (a.k.a. I haven't forgotten anything)
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             ItemTypeConfig config = vanillaItemTypes.get(type);
-            if (type != VanillaItemTypes.OTHER && config.getClasses().isEmpty() && config.getTags().isEmpty() && config.getPredicate() == null) {
+            if (type != VanillaItemTypes.OTHER && !config.isConfigured()) {
                 throw new IllegalStateException("Not all Item Types have a valid configuration");
             }
         }
     }
 
-    private static final Map<Block, Boolean> luminanceCache = new HashMap<>();
+    // TODO: Maybe instead of caching this here, I should just cache 'isItemStackOfType' inside 'ItemTypeConfig'
+    private static final Map<Block, Boolean> luminanceCache = new IdentityHashMap<>();
     protected static boolean hasLuminantState(Block block) {
-        if (luminanceCache.containsKey(block)) {
-            return luminanceCache.get(block);
-        }
-
-        if (block.defaultBlockState().getLightEmission() > 0) {
-            luminanceCache.put(block, true);
-            return true;
-        }
-        for (BlockState state : block.getStateDefinition().getPossibleStates()) {
-            if (state.getLightEmission() > 0) {
-                luminanceCache.put(block, true);
+        return luminanceCache.computeIfAbsent(block, b -> {
+            if (b.defaultBlockState().getLightEmission() > 0) {
                 return true;
             }
-        }
-        luminanceCache.put(block, false);
-        return false;
+            for (BlockState state : b.getStateDefinition().getPossibleStates()) {
+                if (state.getLightEmission() > 0) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     protected static void registerModdedConfiguration() {}

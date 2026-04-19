@@ -1,9 +1,6 @@
 package io.github.mikip98.savethehotbar.config;
 
-import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
-import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
-import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
-import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
+import io.github.mikip98.savethehotbar.config.enums.*;
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import io.github.mikip98.savethehotbar.config.io.ConfigSaver;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -103,6 +100,12 @@ public class ModConfigScreen {
     // --- Item Types ---
     protected static SubCategoryListEntry getItemTypeControlCategory() {
         SubCategoryBuilder itemTypeControlCategory = getSubCategory("item_type_control");
+
+        itemTypeControlCategory.add(getEnumEntry(
+                "item_category_overlap_resolution", OverlapResolution.class,
+                ModConfig.overlapResolution, ModConfig.dOverlapResolution,
+                value -> ModConfig.overlapResolution = value
+        ));
 
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             itemTypeControlCategory.add(getBooleanEntry(

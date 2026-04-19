@@ -1,9 +1,6 @@
 package io.github.mikip98.savethehotbar.config;
 
-import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
-import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
-import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
-import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
+import io.github.mikip98.savethehotbar.config.enums.*;
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 
 import java.util.EnumMap;
@@ -20,6 +17,7 @@ public abstract class DefaultConfig {
             dSaveSecondHand = true,
             dSaveMainInventory = false;
 
+    public static OverlapResolution dOverlapResolution = OverlapResolution.LENIENT;
     public static Map<VanillaItemTypes, Boolean> dVanillaItemTypesKeepingMap = new EnumMap<>(VanillaItemTypes.class);
     static {
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
