@@ -1,6 +1,7 @@
 package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.config.enums.OverlapResolution;
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
@@ -49,7 +51,7 @@ public class SlotHandler implements SlotSupport {
         List<Integer> vanillaDropIDs = new ArrayList<>();
 
         // Keep hotbar
-        checkForDropHotbar(vanillaDrop, vanillaDropIDs, ModConfig.saveHotbar, inventory.items);
+        checkForDropHotbar(vanillaDrop, vanillaDropIDs, inventory.items);
         // Keep armor
         checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveArmor, inventory.armor);
         // Keep second hand
@@ -57,23 +59,24 @@ public class SlotHandler implements SlotSupport {
 
         return new VanillaDropSet(vanillaDrop, vanillaDropIDs);
     }
-    protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, NonNullList<ItemStack> slots) {
+    protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
             ItemStack stack = slots.get(i);
-            if (!stack.isEmpty() && (!Inventory.isHotbarSlot(i) || !shouldKeep || shouldDropRandomly(stack))) {
+            final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.saveHotbar;
+            final boolean shouldKeepInventory = !Inventory.isHotbarSlot(i) && ModConfig.saveMainInventory;
+            final boolean shouldKeep = shouldKeep(shouldKeepHotbar || shouldKeepInventory, shouldKeepItem(stack));
+            if (!stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack))) {
                 drop.add(slots.get(i).copyAndClear());
                 dropIds.add(i);
             }
         }
     }
     protected void checkForDrop(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, NonNullList<ItemStack> slots) {
-        if (!shouldKeep || ModConfig.randomDropChance != 0) {
-            for (int i = 0; i < slots.size(); i++) {
-                ItemStack stack = slots.get(i);
-                if (shouldDrop(stack, shouldKeep)) {
-                    drop.add(slots.get(i).copyAndClear());
-                    dropIds.add(i);
-                }
+        for (int i = 0; i < slots.size(); i++) {
+            ItemStack stack = slots.get(i);
+            if (shouldDrop(stack, shouldKeep)) {
+                drop.add(slots.get(i).copyAndClear());
+                dropIds.add(i);
             }
         }
     }
@@ -104,22 +107,20 @@ public class SlotHandler implements SlotSupport {
         return ModConfig.itemKeepingLogicOperator.apply(shouldKeepSlot, shouldKeepItemType);
     }
     public static boolean shouldKeepItem(ItemStack itemStack) {
-        boolean other = true;
+        ArrayList<VanillaItemTypes> itemTypes = new ArrayList<>();
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             if (type == VanillaItemTypes.OTHER) continue;
             final ItemTypeConfig config = ItemTypesConfiguration.vanillaItemTypes.get(type);
-            if (
-                    itemStack.is(config.getTagOverride())
-                    || config.getTags().stream().anyMatch(itemStack::is)
-                    || config.getClasses().stream().anyMatch(clazz -> clazz.isInstance(itemStack.getItem()))
-                    || config.getPredicate() != null && config.getPredicate().apply(itemStack.getItem())
-            ) {
-                other = false;
-                if (ModConfig.vanillaItemTypesKeepingMap.get(type))
-                    return true;
-            }
+            if (config.isItemStackOfType(itemStack)) itemTypes.add(type);
         }
-        return other ? ModConfig.vanillaItemTypesKeepingMap.get(VanillaItemTypes.OTHER) : false;
+        if (itemTypes.isEmpty()) itemTypes.add(VanillaItemTypes.OTHER);
+
+        Predicate<VanillaItemTypes> predicate = (itemType) -> ModConfig.vanillaItemTypesKeepingMap.get(itemType);
+        if (ModConfig.overlapResolution == OverlapResolution.LENIENT) {
+            return itemTypes.stream().anyMatch(predicate);
+        } else {
+            return itemTypes.stream().allMatch(predicate);
+        }
     }
 
 

@@ -6,9 +6,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.*;
 
@@ -41,47 +41,45 @@ public class ItemTypesConfiguration {
         vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class);
         vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
 
-        vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicate(Item::isEdible);
+        vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicates(Item::isEdible);
         vanillaItemTypes.get(VanillaItemTypes.POTION).addClasses(PotionItem.class);
 
         vanillaItemTypes.get(VanillaItemTypes.LIGHT_SOURCE_ON)
-                .addPredicate(item -> {
+                .addPredicates(item -> {
                     if (item instanceof BlockItem blockItem)
                         return blockItem.getBlock().defaultBlockState().getLightEmission() > 0;
                     return false;
                 });
         vanillaItemTypes.get(VanillaItemTypes.POSSIBLE_LIGHT_SOURCE)
-                .addPredicate(item -> {
-                    if (item instanceof BlockItem blockItem) {
-                        final BlockState blockState = blockItem.getBlock().defaultBlockState();
-                        return hasLuminantCombination(blockState, new ArrayList<>(blockState.getProperties()), 0);
-                    }
+                .addPredicates(item -> {
+                    if (item instanceof BlockItem blockItem)
+                        return hasLuminantState(blockItem.getBlock());
                     return false;
                 });
 
         // Validate that all Item Types have valid configurations (a.k.a. I haven't forgotten anything)
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             ItemTypeConfig config = vanillaItemTypes.get(type);
-            if (type != VanillaItemTypes.OTHER && config.getClasses().isEmpty() && config.getTags().isEmpty() && config.getPredicate() == null) {
+            if (type != VanillaItemTypes.OTHER && !config.isConfigured()) {
                 throw new IllegalStateException("Not all Item Types have a valid configuration");
             }
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected static boolean hasLuminantCombination(BlockState base, List<Property<?>> properties, int index) {
-        if (index >= properties.size()) {
-            return base.getLightEmission() > 0;
-        }
-
-        Property property = properties.get(index);
-        for (Object value : property.getPossibleValues()) {
-            BlockState modified = base.setValue(property, (Comparable) value);
-            if (hasLuminantCombination(modified, properties, index + 1)) {
+    // TODO: Maybe instead of caching this here, I should just cache 'isItemStackOfType' inside 'ItemTypeConfig'
+    private static final Map<Block, Boolean> luminanceCache = new IdentityHashMap<>();
+    protected static boolean hasLuminantState(Block block) {
+        return luminanceCache.computeIfAbsent(block, b -> {
+            if (b.defaultBlockState().getLightEmission() > 0) {
                 return true;
             }
-        }
-        return false;
+            for (BlockState state : b.getStateDefinition().getPossibleStates()) {
+                if (state.getLightEmission() > 0) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     protected static void registerModdedConfiguration() {}

@@ -28,6 +28,8 @@
 
 	"config.savethehotbar.category.item_type_control": "Item Type Control",
 	"config.savethehotbar.category.item_type_control.tooltip": "Which item types should be kept after death",
+	"config.savethehotbar.setting.item_category_overlap_resolution": "Item Category Overlap Resolution",
+	"config.savethehotbar.setting.item_category_overlap_resolution.tooltip": "Weather the item should be kept when all of it's categories are kept or at least one of them\n- LENIENT -> Item has to be of at least one of the kept item types\n- STRICT -> All of item's item types have to be kept",
 	"config.savethehotbar.setting.keep_tool": "Keep Tools",
 	"config.savethehotbar.setting.keep_tool.tooltip": "Keep tools after death",
 	"config.savethehotbar.setting.keep_weapon": "Keep Weapons",
@@ -37,7 +39,7 @@
 	"config.savethehotbar.setting.keep_armour": "Keep Armour Pieces",
 	"config.savethehotbar.setting.keep_armour.tooltip": "Keep armour pieces after death",
 	"config.savethehotbar.setting.keep_equipment": "Keep Equipment",
-	"config.savethehotbar.setting.keep_equipment.tooltip": "Keep equipment after death",
+	"config.savethehotbar.setting.keep_equipment.tooltip": "Keep equipment after death\nEquipment is anything you can wear",
 	"config.savethehotbar.setting.keep_food": "Keep Food",
 	"config.savethehotbar.setting.keep_food.tooltip": "Keep food after death",
 	"config.savethehotbar.setting.keep_potion": "Keep Potions",

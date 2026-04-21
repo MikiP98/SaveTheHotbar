@@ -2,6 +2,7 @@ package io.github.mikip98.savethehotbar.config.io;
 
 import com.google.gson.*;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
@@ -26,6 +27,12 @@ public class ConfigSaver {
         configJson.addProperty("saveHotbar", ModConfig.saveHotbar);
         configJson.addProperty("saveArmor", ModConfig.saveArmor);
         configJson.addProperty("saveSecondHand", ModConfig.saveSecondHand);
+        configJson.addProperty("saveMainInventory", ModConfig.saveMainInventory);
+
+        configJson.addProperty("overlapResolution", ModConfig.overlapResolution.name());
+        for (VanillaItemTypes itemType : VanillaItemTypes.values()) {
+            configJson.addProperty(itemType.name().toLowerCase(), ModConfig.vanillaItemTypesKeepingMap.get(itemType));
+        }
 
         configJson.addProperty("experienceBehaviour", ModConfig.experienceBehaviour.toString());
 

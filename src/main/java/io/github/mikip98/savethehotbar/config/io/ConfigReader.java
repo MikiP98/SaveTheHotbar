@@ -7,11 +7,14 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceCalculation;
+import io.github.mikip98.savethehotbar.config.enums.OverlapResolution;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Function;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
@@ -30,11 +33,22 @@ public class ConfigReader {
                 boolean needsUpdating = false;
                 if (configJson != null) {
                     // Load the static fields from the JSON object
-                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "enabled");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "enable");
 
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveHotbar");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveArmor");
                     needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveSecondHand");
+                    needsUpdating |= tryLoad(configJson, JsonElement::getAsBoolean, "saveMainInventory");
+
+                    needsUpdating |= tryLoadEnum(configJson, "overlapResolution", OverlapResolution::valueOf);
+                    for (VanillaItemTypes type : VanillaItemTypes.values()) {
+                        try {
+                            ModConfig.vanillaItemTypesKeepingMap.put(type, configJson.get(type.name().toLowerCase()).getAsBoolean());
+                        } catch (Exception e) {
+                            needsUpdating = true;
+                            printLoadError("vanillaItemTypesKeepingMap", configJson, e);
+                        }
+                    }
 
                     needsUpdating |= tryLoadEnum(configJson, "experienceBehaviour", ExperienceMode::valueOf);
 
@@ -72,12 +86,13 @@ public class ConfigReader {
             ConfigSaver.saveConfigToFile();  // Create the config file
         }
     }
+
     private static <T> boolean tryLoad(JsonObject configJson, Function<JsonElement, T> getter, String fieldName) {
         try {
             T value = getter.apply(configJson.get(fieldName));
             ModConfig.class.getField(fieldName).set(ModConfig.class, value);
         } catch (Exception e) {
-            LOGGER.error("Failed to load config field '{}'", fieldName, e);
+            printLoadError(fieldName, configJson, e);
             return true;
         }
         return false;
@@ -87,9 +102,27 @@ public class ConfigReader {
             String value = configJson.get(fieldName).getAsString();
             ModConfig.class.getField(fieldName).set(ModConfig.class, setter.apply(value));
         } catch (Exception e) {
-            e.printStackTrace();
+            printLoadError(fieldName, configJson, e);
             return true;
         }
         return false;
+    }
+    private static <T> boolean tryLoadViaSetter(JsonObject configJson, Function<JsonElement, T> getter, String fieldName, Class<T> clazz) {
+        final String setterName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        try {
+            T value = getter.apply(configJson.get(fieldName));
+            ModConfig.class.getMethod(setterName, clazz).invoke(null, value);
+        } catch (Exception e) {
+            printLoadError(fieldName, configJson, e);
+            return true;
+        }
+        return false;
+    }
+
+    private static void printLoadError(String fieldName, JsonObject configJson, Exception e) {
+        LOGGER.error(
+                "Failed to load '{}' from config file: {}\n\tError: {}\n\tStacktrace: {}",
+                fieldName, configJson, e.getMessage(), e.getStackTrace()
+        );
     }
 }
