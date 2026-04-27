@@ -78,14 +78,38 @@ repositories {
 
 loom {
 	splitEnvironmentSourceSets()
+}
 
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "savethehotbar-test"
+		enableGameTests = true
+		eula = true
+	}
+}
+
+loom {
 	mods {
 		"savethehotbar" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
+		"savethehotbar-test" {
+			sourceSet sourceSets.gametest
+		}
 	}
+}
 
+configurations {
+	gametestAnnotationProcessor.extendsFrom(annotationProcessor)
+	gametestCompileOnly.extendsFrom(compileOnly)
+	gametestImplementation.extendsFrom(implementation)
+
+	if (activeMcVersionNum < 260000) {
+		gametestModCompileOnly.extendsFrom(modCompileOnly)
+		gametestModImplementation.extendsFrom(modImplementation)
+	}
 }
 
 dependencies {
