@@ -113,12 +113,11 @@ If you want support for another mod to be added, feel free to submit an [issue](
 
 - Updated support for latest *Pneumono Gravestones*
 - Moved config names and tooltips to MC language files
+- Add item filtering by type: weapon, armour, food, potion, etc.
 
 ### 🧭 Upcoming
 
-- Add item filtering by type: weapon, armour, food, potion, etc.
 - Option to **return items directly** to inventory after grave destruction
-  - Add an option for them to be returned into their original slot they were taken from
 - **Coloured tooltips** in the config
 - **`/back` command** with history support
 - Ports for newer MC versions: `1.20.4`, `1.20.6`, `1.21.1`, `1.21.4`, `1.21.8`, `1.21.11`, `26.1.x`
@@ -130,7 +129,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - Keep saturation after death
   - Min respawn saturation
   - Max respawn saturation
-- Consider adding some presets
+- Consider adding some setting presets
 
 ---
 
