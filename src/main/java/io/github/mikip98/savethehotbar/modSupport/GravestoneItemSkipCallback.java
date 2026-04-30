@@ -26,9 +26,9 @@ public class GravestoneItemSkipCallback implements SkipItemCallback {
 
             return !switch (subInventory) {
                 case MAIN ->
-                        !itemStack.isEmpty() && (!Inventory.isHotbarSlot(slotId) || !ModConfig.saveHotbar || SlotHandler.shouldDropRandomly(itemStack, playerEntity));
-                case ARMOR -> SlotHandler.shouldDrop(itemStack, ModConfig.saveArmor, playerEntity);
-                case OFF_HAND -> SlotHandler.shouldDrop(itemStack, ModConfig.saveSecondHand, playerEntity);
+                        !itemStack.isEmpty() && (!Inventory.isHotbarSlot(slotId) || !ModConfig.INSTANCE.saveHotbar || SlotHandler.shouldDropRandomly(itemStack, playerEntity));
+                case ARMOR -> SlotHandler.shouldDrop(itemStack, ModConfig.INSTANCE.saveArmor, playerEntity);
+                case OFF_HAND -> SlotHandler.shouldDrop(itemStack, ModConfig.INSTANCE.saveSecondHand, playerEntity);
             };
         }
         return true;

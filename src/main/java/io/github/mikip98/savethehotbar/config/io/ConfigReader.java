@@ -43,7 +43,7 @@ public class ConfigReader {
                     needsUpdating |= tryLoadEnum(configJson, "overlapResolution", OverlapResolution::valueOf);
                     for (VanillaItemTypes type : VanillaItemTypes.values()) {
                         try {
-                            ModConfig.vanillaItemTypesKeepingMap.put(type, configJson.get(type.name().toLowerCase()).getAsBoolean());
+                            ModConfig.INSTANCE.vanillaItemTypesKeepingMap.put(type, configJson.get(type.name().toLowerCase()).getAsBoolean());
                         } catch (Exception e) {
                             needsUpdating = true;
                             printLoadError("vanillaItemTypesKeepingMap", configJson, e);
@@ -90,7 +90,7 @@ public class ConfigReader {
     private static <T> boolean tryLoad(JsonObject configJson, Function<JsonElement, T> getter, String fieldName) {
         try {
             T value = getter.apply(configJson.get(fieldName));
-            ModConfig.class.getField(fieldName).set(ModConfig.class, value);
+            ModConfig.class.getField(fieldName).set(ModConfig.INSTANCE, value);
         } catch (Exception e) {
             printLoadError(fieldName, configJson, e);
             return true;
@@ -100,7 +100,7 @@ public class ConfigReader {
     private static <V> boolean tryLoadEnum(JsonObject configJson, String fieldName, Function<String, V> setter) {
         try {
             String value = configJson.get(fieldName).getAsString();
-            ModConfig.class.getField(fieldName).set(ModConfig.class, setter.apply(value));
+            ModConfig.class.getField(fieldName).set(ModConfig.INSTANCE, setter.apply(value));
         } catch (Exception e) {
             printLoadError(fieldName, configJson, e);
             return true;
@@ -111,7 +111,7 @@ public class ConfigReader {
         final String setterName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
         try {
             T value = getter.apply(configJson.get(fieldName));
-            ModConfig.class.getMethod(setterName, clazz).invoke(null, value);
+            ModConfig.class.getMethod(setterName, clazz).invoke(ModConfig.INSTANCE, value);
         } catch (Exception e) {
             printLoadError(fieldName, configJson, e);
             return true;

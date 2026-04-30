@@ -2,48 +2,60 @@ package io.github.mikip98.savethehotbar.config;
 
 import io.github.mikip98.savethehotbar.config.enums.*;
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
+import lombok.Setter;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class ModConfig extends DefaultConfig {
-    public static boolean enable = dEnable;
+@Setter
+public class ModConfig {
+    public static ModConfig INSTANCE = new ModConfig();
+    public static final ModConfig DEFAULT = new ModConfig();
+
+    public boolean enable = true;
 
     // TODO: Presets?
 
-    public static LogicOperator itemKeepingLogicOperator = dItemKeepingLogicOperator;
+    public LogicOperator itemKeepingLogicOperator = LogicOperator.AND;
 
-    public static boolean
-            saveHotbar = dSaveHotbar,
-            saveArmor = dSaveArmor,
-            saveSecondHand = dSaveSecondHand,
-            saveMainInventory = dSaveMainInventory;
+    public boolean
+            saveHotbar = true,
+            saveArmor = true,
+            saveSecondHand = true,
+            saveMainInventory = false;
 
-    public static OverlapResolution overlapResolution = dOverlapResolution;
-    public static Map<VanillaItemTypes, Boolean> vanillaItemTypesKeepingMap = new EnumMap<>(dVanillaItemTypesKeepingMap);
+    public OverlapResolution overlapResolution = OverlapResolution.LENIENT;
+    public Map<VanillaItemTypes, Boolean> vanillaItemTypesKeepingMap = getVanillaItemTypesKeepingMap();
 
-    public static ExperienceMode experienceBehaviour = dExperienceBehaviour;
-    public static ExperienceCalculation experienceCalculationMode = dExperienceCalculationMode;
-    public static float experienceFraction = dExperienceFraction;
+    protected static Map<VanillaItemTypes, Boolean> getVanillaItemTypesKeepingMap() {
+        Map<VanillaItemTypes, Boolean> vanillaItemTypesKeepingMap = new EnumMap<>(VanillaItemTypes.class);
+        for (VanillaItemTypes type : VanillaItemTypes.values()) {
+            vanillaItemTypesKeepingMap.put(type, true);
+        }
+        return vanillaItemTypesKeepingMap;
+    }
 
-    public static boolean
-            randomSpread = dRandomSpread,  // Does not do anything if containDrop is true
-            containDrop = dContainDrop,
-            logDeathCoordinatesInChat = dLogDeathCoordinatesInChat,
-            logGraveCoordinatesInChat = dLogGraveCoordinatesInChat;
+    public ExperienceMode experienceBehaviour = ExperienceMode.DROP;
+    public ExperienceCalculation experienceCalculationMode = ExperienceCalculation.FRACTION;
+    public float experienceFraction = 0.2f;
 
-    public static float
-            randomDropChance = dRandomDropChance,
-            rarityDropChanceDecrease = dRarityDropChanceDecrease,
-            luckDropChanceDecrease = dLuckDropChanceDecrease;
+    public boolean
+            randomSpread = false,  // Does not do anything if containDrop is true
+            containDrop = false,
+            logDeathCoordinatesInChat = false,
+            logGraveCoordinatesInChat = false;
 
-    public static ContainDropMode containDropMode = dContainDropMode;  // Does not do anything if containDrop is false
+    public float
+            randomDropChance = .0f,
+            rarityDropChanceDecrease = 0.2f,
+            luckDropChanceDecrease = 0.2f;
 
-    public static int sackMaxSpawnRadius = dSackMaxSpawnRadius;
-    public static int mobGraveMaxSpawnRadius = dMobGraveMaxSpawnRadius;
-    public static boolean allowGravesToSpawnOnSlabs = dAllowGravesToSpawnOnSlabs;
+    public ContainDropMode containDropMode = ContainDropMode.SACK;  // Does not do anything if containDrop is false
+
+    public int sackMaxSpawnRadius = 1;
+    public int mobGraveMaxSpawnRadius = 32;
+    public boolean allowGravesToSpawnOnSlabs = false;
 
     // ------------ MOD SUPPORT ------------
-    public static boolean
-            saveArsenal = dSaveArsenal;
+    public boolean saveArsenal = true;
 }

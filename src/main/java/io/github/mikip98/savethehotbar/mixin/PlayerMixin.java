@@ -34,7 +34,7 @@ public abstract class PlayerMixin {
 
     @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
     private void dropInventory(CallbackInfo ci) {
-        if (ModConfig.enable) {
+        if (ModConfig.INSTANCE.enable) {
             try {
                 final Player player = this.inventory.player;
                 final Level world = player.level();
@@ -46,7 +46,7 @@ public abstract class PlayerMixin {
 
                 final DeathManager deathManager = new DeathManager(inventory, this::drop);
                 deathManager.managePlayerDeath();
-                if (!(ModConfig.containDrop && ModConfig.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
+                if (!(ModConfig.INSTANCE.containDrop && ModConfig.INSTANCE.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.error("An error occurred while dropping inventory", e);
@@ -72,7 +72,7 @@ public abstract class PlayerMixin {
 
     @Unique
     private void graveStoneCheck(Level world) {
-        if (ModConfig.containDrop && ModConfig.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
+        if (ModConfig.INSTANCE.containDrop && ModConfig.INSTANCE.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
             GravestoneConfiguration.gravestoneCheck(this::doublePrintWarn, world.getServer());
         }
     }

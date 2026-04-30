@@ -30,7 +30,7 @@ SOFTWARE.
  */
 public enum ExperienceCalculation {
     ALL(entity -> entity.totalExperience),
-    FRACTION(entity -> (int)(entity.totalExperience * ModConfig.experienceFraction)),
+    FRACTION(entity -> (int)(entity.totalExperience * ModConfig.INSTANCE.experienceFraction)),
     VANILLA(entity -> entity.experienceLevel * 7);
 
     private final Calculation calculation;

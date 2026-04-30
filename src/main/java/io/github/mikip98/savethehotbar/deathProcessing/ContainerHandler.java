@@ -42,7 +42,7 @@ public class ContainerHandler {
     protected final DeathManager.ItemDropper rawItemDropFunction;
 
     protected void dropItem(ItemStack stack) {
-        rawItemDropFunction.dropItem(stack, ModConfig.randomSpread, false);
+        rawItemDropFunction.dropItem(stack, ModConfig.INSTANCE.randomSpread, false);
     }
 
 
@@ -70,12 +70,12 @@ public class ContainerHandler {
             return;
         }
         LOGGER.info("Handling drop...");
-        if (ModConfig.containDrop) spawnGrave();
+        if (ModConfig.INSTANCE.containDrop) spawnGrave();
         else {
             // Drop all items
             final String message = "Dropping inventory at " + position;
             LOGGER.info(message);
-            if (ModConfig.logDeathCoordinatesInChat) player.sendSystemMessage(Component.nullToEmpty(message));
+            if (ModConfig.INSTANCE.logDeathCoordinatesInChat) player.sendSystemMessage(Component.nullToEmpty(message));
 
             for (ItemStack stack : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
                 dropItem(stack);
@@ -85,7 +85,7 @@ public class ContainerHandler {
     }
 
     protected void spawnGrave() {
-        switch (ModConfig.containDropMode) {
+        switch (ModConfig.INSTANCE.containDropMode) {
             case SACK -> spawnSack();
             case SKELETON_HEAD -> spawnHeadGrave(SaveTheHotbar.SKELETON_HEAD_GRAVE);
             case ZOMBIE_HEAD -> spawnHeadGrave(SaveTheHotbar.ZOMBIE_HEAD_GRAVE);
@@ -111,7 +111,7 @@ public class ContainerHandler {
         final BlockPos sackPos = findSafestSackLocation();
         world.setBlock(sackPos, SaveTheHotbar.SACK.defaultBlockState(), 3);
         LOGGER.info("Spawned a sack at {}", sackPos);
-        if (ModConfig.logGraveCoordinatesInChat) {
+        if (ModConfig.INSTANCE.logGraveCoordinatesInChat) {
             player.sendSystemMessage(Component.literal("Grave coordinates: " + sackPos).withStyle(ChatFormatting.AQUA));
         }
         fillGrave(sackPos);
@@ -126,7 +126,7 @@ public class ContainerHandler {
             final Direction facing = Direction.from2DDataValue(world.getRandom().nextIntBetweenInclusive(0, 3));
             world.setBlock(gravePos, head.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, facing), 3);
             LOGGER.info("Spawned a mob head grave at {}", gravePos);
-            if (ModConfig.logGraveCoordinatesInChat) {
+            if (ModConfig.INSTANCE.logGraveCoordinatesInChat) {
                 player.sendSystemMessage(Component.literal("Grave coordinates: " + gravePos).withStyle(ChatFormatting.AQUA));
             }
             fillGrave(gravePos);
@@ -181,7 +181,7 @@ public class ContainerHandler {
      */
     protected @Nullable BlockPos findValidHeadGraveLocation() {
         return findValidSpawnPosition(
-                position, ModConfig.mobGraveMaxSpawnRadius,
+                position, ModConfig.INSTANCE.mobGraveMaxSpawnRadius,
                 (position1) -> {
                     if (fitsInHeight(world, position1) && world.getBlockState(position1).canBeReplaced()) {
                         BlockPos downPos = position1.below();
@@ -197,7 +197,7 @@ public class ContainerHandler {
     }
     protected boolean isTop(BlockState blockState, BlockPos pos) {
         // TODO: If configured, allow the grave to spawn if block is a top half block
-        if (ModConfig.allowGravesToSpawnOnSlabs && blockState.getProperties().contains(BlockStateProperties.HALF)) {
+        if (ModConfig.INSTANCE.allowGravesToSpawnOnSlabs && blockState.getProperties().contains(BlockStateProperties.HALF)) {
             final VoxelShape collisionShape = blockState.getCollisionShape(world, pos);
             return blockState.getValue(BlockStateProperties.HALF) == Half.TOP
                     && collisionShape.max(Direction.Axis.X) == 1.0d
@@ -219,11 +219,11 @@ public class ContainerHandler {
      */
     protected @NotNull BlockPos findSafestSackLocation() {
         BlockPos pos = findValidSpawnPosition(
-                position, ModConfig.sackMaxSpawnRadius,
+                position, ModConfig.INSTANCE.sackMaxSpawnRadius,
                 (position1 -> fitsInHeight(world, position1) && world.getBlockState(position1).canBeReplaced())
         );
         if (pos == null) pos = findValidSpawnPosition(
-                position, ModConfig.sackMaxSpawnRadius,
+                position, ModConfig.INSTANCE.sackMaxSpawnRadius,
                 (position1 -> fitsInHeight(world, position1) && world.getBlockState(position1).getBlock().defaultDestroyTime() != -1)
         );
         return pos != null ? pos : position;

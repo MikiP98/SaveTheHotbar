@@ -44,7 +44,7 @@ public class DeathManager {
     // -----------------------------------------------------------------------------------------------------------------
 
     public void managePlayerDeath() {
-        if (ModConfig.logDeathCoordinatesInChat) {
+        if (ModConfig.INSTANCE.logDeathCoordinatesInChat) {
             player.sendSystemMessage(Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
         }
 
@@ -53,7 +53,7 @@ public class DeathManager {
         destroyCursedItems();
 
         LOGGER.info("Calculating new EXP amount...");
-        final int exp = ModConfig.experienceCalculationMode.calculateExperience(player);
+        final int exp = ModConfig.INSTANCE.experienceCalculationMode.calculateExperience(player);
 
         LOGGER.info("Checking for non-kept items...");
         final SlotHandler slotHandler = new SlotHandler(inventory);
@@ -61,7 +61,7 @@ public class DeathManager {
 
         LOGGER.info("Handling the non-kept items...");
         int storedExperience = 0;
-        if (ModConfig.experienceBehaviour == ExperienceMode.STORE) {
+        if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.STORE) {
             LOGGER.info("Experience will be stored in the grave...");
             storedExperience = exp;
         }
@@ -75,8 +75,8 @@ public class DeathManager {
         if (exp > 0) {
             LOGGER.info("Handling not stored experience...");
             // Drop teh EXP if the mode is set to 'DROP' or 'containDrop' is false as no grave will spawn
-            if (ModConfig.experienceBehaviour == ExperienceMode.DROP || !ModConfig.containDrop) dropEXP(exp);
-            else if (ModConfig.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
+            if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.DROP || !ModConfig.INSTANCE.containDrop) dropEXP(exp);
+            else if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
         }
     }
 

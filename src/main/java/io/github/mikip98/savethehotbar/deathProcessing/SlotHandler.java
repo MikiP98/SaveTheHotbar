@@ -53,17 +53,17 @@ public class SlotHandler implements SlotSupport {
         // Keep hotbar
         checkForDropHotbar(vanillaDrop, vanillaDropIDs, inventory.items);
         // Keep armor
-        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveArmor, inventory.armor);
+        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.INSTANCE.saveArmor, inventory.armor);
         // Keep second hand
-        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveSecondHand, inventory.offhand);
+        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.INSTANCE.saveSecondHand, inventory.offhand);
 
         return new VanillaDropSet(vanillaDrop, vanillaDropIDs);
     }
     protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
             ItemStack stack = slots.get(i);
-            final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.saveHotbar;
-            final boolean shouldKeepInventory = !Inventory.isHotbarSlot(i) && ModConfig.saveMainInventory;
+            final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.saveHotbar;
+            final boolean shouldKeepInventory = !Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.saveMainInventory;
             final boolean shouldKeep = shouldKeep(shouldKeepHotbar || shouldKeepInventory, shouldKeepItem(stack));
             if (!stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack))) {
                 drop.add(slots.get(i).copyAndClear());
@@ -104,7 +104,7 @@ public class SlotHandler implements SlotSupport {
         return !stack.isEmpty() && (!shouldKeep(shouldKeepSlot, shouldKeepItem(stack)) || shouldDropRandomly(stack, player));
     }
     public static boolean shouldKeep(boolean shouldKeepSlot, boolean shouldKeepItemType) {
-        return ModConfig.itemKeepingLogicOperator.apply(shouldKeepSlot, shouldKeepItemType);
+        return ModConfig.INSTANCE.itemKeepingLogicOperator.apply(shouldKeepSlot, shouldKeepItemType);
     }
     public static boolean shouldKeepItem(ItemStack itemStack) {
         ArrayList<VanillaItemTypes> itemTypes = new ArrayList<>();
@@ -115,8 +115,8 @@ public class SlotHandler implements SlotSupport {
         }
         if (itemTypes.isEmpty()) itemTypes.add(VanillaItemTypes.OTHER);
 
-        Predicate<VanillaItemTypes> predicate = (itemType) -> ModConfig.vanillaItemTypesKeepingMap.get(itemType);
-        if (ModConfig.overlapResolution == OverlapResolution.LENIENT) {
+        Predicate<VanillaItemTypes> predicate = (itemType) -> ModConfig.INSTANCE.vanillaItemTypesKeepingMap.get(itemType);
+        if (ModConfig.INSTANCE.overlapResolution == OverlapResolution.LENIENT) {
             return itemTypes.stream().anyMatch(predicate);
         } else {
             return itemTypes.stream().allMatch(predicate);
@@ -136,14 +136,14 @@ public class SlotHandler implements SlotSupport {
         return player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity(), player);
     }
     protected static float getRandomDropChance(Rarity rarity, Player player) {
-        float dropChance = ModConfig.randomDropChance;
+        float dropChance = ModConfig.INSTANCE.randomDropChance;
 
         // Luck
         final MobEffectInstance luck = player.getEffect(MobEffects.LUCK);
-        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.luckDropChanceDecrease);
+        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.INSTANCE.luckDropChanceDecrease);
 
         // Item rarity
-        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.rarityDropChanceDecrease);
+        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.INSTANCE.rarityDropChanceDecrease);
 
         // rdc = 20%
         // rrdcd = 20%

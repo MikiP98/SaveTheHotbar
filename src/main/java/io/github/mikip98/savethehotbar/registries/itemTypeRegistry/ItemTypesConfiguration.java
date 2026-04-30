@@ -38,7 +38,7 @@ public class ItemTypesConfiguration {
                 .addClasses(ArrowItem.class)
                 .addTags(ItemTags.ARROWS);
 
-        vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class);
+        vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class, DyeableArmorItem.class);
         vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
 
         vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicates(Item::isEdible);

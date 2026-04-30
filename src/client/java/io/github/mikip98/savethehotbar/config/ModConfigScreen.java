@@ -27,14 +27,14 @@ public class ModConfigScreen {
         // --- Main toggle ---
         rootCategory.addEntry(getBooleanEntry(
                 "enable",
-                ModConfig.enable, ModConfig.dEnable,
-                value -> ModConfig.enable = value
+                ModConfig.INSTANCE.enable, ModConfig.DEFAULT.enable,
+                ModConfig.INSTANCE::setEnable
         ));
         rootCategory.addEntry(getEnumEntry(
                 "item_keeping_logic_operator",
                 LogicOperator.class,
-                ModConfig.itemKeepingLogicOperator, ModConfig.dItemKeepingLogicOperator,
-                value -> ModConfig.itemKeepingLogicOperator = value
+                ModConfig.INSTANCE.itemKeepingLogicOperator, ModConfig.DEFAULT.itemKeepingLogicOperator,
+                ModConfig.INSTANCE::setItemKeepingLogicOperator
         ));
 
         rootCategory.addEntry(getSlotControlCategory());
@@ -45,13 +45,13 @@ public class ModConfigScreen {
 
         rootCategory.addEntry(getBooleanEntry(
                 "log_death_coordinates_in_chat",
-                ModConfig.logDeathCoordinatesInChat, ModConfig.dLogDeathCoordinatesInChat,
-                value -> ModConfig.logDeathCoordinatesInChat = value
+                ModConfig.INSTANCE.logDeathCoordinatesInChat, ModConfig.DEFAULT.logDeathCoordinatesInChat,
+                ModConfig.INSTANCE::setLogDeathCoordinatesInChat
         ));
         rootCategory.addEntry(getBooleanEntry(
                 "log_grave_coordinates_in_chat",
-                ModConfig.logGraveCoordinatesInChat, ModConfig.dLogGraveCoordinatesInChat,
-                value -> ModConfig.logGraveCoordinatesInChat = value
+                ModConfig.INSTANCE.logGraveCoordinatesInChat, ModConfig.DEFAULT.logGraveCoordinatesInChat,
+                ModConfig.INSTANCE::setLogGraveCoordinatesInChat
         ));
 
         return builder.build();
@@ -65,31 +65,31 @@ public class ModConfigScreen {
         // Vanilla
         slotControlCategory.add(getBooleanEntry(
                 "save_hotbar",
-                ModConfig.saveHotbar, ModConfig.dSaveHotbar,
-                value -> ModConfig.saveHotbar = value
+                ModConfig.INSTANCE.saveHotbar, ModConfig.DEFAULT.saveHotbar,
+                ModConfig.INSTANCE::setSaveHotbar
         ));
         slotControlCategory.add(getBooleanEntry(
                 "save_armour",
-                ModConfig.saveArmor, ModConfig.dSaveArmor,
-                value -> ModConfig.saveArmor = value
+                ModConfig.INSTANCE.saveArmor, ModConfig.DEFAULT.saveArmor,
+                ModConfig.INSTANCE::setSaveArmor
         ));
         slotControlCategory.add(getBooleanEntry(
                 "save_second_hand",
-                ModConfig.saveSecondHand, ModConfig.dSaveSecondHand,
-                value -> ModConfig.saveSecondHand = value
+                ModConfig.INSTANCE.saveSecondHand, ModConfig.DEFAULT.saveSecondHand,
+                ModConfig.INSTANCE::setSaveSecondHand
         ));
         slotControlCategory.add(getBooleanEntry(
                 "save_main_inventory",
-                ModConfig.saveMainInventory, ModConfig.dSaveMainInventory,
-                value -> ModConfig.saveMainInventory = value
+                ModConfig.INSTANCE.saveMainInventory, ModConfig.DEFAULT.saveMainInventory,
+                ModConfig.INSTANCE::setSaveMainInventory
         ));
 
         // Modded
         SubCategoryBuilder moddedSlotsSettings = getSubCategory("modded_slots_settings");
         moddedSlotsSettings.add(getBooleanEntry(
                 "save_arsenal_back_slot",
-                ModConfig.saveArsenal, ModConfig.dSaveArsenal,
-                value -> ModConfig.saveArsenal = value
+                ModConfig.INSTANCE.saveArsenal, ModConfig.DEFAULT.saveArsenal,
+                ModConfig.INSTANCE::setSaveArsenal
         ));
         slotControlCategory.add(moddedSlotsSettings.build());
 
@@ -103,15 +103,15 @@ public class ModConfigScreen {
 
         itemTypeControlCategory.add(getEnumEntry(
                 "item_category_overlap_resolution", OverlapResolution.class,
-                ModConfig.overlapResolution, ModConfig.dOverlapResolution,
-                value -> ModConfig.overlapResolution = value
+                ModConfig.INSTANCE.overlapResolution, ModConfig.DEFAULT.overlapResolution,
+                ModConfig.INSTANCE::setOverlapResolution
         ));
 
         for (VanillaItemTypes type : VanillaItemTypes.values()) {
             itemTypeControlCategory.add(getBooleanEntry(
                     "keep_" + type.name().toLowerCase(),
-                    ModConfig.vanillaItemTypesKeepingMap.get(type), ModConfig.dVanillaItemTypesKeepingMap.get(type),
-                    value -> ModConfig.vanillaItemTypesKeepingMap.put(type, value)
+                    ModConfig.INSTANCE.vanillaItemTypesKeepingMap.get(type), ModConfig.DEFAULT.vanillaItemTypesKeepingMap.get(type),
+                    value -> ModConfig.INSTANCE.vanillaItemTypesKeepingMap.put(type, value)
             ));
         }
 
@@ -125,18 +125,18 @@ public class ModConfigScreen {
 
         expControlCategory.add(getEnumEntry(
                 "experience_behaviour", ExperienceMode.class,
-                ModConfig.experienceBehaviour, ModConfig.dExperienceBehaviour,
-                value -> ModConfig.experienceBehaviour = value
+                ModConfig.INSTANCE.experienceBehaviour, ModConfig.DEFAULT.experienceBehaviour,
+                ModConfig.INSTANCE::setExperienceBehaviour
         ));
         expControlCategory.add(getEnumEntry(
                 "experience_calculation_mode", ExperienceCalculation.class,
-                ModConfig.experienceCalculationMode, ModConfig.dExperienceCalculationMode,
-                value -> ModConfig.experienceCalculationMode = value
+                ModConfig.INSTANCE.experienceCalculationMode, ModConfig.DEFAULT.experienceCalculationMode,
+                ModConfig.INSTANCE::setExperienceCalculationMode
         ));
         expControlCategory.add(getFloatEntry(
                 "experience_fraction",
-                ModConfig.experienceFraction, ModConfig.dExperienceFraction,
-                value -> ModConfig.experienceFraction = value
+                ModConfig.INSTANCE.experienceFraction, ModConfig.DEFAULT.experienceFraction,
+                ModConfig.INSTANCE::setExperienceFraction
         ));
 
         return expControlCategory.build();
@@ -148,18 +148,18 @@ public class ModConfigScreen {
 
         randomDropControlCategory.add(getFloatEntry(
                 "random_drop_chance",
-                ModConfig.randomDropChance, ModConfig.dRandomDropChance,
-                value -> ModConfig.randomDropChance = value
+                ModConfig.INSTANCE.randomDropChance, ModConfig.DEFAULT.randomDropChance,
+                ModConfig.INSTANCE::setRandomDropChance
         ));
         randomDropControlCategory.add(getFloatEntry(
                 "rarity_drop_chance_decrease",
-                ModConfig.rarityDropChanceDecrease, ModConfig.dRarityDropChanceDecrease,
-                value -> ModConfig.rarityDropChanceDecrease = value
+                ModConfig.INSTANCE.rarityDropChanceDecrease, ModConfig.DEFAULT.rarityDropChanceDecrease,
+                ModConfig.INSTANCE::setRarityDropChanceDecrease
         ));
         randomDropControlCategory.add(getFloatEntry(
                 "luck_drop_chance_decrease",
-                ModConfig.luckDropChanceDecrease, ModConfig.dLuckDropChanceDecrease,
-                value -> ModConfig.luckDropChanceDecrease = value
+                ModConfig.INSTANCE.luckDropChanceDecrease, ModConfig.DEFAULT.luckDropChanceDecrease,
+                ModConfig.INSTANCE::setLuckDropChanceDecrease
         ));
 
         return randomDropControlCategory.build();
@@ -171,35 +171,35 @@ public class ModConfigScreen {
 
         dropControlCategory.add(getBooleanEntry(
                 "random_item_spread",
-                ModConfig.randomSpread, ModConfig.dRandomSpread,
-                value -> ModConfig.randomSpread = value
+                ModConfig.INSTANCE.randomSpread, ModConfig.DEFAULT.randomSpread,
+                ModConfig.INSTANCE::setRandomSpread
         ));
         dropControlCategory.add(getBooleanEntry(
                 "contain_drop",
-                ModConfig.containDrop, ModConfig.dContainDrop,
-                value -> ModConfig.containDrop = value
+                ModConfig.INSTANCE.containDrop, ModConfig.DEFAULT.containDrop,
+                ModConfig.INSTANCE::setContainDrop
         ));
         dropControlCategory.add(getEnumEntry(
                 "contain_drop_mode", ContainDropMode.class,
-                ModConfig.containDropMode, ModConfig.dContainDropMode,
-                value -> ModConfig.containDropMode = value
+                ModConfig.INSTANCE.containDropMode, ModConfig.DEFAULT.containDropMode,
+                ModConfig.INSTANCE::setContainDropMode
         ));
 
         SubCategoryBuilder graveSpawningLogic = getSubCategory("grave_spawning_logic");
         graveSpawningLogic.add(getIntegerEntry(
                 "sack_max_spawn_radius",
-                ModConfig.sackMaxSpawnRadius, ModConfig.dSackMaxSpawnRadius,
-                value -> ModConfig.sackMaxSpawnRadius = value
+                ModConfig.INSTANCE.sackMaxSpawnRadius, ModConfig.DEFAULT.sackMaxSpawnRadius,
+                ModConfig.INSTANCE::setSackMaxSpawnRadius
         ));
         graveSpawningLogic.add(getIntegerEntry(
                 "mob_head_grave_max_spawn_radius",
-                ModConfig.mobGraveMaxSpawnRadius, ModConfig.dMobGraveMaxSpawnRadius,
-                value -> ModConfig.mobGraveMaxSpawnRadius = value
+                ModConfig.INSTANCE.mobGraveMaxSpawnRadius, ModConfig.DEFAULT.mobGraveMaxSpawnRadius,
+                ModConfig.INSTANCE::setMobGraveMaxSpawnRadius
         ));
         graveSpawningLogic.add(getBooleanEntry(
                 "allow_mob_heads_graves_to_spawn_on_slabs",
-                ModConfig.allowGravesToSpawnOnSlabs, ModConfig.dAllowGravesToSpawnOnSlabs,
-                value -> ModConfig.allowGravesToSpawnOnSlabs = value
+                ModConfig.INSTANCE.allowGravesToSpawnOnSlabs, ModConfig.DEFAULT.allowGravesToSpawnOnSlabs,
+                ModConfig.INSTANCE::setAllowGravesToSpawnOnSlabs
         ));
         dropControlCategory.add(graveSpawningLogic.build());
 
