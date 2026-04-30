@@ -3,6 +3,7 @@ package io.github.mikip98.savethehotbar.content.blockentities;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.ContainerHelper;
@@ -62,9 +63,15 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     }
 
     @Override
+    #if MC_VERSION < 12006
     public @NotNull CompoundTag getUpdateTag() {
         return saveWithoutMetadata();
     }
+    #else
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return saveWithoutMetadata(provider);
+    }
+    #endif
 
 
     @Override
