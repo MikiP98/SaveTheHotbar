@@ -18,6 +18,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
+
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class DeathManager {
@@ -57,7 +59,7 @@ public class DeathManager {
 
         LOGGER.info("Checking for non-kept items...");
         final SlotHandler slotHandler = new SlotHandler(inventory);
-        final SlotHandler.NonKeptItems nonKeptItems = slotHandler.getNonKeptItems();
+        final List<ItemStack> nonKeptItems = slotHandler.getNonKeptItems();
 
         LOGGER.info("Handling the non-kept items...");
         int storedExperience = 0;

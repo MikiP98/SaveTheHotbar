@@ -34,9 +34,7 @@ public class ContainerHandler {
     protected final Player player;
     protected final BlockPos position;
 
-    protected final List<ItemStack> vanillaDrop;
-    protected final List<Integer> vanillaSlotIds;
-    protected final Map<SupportedSlotMods, List<ItemStack>> moddedDrop;
+    protected final List<ItemStack> drop;
     protected final int exp;
 
     protected final DeathManager.ItemDropper rawItemDropFunction;
@@ -48,7 +46,7 @@ public class ContainerHandler {
 
     public ContainerHandler(
             Player player,
-            SlotHandler.NonKeptItems nonKeptItems,
+            List<ItemStack> drop,
             int exp,
             DeathManager.ItemDropper rawItemDropFunction
     ) {
@@ -56,16 +54,14 @@ public class ContainerHandler {
         this.player = player;
         this.position = validatePositionHeight(this.world, player.blockPosition());
 
-        this.vanillaDrop = nonKeptItems.vanillaDrop();
-        this.vanillaSlotIds = nonKeptItems.vanillaSlotIds();
-        this.moddedDrop = nonKeptItems.moddedDrop();
+        this.drop = drop;
         this.exp = exp;
         this.rawItemDropFunction = rawItemDropFunction;
     }
 
 
     public void handleDrop() {
-        if (vanillaDrop.isEmpty() && moddedDrop.values().stream().allMatch(List::isEmpty) && exp == 0) {
+        if (drop.isEmpty() && exp == 0) {
             LOGGER.info("No items nor exp to store or drop, not spawning any graves nor dropping anything");
             return;
         }
@@ -77,7 +73,7 @@ public class ContainerHandler {
             LOGGER.info(message);
             if (ModConfig.logDeathCoordinatesInChat) player.sendSystemMessage(Component.nullToEmpty(message));
 
-            for (ItemStack stack : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
+            for (ItemStack stack : this.drop) {
                 dropItem(stack);
             }
         }
@@ -95,7 +91,9 @@ public class ContainerHandler {
             }
             case GRAVE -> {
                 if (!SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
-                    final String message = "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
+                    final String message =
+                            "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled." +
+                            "Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
                     LOGGER.error(message);
                     player.displayClientMessage(Component.literal(message).withStyle(ChatFormatting.RED), false);
                     spawnSack();
@@ -136,7 +134,7 @@ public class ContainerHandler {
     protected void fillGrave(BlockPos pos) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof GraveContainerBlockEntity graveContainerBlockEntity) {
-            graveContainerBlockEntity.setItems(vanillaDrop, moddedDrop);
+            graveContainerBlockEntity.setItems(drop);
             graveContainerBlockEntity.setExp(exp);
         }
         else handleNoItemContainerError(pos);
@@ -168,10 +166,10 @@ public class ContainerHandler {
         }
 
         // Drop items
-        message = "Dropping " + vanillaDrop.size() + moddedDrop.values().stream().mapToInt(List::size).sum() + " items at " + position;
+        message = "Dropping " + this.drop.size() + " items at " + position;
         player.sendSystemMessage(Component.literal(message));
         LOGGER.info(message);
-        for (ItemStack item : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
+        for (ItemStack item : this.drop) {
             world.addFreshEntity(new ItemEntity(world, position.getX(), position.getY(), position.getZ(), item));
         }
     }
