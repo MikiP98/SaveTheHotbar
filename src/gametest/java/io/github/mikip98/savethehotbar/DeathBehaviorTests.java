@@ -140,8 +140,235 @@ public class DeathBehaviorTests implements FabricGameTest {
         List<TestFunction> tests = new ArrayList<>();
 
         final TestEntry[] testEntries = {
-            // TODO: Fill the entries
+            new TestEntry(
+                    "only_hotbar",
+                    saveOnlyHotbar(),
+                    new ExpectedItems(
+                            new ItemsPerSlots(
+                                    List.of(
+                                            new ItemStack(Items.CROSSBOW),
+                                            new ItemStack(Items.DIAMOND_AXE),
+                                            new ItemStack(Items.GOLDEN_APPLE, 32),
+                                            new ItemStack(Items.TORCH, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64)
+                                    ),
+                                    List.of(),
+                                    List.of(),
+                                    ItemStack.EMPTY
+                            ),
+                            new ItemsPerSlots(
+                                    List.of(),
+                                    List.of(
+                                            new ItemStack(Items.IRON_PICKAXE),
+                                            new ItemStack(Items.DIAMOND_SWORD),
+                                            new ItemStack(Items.BOW),
+                                            new ItemStack(Items.GOLDEN_CHESTPLATE),
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.SKELETON_SKULL),
+                                            new ItemStack(Items.SPLASH_POTION),
+                                            new ItemStack(Items.EXPERIENCE_BOTTLE),
+                                            new ItemStack(Items.COOKED_BEEF),
+                                            new ItemStack(Items.TORCH),
+                                            new ItemStack(Items.REDSTONE_LAMP),
+                                            new ItemStack(Items.SPECTRAL_ARROW),
+                                            new ItemStack(Items.DIRT, 64),
+                                            new ItemStack(Items.GRASS, 32),
+                                            new ItemStack(Items.SUGAR_CANE)
+                                    ),
+                                    List.of(
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.LEATHER_BOOTS)
+                                    ),
+                                    new ItemStack(Items.SHIELD)
+                    )
+                )
+            ),
+                new TestEntry(
+                        "only_main_inventory",
+                        saveOnlyMainInventory(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(
+                                        List.of(),
+                                        List.of(
+                                            new ItemStack(Items.IRON_PICKAXE),
+                                            new ItemStack(Items.DIAMOND_SWORD),
+                                            new ItemStack(Items.BOW),
+                                            new ItemStack(Items.GOLDEN_CHESTPLATE),
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.SKELETON_SKULL),
+                                            new ItemStack(Items.SPLASH_POTION),
+                                            new ItemStack(Items.EXPERIENCE_BOTTLE),
+                                            new ItemStack(Items.COOKED_BEEF),
+                                            new ItemStack(Items.TORCH),
+                                            new ItemStack(Items.REDSTONE_LAMP),
+                                            new ItemStack(Items.SPECTRAL_ARROW),
+                                            new ItemStack(Items.DIRT, 64),
+                                            new ItemStack(Items.GRASS, 32),
+                                            new ItemStack(Items.SUGAR_CANE)
+                                        ),
+                                        List.of(),
+                                        ItemStack.EMPTY
+                                ),
+                                new ItemsPerSlots(
+                                        List.of(
+                                            new ItemStack(Items.CROSSBOW),
+                                            new ItemStack(Items.DIAMOND_AXE),
+                                            new ItemStack(Items.GOLDEN_APPLE, 32),
+                                            new ItemStack(Items.TORCH, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64)
+                                        ),
+                                        List.of(),
+                                        List.of(
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.LEATHER_BOOTS)
+                                        ),
+                                        new ItemStack(Items.SHIELD)
+                                )
+                        )
+                ),
+            new TestEntry(
+                    "only_light_sources",
+                    saveOnlyLightSources(),
+                    new ExpectedItems(
+                            new ItemsPerSlots(
+                                    List.of(
+                                            new ItemStack(Items.TORCH, 64)
+                                    ),
+                                    List.of(
+                                            new ItemStack(Items.TORCH)
+                                            new ItemStack(Items.REDSTONE_LAMP)
+                                    ),
+                                    List.of(),
+                                    ItemStack.EMPTY
+                                    ),
+                            new ItemsPerSlots(
+                                    List.of(
+                                            new ItemStack(Items.CROSSBOW),
+                                            new ItemStack(Items.DIAMOND_AXE),
+                                            new ItemStack(Items.GOLDEN_APPLE, 32),
+                                            new ItemStack(Items.COBBLESTONE, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64)
+                                            ),
+                                    List.of(
+                                            new ItemStack(Items.IRON_PICKAXE),
+                                            new ItemStack(Items.DIAMOND_SWORD),
+                                            new ItemStack(Items.BOW),
+                                            new ItemStack(Items.GOLDEN_CHESTPLATE),
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.SKELETON_SKULL),
+                                            new ItemStack(Items.SPLASH_POTION),
+                                            new ItemStack(Items.EXPERIENCE_BOTTLE),
+                                            new ItemStack(Items.COOKED_BEEF),
+                                            new ItemStack(Items.SPECTRAL_ARROW),
+                                            new ItemStack(Items.DIRT, 64),
+                                            new ItemStack(Items.GRASS, 32),
+                                            new ItemStack(Items.SUGAR_CANE)
+                                             ),
+                                List.of(
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.LEATHER_BOOTS)
+                                        ),
+                                new ItemStack(Items.SHIELD)
+                                )
+                            )
+                    ),
+                new TestEntry(
+                    "other_in_hotbar",
+                    saveOtherInHotbar(),
+                    new ExpectedItems(
+                            new ItemsPerSlots(
+                                    List.of(
+                                            new ItemStack(Items.COBBLESTONE, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64)
+                                    ),
+                                    List.of(),
+                                    List.of(),
+                                    ItemStack.EMPTY
+                            ),
+                            new ItemsPerSlots(
+                                    List.of(
+                                            new ItemStack(Items.CROSSBOW),
+                                            new ItemStack(Items.DIAMOND_AXE),
+                                            new ItemStack(Items.GOLDEN_APPLE, 32),
+                                            new ItemStack(Items.TORCH, 64)
+                                    ),
+                                    List.of(
+                                            new ItemStack(Items.IRON_PICKAXE),
+                                            new ItemStack(Items.DIAMOND_SWORD),
+                                            new ItemStack(Items.BOW),
+                                            new ItemStack(Items.GOLDEN_CHESTPLATE),
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.SKELETON_SKULL),
+                                            new ItemStack(Items.SPLASH_POTION),
+                                            new ItemStack(Items.EXPERIENCE_BOTTLE),
+                                            new ItemStack(Items.COOKED_BEEF),
+                                            new ItemStack(Items.TORCH),
+                                            new ItemStack(Items.REDSTONE_LAMP),
+                                            new ItemStack(Items.SPECTRAL_ARROW),
+                                            new ItemStack(Items.DIRT, 64),
+                                            new ItemStack(Items.GRASS, 32),
+                                            new ItemStack(Items.SUGAR_CANE)
+                                             ),
+                                    List.of(
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.LEATHER_BOOTS)
+                                        ),
+                                            new ItemStack(Items.SHIELD)
+                                    )
+                            )
+                    ),
+
+                new TestEntry(
+                        "other_and_hotbar",
+                        saveOtherAndHotbar(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(
+                                        List.of(
+                                            new ItemStack(Items.CROSSBOW),
+                                            new ItemStack(Items.DIAMOND_AXE),
+                                            new ItemStack(Items.GOLDEN_APPLE, 32),
+                                            new ItemStack(Items.TORCH, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64),
+                                            new ItemStack(Items.COBBLESTONE, 64)
+                                        ),
+                                        List.of(
+                                            new ItemStack(Items.DIRT, 64),
+                                            new ItemStack(Items.GRASS, 32),
+                                            new ItemStack(Items.SUGAR_CANE)
+                                        ),
+                                        List.of(),
+                                        ItemStack.EMPTY
+                                ),
+                                new ItemsPerSlots(
+                                        List.of(),
+                                        List.of(
+                                            new ItemStack(Items.IRON_PICKAXE),
+                                            new ItemStack(Items.DIAMOND_SWORD),
+                                            new ItemStack(Items.BOW),
+                                            new ItemStack(Items.GOLDEN_CHESTPLATE),
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.SKELETON_SKULL),
+                                            new ItemStack(Items.SPLASH_POTION),
+                                            new ItemStack(Items.EXPERIENCE_BOTTLE),
+                                            new ItemStack(Items.COOKED_BEEF),
+                                            new ItemStack(Items.TORCH),
+                                            new ItemStack(Items.REDSTONE_LAMP),
+                                            new ItemStack(Items.SPECTRAL_ARROW)
+                                       ),
+                                        List.of(
+                                            new ItemStack(Items.CARVED_PUMPKIN),
+                                            new ItemStack(Items.LEATHER_BOOTS)
+                                            ),
+                                            new ItemStack(Items.SHIELD)
+                                )
+                        )
+                )
+
         };
+
+
         final String batchName = "save_the_hotbar_test_item_filtration";
         final String testPrefix = "test_item_filtration_";
 
