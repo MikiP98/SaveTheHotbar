@@ -130,6 +130,15 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - Min respawn saturation
   - Max respawn saturation
 - Consider adding some setting presets
+- Add config options to disable categorising items by *JAVA classes*
+- Split `OTHER` item category into `OTHER ITEMS` and `OTHER BLOCKS`
+- Split `WEAPON` item category into `MEELE WEAPONS` and `RANGED WEAPONS`
+- Think about adding special item category for shields
+- Consider Splitting `TOOLS` category into `MINING TOOLS` and `OTHER TOOLS`
+- Consider adding the graves to the fabric `STORAGE`
+- Add a skull item as an Equipment that is not Armour to the tests
+- Improve the death and grave coordinate messages to not have `BlockPos{...}`
+- Disable debug grave drop messages
 
 ---
 
