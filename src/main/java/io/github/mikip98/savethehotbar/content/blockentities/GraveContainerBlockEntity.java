@@ -42,19 +42,49 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         }
     }
 
+    #if MC_VERSION < 12006
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
-        ContainerHelper.loadAllItems(nbt, this.items);
-        this.exp = nbt.getInt("Experience");
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        ContainerHelper.loadAllItems(tag, this.items);
+        this.exp = tag.getInt("Experience");
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
-        ContainerHelper.saveAllItems(nbt, items);
-        nbt.putInt("Experience", this.exp);
-        super.saveAdditional(nbt);
+    public void saveAdditional(CompoundTag tag) {
+        ContainerHelper.saveAllItems(tag, items);
+        tag.putInt("Experience", this.exp);
+        super.saveAdditional(tag);
     }
+
+    #elif MC_VERSION < 12105
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ContainerHelper.loadAllItems(tag, this.items, registries);
+        this.exp = tag.getInt("Experience");
+    }
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putInt("Experience", this.exp);
+        ContainerHelper.saveAllItems(tag, this.items, registries);
+        super.saveAdditional(tag, registries);
+    }
+
+    #else
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        ContainerHelper.loadAllItems(input, this.items);
+        this.exp = tag.getInt("Experience");
+    }
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        tag.putInt("Experience", this.exp);
+        ContainerHelper.saveAllItems(output, this.items, false);
+        super.saveAdditional(output);
+    }
+    #endif
 
     @Nullable
     @Override
