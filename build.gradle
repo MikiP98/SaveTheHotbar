@@ -57,7 +57,7 @@ repositories {
 	// Mod Menu
 	maven { url "https://maven.terraformersmc.com/releases/" }
 
-	// Arsenal
+	// Arsenal & Pneumono
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -69,10 +69,12 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
-	// Cardinal Components API (required for Arsenal)
-	maven {
-		name = 'Ladysnake Mods'
-		url = 'https://maven.ladysnake.org/releases'
+	if (activeMcVersionNum == 12001) {
+		// Cardinal Components API (required for Arsenal)
+		maven {
+			name = 'Ladysnake Mods'
+			url = 'https://maven.ladysnake.org/releases'
+		}
 	}
 }
 
