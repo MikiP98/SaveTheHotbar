@@ -6,7 +6,7 @@ public enum VanillaItemTypes {
     AMMUNITION,
 
     ARMOUR,
-    EQUIPMENT,
+    #if MC_VERSION < 12104 EQUIPMENT, #endif
 
     FOOD,
     POTION,

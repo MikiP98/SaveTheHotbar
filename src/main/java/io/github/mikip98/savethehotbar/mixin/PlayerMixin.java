@@ -5,6 +5,7 @@ import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.modSupport.GravestoneConfiguration;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
@@ -62,10 +63,21 @@ public abstract class PlayerMixin {
 
     @Unique
     private void keepInventoryCheck(Level world) {
-        if (!world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        #if MC_VERSION < 12104
+        final GameRules gameRules = world.getGameRules();
+        #else
+        final MinecraftServer server = world.getServer();
+        if (server == null) {
+            doublePrintWarn("Unable to determine the 'keepInventory' game rule state! Make sure 'keepInventory' is enabled!");
+            return;
+        }
+        final GameRules gameRules = server.getGameRules();
+        #endif
+        GameRules.BooleanValue keepInventory = gameRules.getRule(GameRules.RULE_KEEPINVENTORY);
+        if (!keepInventory.get()) {
             doublePrintWarn("KeepInventory GameRule is False; 'SaveTheHotbar!' requires keepInventory to work; Changing keepInventory to True; If you want to disable 'SaveTheHotbar!', disable it in settings");
             if (!world.isClientSide()) {
-                world.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, world.getServer());
+                keepInventory.set(true, world.getServer());
             }
         }
     }

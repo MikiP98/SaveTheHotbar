@@ -33,7 +33,11 @@ public class ItemTypesConfiguration {
 
     protected static void registerVanillaConfiguration() {
         vanillaItemTypes.get(VanillaItemTypes.TOOL)
+                #if MC_VERSION < 12104
                 .addClasses(TieredItem.class)
+                #else
+                .addClasses(DiggerItem.class)
+                #endif
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.TOOLS);
                 #else
@@ -44,8 +48,10 @@ public class ItemTypesConfiguration {
                 .addClasses(SwordItem.class, AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.SWORDS, ItemTags.AXES);
-                #else
+                #elif MC_VERSION < 12104
                 .addTags(ConventionalItemTags.MELEE_WEAPONS_TOOLS, ConventionalItemTags.RANGED_WEAPONS_TOOLS);
+                #else
+                .addTags(ConventionalItemTags.MELEE_WEAPON_TOOLS, ConventionalItemTags.RANGED_WEAPON_TOOLS);
                 #endif
 
         vanillaItemTypes.get(VanillaItemTypes.AMMUNITION)
@@ -55,7 +61,9 @@ public class ItemTypesConfiguration {
         vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class)
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
+        #if MC_VERSION < 12104
         vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
+        #endif
 
         vanillaItemTypes.get(VanillaItemTypes.FOOD)
                 .addTags(ConventionalItemTags.FOODS)

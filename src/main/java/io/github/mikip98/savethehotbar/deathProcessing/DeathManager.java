@@ -4,9 +4,10 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
-#endif
-#if MC_VERSION >= 12100 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
+#endif
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
+#if MC_VERSION >= 12100 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -48,7 +49,7 @@ public class DeathManager {
 
     public void managePlayerDeath() {
         if (ModConfig.logDeathCoordinatesInChat) {
-            player.sendSystemMessage(Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
+            PlayerUtils.sendMessage(player, Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
         }
 
         // --- Manage Curse of Vanishing ---

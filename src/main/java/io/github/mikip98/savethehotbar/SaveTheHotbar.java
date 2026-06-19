@@ -4,12 +4,23 @@ import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlock
 import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.content.blocks.Sack;
 import io.github.mikip98.savethehotbar.config.io.ConfigReader;
+#if MC_VERSION >= 12104
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.SettingsDuplicator;
+#endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+#if MC_VERSION >= 12104
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+#endif
 import net.minecraft.world.item.Item;
+#if MC_VERSION >= 12104
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+#endif
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,6 +30,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Function;
 
 public class SaveTheHotbar implements ModInitializer {
 	public static final String MOD_ID = "savethehotbar";
@@ -48,9 +61,9 @@ public class SaveTheHotbar implements ModInitializer {
 		// Block Registration
 		final BlockBehaviour.Properties universalSettings = BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();
 
-		SACK = registerWithItem(new Sack(universalSettings), "sack");
-		SKELETON_HEAD_GRAVE = registerWithItem(new MobHeadGrave(universalSettings), "skeleton_head_grave");
-		ZOMBIE_HEAD_GRAVE = registerWithItem(new MobHeadGrave(universalSettings), "zombie_head_grave");
+		SACK = registerWithItem("sack", Sack::new, universalSettings);
+		SKELETON_HEAD_GRAVE = registerWithItem("skeleton_head_grave", MobHeadGrave::new, universalSettings);
+		ZOMBIE_HEAD_GRAVE = registerWithItem("zombie_head_grave", MobHeadGrave::new, universalSettings);
 
 		// Register Sack Block Entity
 		GRAVE_CONTAINER_BLOCK_ENTITY = Registry.register(
@@ -71,11 +84,83 @@ public class SaveTheHotbar implements ModInitializer {
 			PneumonoGravestonesCallbackRegistry.register();
 	}
 
-	protected static Block registerWithItem(Block block, String id) {
-		Registry.register(BuiltInRegistries.BLOCK, getId(id), block);
-		Registry.register(BuiltInRegistries.ITEM, getId(id), new BlockItem(block, new Item.Properties()));
+
+	public static Item registerItem(String name, Function<Item.Properties, Item> factory) {
+		return registerItem(name, factory, new Item.Properties());
+	}
+	#if MC_VERSION < 12104
+    public static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties settings) {
+        return Registry.register(BuiltInRegistries.ITEM, getId(name), factory.apply(settings));
+    }
+    #else
+	public static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties settings) {
+		final ResourceKey<Item> registryKey = ResourceKey.create(Registries.ITEM, getId(name));
+		return #if MC_VERSION < 260000 Items. #endif registerItem(registryKey, factory, settings);
+	}
+    #endif
+    #if MC_VERSION > 260000
+    protected static Item registerItem(final ResourceKey<Item> key, final Function<Item.Properties, Item> itemFactory, final Item.Properties properties) {
+        Item item = (Item) itemFactory.apply(properties.setId(key));
+        if (item instanceof BlockItem blockItem) {
+            blockItem.registerBlocks(Item.BY_BLOCK, item);
+        }
+
+        return (Item) Registry.register(BuiltInRegistries.ITEM, key, item);
+    }
+    #endif
+
+
+	#if MC_VERSION < 260000
+	public static <T extends Block> T registerWithItem(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
+		T block = register(name, blockFactory, settings);
+		registerItem(name, (itemSettings) -> new BlockItem(block, itemSettings));
 		return block;
 	}
+	public static Block register(String name, BlockBehaviour.Properties settings) {
+		return register(name, Block::new, settings);
+	}
+	#if MC_VERSION >= 12104 @SuppressWarnings("unchecked") #endif
+	public static <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
+        #if MC_VERSION < 12104
+        return Registry.register(BuiltInRegistries.BLOCK, getId(name), blockFactory.apply(settings));
+        #else
+		final BlockBehaviour.Properties settingsCopy = SettingsDuplicator.copy(settings);
+		return (T) Blocks.register(keyOfBlock(name), (Function<BlockBehaviour.Properties, Block>) blockFactory, settingsCopy);
+        #endif
+	}
+    #else
+    public static Block registerWithItem(String name, BlockBehaviour.Properties settings) {
+        return registerWithItem(name, Block::new, settings);
+    }
+    public static <T extends Block> T registerWithItem(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
+        T block = register(name, blockFactory, settings);
+        ItemRegistry.register(name, (itemSettings) -> new BlockItem(block, itemSettings));
+        return block;
+    }
+    public static Block register(String name, BlockBehaviour.Properties settings) {
+        return register(name, Block::new, settings);
+    }
+    @SuppressWarnings("unchecked")
+    public static <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
+        final BlockBehaviour.Properties settingsCopy = SettingsDuplicator.copy(settings);
+        return (T) Blocks.register(keyOfBlock(name), (Function<BlockBehaviour.Properties, Block>) blockFactory, settingsCopy);
+    }
+    #endif
+
+
+	#if MC_VERSION >= 12104
+	public static ResourceKey<Block> keyOfBlock(String name) {
+		return ResourceKey.create(Registries.BLOCK, getId(name));
+	}
+    #endif
+
+
+
+//	protected static Block registerWithItem(Block block, String id) {
+//		Registry.register(BuiltInRegistries.BLOCK, getId(id), block);
+//		Registry.register(BuiltInRegistries.ITEM, getId(id), new BlockItem(block, new Item.Properties()));
+//		return block;
+//	}
 
 	public static ResourceLocation getId(String name) {
 		final #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif id = #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif .tryBuild(MOD_ID, name);
