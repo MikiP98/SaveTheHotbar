@@ -5,7 +5,8 @@ import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
 #endif
-import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+#if MC_VERSION >= 12100 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
+import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
