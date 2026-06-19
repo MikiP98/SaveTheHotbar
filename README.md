@@ -139,6 +139,15 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Add a skull item as an Equipment that is not Armour to the tests
 - Improve the death and grave coordinate messages to not have `BlockPos{...}`
 - Disable debug grave drop messages
+- Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
+  - PlayerUtils
+  - BlockRegistry
+    - AbstractBlockRegistry to extend with all the registry methods
+    - SettingsDuplicator
+  - RenderLayerRegistry
+    - AbstractBlockRegistry to extend with all the registry methods
+  - *Other*
+- Rethink the whole death manager pipeline with less static class methods
 
 ---
 
