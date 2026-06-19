@@ -78,6 +78,8 @@ public class SaveTheHotbar implements ModInitializer {
 	}
 
 	public static ResourceLocation getId(String name) {
-		return new ResourceLocation(MOD_ID, name);
+		final #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif id = #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif .tryBuild(MOD_ID, name);
+		if (id == null) throw new IllegalArgumentException("Broken block id: " + MOD_ID + ":" + name);
+		return id;
 	}
 }

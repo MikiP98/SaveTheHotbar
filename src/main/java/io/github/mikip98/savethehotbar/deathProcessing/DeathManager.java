@@ -2,10 +2,10 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
-import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
 #endif
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -52,7 +52,7 @@ public class DeathManager {
 
         // --- Manage Curse of Vanishing ---
         LOGGER.info("Destroying Cursed Items...");
-        destroyCursedItems();
+        destroyVanishingCursedItems();
 
         LOGGER.info("Calculating new EXP amount...");
         final int exp = ModConfig.experienceCalculationMode.calculateExperience(player);
@@ -83,11 +83,11 @@ public class DeathManager {
     }
 
     // ------------ CURSED ITEM DESTRUCTION ------------
-    protected void destroyCursedItems() {
+    protected void destroyVanishingCursedItems() {
         // --------- Vanilla ---------
-        destroyCursedItems(inventory.items);
-        destroyCursedItems(inventory.armor);
-        destroyCursedItems(inventory.offhand);
+        destroyVanishingCursedItems(inventory.items);
+        destroyVanishingCursedItems(inventory.armor);
+        destroyVanishingCursedItems(inventory.offhand);
         // --------- Modded Slots ---------
         #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded()) Arsenal.destroyCursed(player);
@@ -95,8 +95,15 @@ public class DeathManager {
         // TODO: Make the enum store the function so that I can just iterate through the enum
         //  Like make it into a registry
     }
-    protected static void destroyCursedItems(NonNullList<ItemStack> slots) {
-        slots.forEach(slot -> { if (EnchantmentHelper.hasVanishingCurse(slot)) slot.setCount(0); });
+    protected static boolean hasVanishingCurse(ItemStack itemStack) {
+        #if MC_VERSION < 12100
+        return EnchantmentHelper.hasVanishingCurse(itemStack);
+        #else
+        return !itemStack.isEmpty() && EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP);
+        #endif
+    }
+    protected static void destroyVanishingCursedItems(NonNullList<ItemStack> slots) {
+        slots.forEach(slot -> { if (hasVanishingCurse(slot)) slot.setCount(0); });
     }
     // -------------------------------------------------
 
