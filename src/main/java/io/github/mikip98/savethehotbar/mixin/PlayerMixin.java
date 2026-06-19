@@ -6,15 +6,16 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.modSupport.GravestoneConfiguration;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.item.ItemEntity;
+#if MC_VERSION >= 12106 import net.minecraft.world.entity.LivingEntity; #endif
+#if MC_VERSION < 12106 import net.minecraft.world.entity.item.ItemEntity; #endif
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
+#if MC_VERSION < 12106 import net.minecraft.world.item.ItemStack; #endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+#if MC_VERSION < 12106 import org.jetbrains.annotations.Nullable; #endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,12 +28,15 @@ import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin {
+    #if MC_VERSION < 12106
     @Shadow
     public abstract @Nullable ItemEntity drop(ItemStack stack, boolean throwRandomly, boolean retainOwnership);
+    #endif
 
     @Shadow
     private @Final Inventory inventory;
 
+    #if MC_VERSION >= 12106 @SuppressWarnings("ConstantConditions") #endif
     @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
     private void dropInventory(CallbackInfo ci) {
         if (ModConfig.enable) {
@@ -45,7 +49,12 @@ public abstract class PlayerMixin {
                 // Enable Gravestone spawning with keepInventory if disabled
                 graveStoneCheck(world);
 
-                final DeathManager deathManager = new DeathManager(inventory, this::drop);
+                #if MC_VERSION < 12106
+                final DeathManager.ItemDropper itemDropper = this::drop;
+                #else
+                final DeathManager.ItemDropper itemDropper = ((LivingEntity) (Object) this)::drop;
+                #endif
+                final DeathManager deathManager = new DeathManager(inventory, itemDropper);
                 deathManager.managePlayerDeath();
                 if (!(ModConfig.containDrop && ModConfig.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
             } catch (Exception e) {

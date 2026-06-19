@@ -1,9 +1,11 @@
 package io.github.mikip98.savethehotbar.content.blockentities;
 
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
+import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.ContainerHelper;
@@ -16,10 +18,16 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+#if MC_VERSION >= 12105
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+#endif
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, WorldlyContainer {
     protected NonNullList<ItemStack> items = NonNullList.create();
@@ -76,11 +84,11 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         ContainerHelper.loadAllItems(input, this.items);
-        this.exp = tag.getInt("Experience");
+        this.exp = input.getIntOr("Experience", 0);
     }
     @Override
     protected void saveAdditional(ValueOutput output) {
-        tag.putInt("Experience", this.exp);
+        output.putInt("Experience", this.exp);
         ContainerHelper.saveAllItems(output, this.items, false);
         super.saveAdditional(output);
     }
@@ -118,4 +126,22 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         // Output from the bottom
         return dir == Direction.DOWN;
     }
+
+    #if MC_VERSION >= 12105
+    // Before 1.21.5 this is handled by the 'onRemove(...)' method in 'GraveContainer'
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+
+        Level world = this.getLevel();
+        if (world != null) {
+            final int exp = this.getExp();
+            LOGGER.info("Dropping '{}' exp", exp);
+
+            if (exp > 0) {
+                DeathManager.dropEXP(exp, world, world.getRandom(), pos);
+            }
+        }
+    }
+    #endif
 }

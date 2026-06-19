@@ -7,7 +7,8 @@ import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsen
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 #endif
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
-#if MC_VERSION >= 12100 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
+#if MC_VERSION >= 12100 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -87,9 +88,18 @@ public class DeathManager {
     // ------------ CURSED ITEM DESTRUCTION ------------
     protected void destroyVanishingCursedItems() {
         // --------- Vanilla ---------
+        #if MC_VERSION < 12105
         destroyVanishingCursedItems(inventory.items);
         destroyVanishingCursedItems(inventory.armor);
         destroyVanishingCursedItems(inventory.offhand);
+        #else
+        destroyVanishingCursedItems(inventory.getNonEquipmentItems());
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.FEET));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.LEGS));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.CHEST));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.HEAD));
+        destroyVanishingCursedItem(player.getOffhandItem());
+        #endif
         // --------- Modded Slots ---------
         #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded()) Arsenal.destroyCursed(player);
@@ -105,7 +115,10 @@ public class DeathManager {
         #endif
     }
     protected static void destroyVanishingCursedItems(NonNullList<ItemStack> slots) {
-        slots.forEach(slot -> { if (hasVanishingCurse(slot)) slot.setCount(0); });
+        slots.forEach(DeathManager::destroyVanishingCursedItem);
+    }
+    protected static void destroyVanishingCursedItem(ItemStack itemStack) {
+        if (hasVanishingCurse(itemStack)) itemStack.setCount(0);
     }
     // -------------------------------------------------
 

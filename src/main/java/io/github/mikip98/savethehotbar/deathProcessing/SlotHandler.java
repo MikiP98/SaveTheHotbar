@@ -12,6 +12,7 @@ import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfi
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -46,9 +47,18 @@ public class SlotHandler implements SlotSupport {
     // ------------ Vanilla ------------
     protected void getVanillaNonKeptItems(List<ItemStack> nonKeptItems) {
         // Main -> Armor -> Offhand
+        #if MC_VERSION < 12105
         checkForDropHotbar(nonKeptItems, inventory.items);
         checkForDrop(nonKeptItems, ModConfig.saveArmor, inventory.armor);
         checkForDrop(nonKeptItems, ModConfig.saveSecondHand, inventory.offhand);
+        #else
+        checkForDropHotbar(nonKeptItems, inventory.getNonEquipmentItems());
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.FEET));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.LEGS));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.BODY));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.HEAD));
+        checkForDrop(nonKeptItems, ModConfig.saveSecondHand, player.getOffhandItem());
+        #endif
     }
     protected void checkForDropHotbar(List<ItemStack> drop, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
@@ -62,11 +72,10 @@ public class SlotHandler implements SlotSupport {
         }
     }
     protected void checkForDrop(List<ItemStack> drop, boolean shouldKeep, NonNullList<ItemStack> slots) {
-        for (ItemStack stack : slots) {
-            if (shouldDrop(stack, shouldKeep)) {
-                drop.add(stack.copyAndClear());
-            }
-        }
+        slots.forEach(itemStack -> checkForDrop(drop, shouldKeep, itemStack));
+    }
+    protected void checkForDrop(List<ItemStack> drop, boolean shouldKeep, ItemStack itemStack) {
+        if (shouldDrop(itemStack, shouldKeep)) drop.add(itemStack.copyAndClear());
     }
 
     // ------------ Modded ------------

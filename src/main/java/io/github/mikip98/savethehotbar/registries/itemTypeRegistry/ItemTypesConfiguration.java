@@ -35,8 +35,9 @@ public class ItemTypesConfiguration {
         vanillaItemTypes.get(VanillaItemTypes.TOOL)
                 #if MC_VERSION < 12104
                 .addClasses(TieredItem.class)
-                #else
+                #elif MC_VERSION < 12106
                 .addClasses(DiggerItem.class)
+                // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #endif
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.TOOLS);
@@ -45,7 +46,8 @@ public class ItemTypesConfiguration {
                 #endif
 
         vanillaItemTypes.get(VanillaItemTypes.WEAPON)
-                .addClasses(SwordItem.class, AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
+                .addClasses(#if MC_VERSION < 12106 SwordItem.class, #endif AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
+                // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.SWORDS, ItemTags.AXES);
                 #elif MC_VERSION < 12104
@@ -58,7 +60,8 @@ public class ItemTypesConfiguration {
                 .addClasses(ArrowItem.class)
                 .addTags(ItemTags.ARROWS);
 
-        vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class)
+        vanillaItemTypes.get(VanillaItemTypes.ARMOUR)
+                #if MC_VERSION < 12106 .addClasses(ArmorItem.class) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
         #if MC_VERSION < 12104

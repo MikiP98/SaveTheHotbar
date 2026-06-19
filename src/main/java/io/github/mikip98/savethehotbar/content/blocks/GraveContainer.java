@@ -46,6 +46,8 @@ public class GraveContainer extends Block implements EntityBlock, SimpleWaterlog
         return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
     }
 
+    #if MC_VERSION <= 12105
+    // After 1.21.5 this is handled by the 'preRemoveSideEffects(...)' method in 'GraveContainerBlockEntity'
     @SuppressWarnings("deprecation")
     @Override
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
@@ -67,6 +69,7 @@ public class GraveContainer extends Block implements EntityBlock, SimpleWaterlog
         }
         super.onRemove(state, world, pos, newState, moved);
     }
+    #endif
 
 
     @Override
