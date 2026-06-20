@@ -5,7 +5,11 @@ import io.github.mikip98.savethehotbar.deathProcessing.SlotHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+#if MC_VERSION < 12111
 import net.minecraft.resources.ResourceLocation;
+#else
+import net.minecraft.resources.Identifier;
+#endif
 import net.pneumono.gravestones.api.SkipItemCallback;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +17,7 @@ import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class GravestoneItemSkipCallback implements SkipItemCallback {
     @Override
-    public boolean insertItem(Player playerEntity, ItemStack itemStack, @Nullable ResourceLocation identifier) {
+    public boolean insertItem(Player playerEntity, ItemStack itemStack, @Nullable #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif identifier) {
         LOGGER.info("Gravestone handler called");
         LOGGER.info("identifier -> {}", identifier);
 

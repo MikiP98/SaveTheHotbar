@@ -19,8 +19,10 @@ public class SaveTheHotbarClient implements ClientModInitializer {
 
 		#if MC_VERSION < 12106
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutoutMipped(), blocks);
-		#elif MC_VERSION < 260000
+		#elif MC_VERSION < 12111
 		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT_MIPPED, blocks);
+		#else
+		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, blocks);
 		#endif
 	}
 }

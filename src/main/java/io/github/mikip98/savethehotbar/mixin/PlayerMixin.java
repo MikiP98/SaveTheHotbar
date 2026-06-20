@@ -13,9 +13,11 @@ import net.minecraft.world.entity.player.Inventory;
 #if MC_VERSION < 12106 import net.minecraft.world.item.ItemStack; #endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.level.GameRules;
+#if MC_VERSION < 12111 import net.minecraft.world.level.GameRules; #endif
 import net.minecraft.world.level.Level;
 #if MC_VERSION < 12106 import org.jetbrains.annotations.Nullable; #endif
+#if MC_VERSION >= 12111 import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules; #endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -80,13 +82,28 @@ public abstract class PlayerMixin {
             doublePrintWarn("Unable to determine the 'keepInventory' game rule state! Make sure 'keepInventory' is enabled!");
             return;
         }
-        final GameRules gameRules = server.getGameRules();
+            #if MC_VERSION < 12111
+            final GameRules gameRules = server.getGameRules();
+            #else
+            final GameRules gameRules = server.getWorldData().getGameRules();
+            #endif
         #endif
+
+        #if MC_VERSION < 12111
         GameRules.BooleanValue keepInventory = gameRules.getRule(GameRules.RULE_KEEPINVENTORY);
-        if (!keepInventory.get()) {
+        boolean isKeepInventory = keepInventory.get();
+        #else
+        boolean isKeepInventory = gameRules.get(GameRules.KEEP_INVENTORY);
+        #endif
+
+        if (!isKeepInventory) {
             doublePrintWarn("KeepInventory GameRule is False; 'SaveTheHotbar!' requires keepInventory to work; Changing keepInventory to True; If you want to disable 'SaveTheHotbar!', disable it in settings");
             if (!world.isClientSide()) {
+                #if MC_VERSION < 12111
                 keepInventory.set(true, world.getServer());
+                #else
+                gameRules.set(GameRules.KEEP_INVENTORY, true, server);
+                #endif
             }
         }
     }

@@ -176,12 +176,32 @@ processResources {
 				"data_pack_format": inputs.properties.data_pack_format
 	}
 
+	// Exclude the incorrect model/item definitions
+	if (activeMcVersionNum >= 12108) {
+		exclude 'assets/savethehotbar/models/item/**'
+	} else {
+		exclude 'assets/savethehotbar/items/**'
+	}
+
+	if (activeMcVersionNum < 12111) {
+		exclude 'assets/savethehotbar/textures/block/leather.png'
+	}
+
 	doLast {
 		// Minify JSON files to reduce the mod size a bit
 		fileTree(destinationDir)
 				.matching { include "**/*.json", "**/*.mcmeta" }
 				.forEach { File f ->
 					def json = new JsonSlurper().parse(f)
+
+					if (activeMcVersionNum >= 12111) {
+						if (json instanceof Map && json.textures instanceof Map) {
+							if (json.textures["0"] == "item/leather") {
+								json.textures["0"] = "savethehotbar:block/leather"
+							}
+						}
+					}
+
 					f.text = JsonOutput.toJson(json)
 				}
 	}

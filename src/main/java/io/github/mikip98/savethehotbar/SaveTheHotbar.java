@@ -27,7 +27,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
+#if MC_VERSION < 12111
 import net.minecraft.resources.ResourceLocation;
+#else
+import net.minecraft.resources.Identifier;
+#endif
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +166,7 @@ public class SaveTheHotbar implements ModInitializer {
 //		return block;
 //	}
 
-	public static ResourceLocation getId(String name) {
+	public static #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif getId(String name) {
 		final #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif id = #if MC_VERSION < 12111 ResourceLocation #else Identifier #endif .tryBuild(MOD_ID, name);
 		if (id == null) throw new IllegalArgumentException("Broken block id: " + MOD_ID + ":" + name);
 		return id;
