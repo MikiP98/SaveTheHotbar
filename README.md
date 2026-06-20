@@ -114,6 +114,14 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Updated support for latest *Pneumono Gravestones*
 - Moved config names and tooltips to MC language files
 - Add item filtering by type: weapon, armour, food, potion, etc.
+- Added support for MC versions:
+  - 1.20.6
+  - 1.21.1
+  - 1.21.4
+  - 1.21.8
+  - 1.21.11
+  - 26.1.2
+  - 26.2
 
 ### 🧭 Upcoming
 
@@ -148,6 +156,9 @@ If you want support for another mod to be added, feel free to submit an [issue](
     - AbstractBlockRegistry to extend with all the registry methods
   - *Other*
 - Rethink the whole death manager pipeline with less static class methods
+- Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
+- CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
+- Test how this mod behaves on servers
 
 ---
 
