@@ -1,6 +1,6 @@
 {
-	"parent": "block/cube_all",
 	"credit": "Made with Blockbench by Mikołaj Pokora",
+	"parent": "block/block",
 	"textures": {
 		"0": "item/leather",
 		"1": "block/black_wool",
