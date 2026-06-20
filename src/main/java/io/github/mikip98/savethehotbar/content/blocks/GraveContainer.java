@@ -1,24 +1,25 @@
 package io.github.mikip98.savethehotbar.content.blocks;
 
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
+#if MC_VERSION <= 12105
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+#endif
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
+#if MC_VERSION <= 12105 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER; #endif
 
 public class GraveContainer extends Block implements EntityBlock, SimpleWaterloggedBlock {
     @Override
@@ -42,7 +43,7 @@ public class GraveContainer extends Block implements EntityBlock, SimpleWaterlog
 
     @SuppressWarnings("deprecation")
     @Override
-    public FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
     }
 
@@ -73,7 +74,7 @@ public class GraveContainer extends Block implements EntityBlock, SimpleWaterlog
 
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new GraveContainerBlockEntity(pos, state);
     }
 }

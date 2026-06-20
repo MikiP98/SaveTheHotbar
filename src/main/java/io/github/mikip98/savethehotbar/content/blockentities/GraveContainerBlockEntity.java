@@ -48,18 +48,24 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         for (int i = 0; i < items.size(); i++) {
             this.items.set(i, items.get(i));
         }
+        LOGGER.info(this.items.toString());
+
+        this.setChanged();
     }
 
     #if MC_VERSION < 12006
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        final int size = tag.getInt("Size");
+        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items);
         this.exp = tag.getInt("Experience");
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
+        tag.putInt("Size", this.items.size());
         ContainerHelper.saveAllItems(tag, items);
         tag.putInt("Experience", this.exp);
         super.saveAdditional(tag);
@@ -69,11 +75,14 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        final int size = tag.getInt("Size");
+        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items, registries);
         this.exp = tag.getInt("Experience");
     }
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putInt("Size", this.items.size());
         tag.putInt("Experience", this.exp);
         ContainerHelper.saveAllItems(tag, this.items, registries);
         super.saveAdditional(tag, registries);
@@ -83,11 +92,14 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        final int size = input.getIntOr("Size", 0);
+        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, this.items);
         this.exp = input.getIntOr("Experience", 0);
     }
     @Override
     protected void saveAdditional(ValueOutput output) {
+        output.putInt("Size", this.items.size());
         output.putInt("Experience", this.exp);
         ContainerHelper.saveAllItems(output, this.items, false);
         super.saveAdditional(output);
@@ -131,6 +143,8 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
     // Before 1.21.5 this is handled by the 'onRemove(...)' method in 'GraveContainer'
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        LOGGER.info("Dropping items:");
+        LOGGER.info(this.items.toString());
         super.preRemoveSideEffects(pos, state);
 
         Level world = this.getLevel();

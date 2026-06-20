@@ -133,16 +133,10 @@ public class SaveTheHotbar implements ModInitializer {
         #endif
 	}
     #else
-    public static Block registerWithItem(String name, BlockBehaviour.Properties settings) {
-        return registerWithItem(name, Block::new, settings);
-    }
     public static <T extends Block> T registerWithItem(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
         T block = register(name, blockFactory, settings);
-        ItemRegistry.register(name, (itemSettings) -> new BlockItem(block, itemSettings));
+        registerItem(name, (itemSettings) -> new BlockItem(block, itemSettings));
         return block;
-    }
-    public static Block register(String name, BlockBehaviour.Properties settings) {
-        return register(name, Block::new, settings);
     }
     @SuppressWarnings("unchecked")
     public static <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {

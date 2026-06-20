@@ -3,6 +3,7 @@ package io.github.mikip98.savethehotbar.mixin;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 import io.github.mikip98.savethehotbar.modSupport.GravestoneConfiguration;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import net.minecraft.server.MinecraftServer;
@@ -68,7 +69,7 @@ public abstract class PlayerMixin {
 
     @Unique
     private void doublePrintWarn(String message) {
-        inventory.player.displayClientMessage(Component.literal(message).withStyle(ChatFormatting.YELLOW), false);
+        PlayerUtils.sendMessage(inventory.player, Component.literal(message).withStyle(ChatFormatting.YELLOW));
         LOGGER.warn(message);
     }
 
@@ -82,7 +83,7 @@ public abstract class PlayerMixin {
             doublePrintWarn("Unable to determine the 'keepInventory' game rule state! Make sure 'keepInventory' is enabled!");
             return;
         }
-            #if MC_VERSION < 12111
+            #if MC_VERSION < 12111 || MC_VERSION >= 260000
             final GameRules gameRules = server.getGameRules();
             #else
             final GameRules gameRules = server.getWorldData().getGameRules();

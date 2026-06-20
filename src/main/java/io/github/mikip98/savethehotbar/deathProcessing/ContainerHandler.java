@@ -137,11 +137,15 @@ public class ContainerHandler {
 
     protected void fillGrave(BlockPos pos) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
+        LOGGER.info("Trying to put items and exp in the grave...");
         if (blockEntity instanceof GraveContainerBlockEntity graveContainerBlockEntity) {
+            LOGGER.info("Putting items and exp in the grave");
             graveContainerBlockEntity.setItems(drop);
             graveContainerBlockEntity.setExp(exp);
+        } else {
+            LOGGER.error("Grave does not exist! Can't put items inside!");
+            handleNoItemContainerError(pos);
         }
-        else handleNoItemContainerError(pos);
     }
 
     protected void handleNoItemContainerError(BlockPos position) {
