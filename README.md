@@ -159,6 +159,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
 - CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
 - Test how this mod behaves on servers
+- Remove the `keepInventory` requirement (look into `ServerPlayerEvents.COPY_FROM` event)
 
 ---
 
