@@ -18,6 +18,7 @@ public class ModConfig {
 
     public LogicOperator itemKeepingLogicOperator = LogicOperator.AND;
 
+    // ITEM KEEPING
     public boolean
             saveHotbar = true,
             saveArmor = true,
@@ -35,9 +36,20 @@ public class ModConfig {
         return vanillaItemTypesKeepingMap;
     }
 
+    // EXP
     public ExperienceMode experienceBehaviour = ExperienceMode.DROP;
     public ExperienceCalculation experienceCalculationMode = ExperienceCalculation.FRACTION;
     public float experienceFraction = 0.2f;
+
+    // HUNGER & SATURATION
+    public FoodLevelCalculationMode foodLevelCalculationMode = FoodLevelCalculationMode.VANILLA;
+    public int minFoodLevel = 6;
+    public int maxFoodLevel = 12;
+    public float foodLevelFraction = 0.5f;
+    public SaturationLevelCalculationMode saturationLevelCalculationMode = SaturationLevelCalculationMode.VANILLA;
+    public float minSaturation = 2;
+    public float maxSaturation = 8;
+    public float saturationFraction = 0.5f;
 
     public boolean
             randomSpread = false,  // Does not do anything if containDrop is true
