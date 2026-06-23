@@ -20,42 +20,42 @@ public class ConfigSaver {
         // Create a JSON object to store the configuration
         JsonObject configJson = new JsonObject();
 
-        configJson.addProperty("enable", ModConfig.enable);
+        configJson.addProperty("enable", ModConfig.INSTANCE.enable);
 
-        configJson.addProperty("itemKeepingLogicOperator", ModConfig.itemKeepingLogicOperator.toString());
+        configJson.addProperty("itemKeepingLogicOperator", ModConfig.INSTANCE.itemKeepingLogicOperator.toString());
 
-        configJson.addProperty("saveHotbar", ModConfig.saveHotbar);
-        configJson.addProperty("saveArmor", ModConfig.saveArmor);
-        configJson.addProperty("saveSecondHand", ModConfig.saveSecondHand);
-        configJson.addProperty("saveMainInventory", ModConfig.saveMainInventory);
+        configJson.addProperty("saveHotbar", ModConfig.INSTANCE.saveHotbar);
+        configJson.addProperty("saveArmor", ModConfig.INSTANCE.saveArmor);
+        configJson.addProperty("saveSecondHand", ModConfig.INSTANCE.saveSecondHand);
+        configJson.addProperty("saveMainInventory", ModConfig.INSTANCE.saveMainInventory);
 
-        configJson.addProperty("overlapResolution", ModConfig.overlapResolution.name());
+        configJson.addProperty("overlapResolution", ModConfig.INSTANCE.overlapResolution.name());
         for (VanillaItemTypes itemType : VanillaItemTypes.values()) {
-            configJson.addProperty(itemType.name().toLowerCase(), ModConfig.vanillaItemTypesKeepingMap.get(itemType));
+            configJson.addProperty(itemType.name().toLowerCase(), ModConfig.INSTANCE.vanillaItemTypesKeepingMap.get(itemType));
         }
 
-        configJson.addProperty("experienceBehaviour", ModConfig.experienceBehaviour.toString());
+        configJson.addProperty("experienceBehaviour", ModConfig.INSTANCE.experienceBehaviour.toString());
 
-        configJson.addProperty("experienceCalculationMode", ModConfig.experienceCalculationMode.toString());
-        configJson.addProperty("experienceFraction", ModConfig.experienceFraction);
+        configJson.addProperty("experienceCalculationMode", ModConfig.INSTANCE.experienceCalculationMode.toString());
+        configJson.addProperty("experienceFraction", ModConfig.INSTANCE.experienceFraction);
 
-        configJson.addProperty("randomSpread", ModConfig.randomSpread);
-        configJson.addProperty("containDrop", ModConfig.containDrop);
-        configJson.addProperty("logDeathCoordinatesInChat", ModConfig.logDeathCoordinatesInChat);
-        configJson.addProperty("logGraveCoordinatesInChat", ModConfig.logGraveCoordinatesInChat);
+        configJson.addProperty("randomSpread", ModConfig.INSTANCE.randomSpread);
+        configJson.addProperty("containDrop", ModConfig.INSTANCE.containDrop);
+        configJson.addProperty("logDeathCoordinatesInChat", ModConfig.INSTANCE.logDeathCoordinatesInChat);
+        configJson.addProperty("logGraveCoordinatesInChat", ModConfig.INSTANCE.logGraveCoordinatesInChat);
 
-        configJson.addProperty("randomDropChance", ModConfig.randomDropChance);
-        configJson.addProperty("rarityDropChanceDecrease", ModConfig.rarityDropChanceDecrease);
-        configJson.addProperty("luckDropChanceDecrease", ModConfig.luckDropChanceDecrease);
+        configJson.addProperty("randomDropChance", ModConfig.INSTANCE.randomDropChance);
+        configJson.addProperty("rarityDropChanceDecrease", ModConfig.INSTANCE.rarityDropChanceDecrease);
+        configJson.addProperty("luckDropChanceDecrease", ModConfig.INSTANCE.luckDropChanceDecrease);
 
-        configJson.addProperty("containDropMode", ModConfig.containDropMode.toString());
+        configJson.addProperty("containDropMode", ModConfig.INSTANCE.containDropMode.toString());
 
-        configJson.addProperty("sackMaxSpawnRadius", ModConfig.sackMaxSpawnRadius);
-        configJson.addProperty("mobGraveMaxSpawnRadius", ModConfig.mobGraveMaxSpawnRadius);
-        configJson.addProperty("allowGravesToSpawnOnSlabs", ModConfig.allowGravesToSpawnOnSlabs);
+        configJson.addProperty("sackMaxSpawnRadius", ModConfig.INSTANCE.sackMaxSpawnRadius);
+        configJson.addProperty("mobGraveMaxSpawnRadius", ModConfig.INSTANCE.mobGraveMaxSpawnRadius);
+        configJson.addProperty("allowGravesToSpawnOnSlabs", ModConfig.INSTANCE.allowGravesToSpawnOnSlabs);
 
         // ------------ MOD SUPPORT ------------
-        configJson.addProperty("saveArsenal", ModConfig.saveArsenal);
+        configJson.addProperty("saveArsenal", ModConfig.INSTANCE.saveArsenal);
 
         // Save the JSON object to a file
         try (FileWriter writer = new FileWriter(configFile)) {

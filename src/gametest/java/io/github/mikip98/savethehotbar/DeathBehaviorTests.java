@@ -1,16 +1,26 @@
 package io.github.mikip98.savethehotbar;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
+import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
+import io.github.mikip98.savethehotbar.config.enums.OverlapResolution;
+import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
+import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestGenerator;
 import net.minecraft.gametest.framework.TestFunction;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
@@ -18,16 +28,110 @@ import java.util.Collection;
 import java.util.List;
 
 public class DeathBehaviorTests implements FabricGameTest {
-
-    // Helper Method: Common setup fixture
-    private void giveUniversalItems(Player player) {
-        // Slot 0: Hotbar
-        player.getInventory().setItem(0, new ItemStack(Items.DIAMOND_SWORD));
-        // Slot 15: Main Inventory
-        player.getInventory().setItem(15, new ItemStack(Items.DIRT, 64));
-        // Slot 39: Helmet
-        player.getInventory().setItem(39, new ItemStack(Items.IRON_HELMET));
+    // =================================================================================================================
+    // === COMMON INVENTORY SETUP ======================================================================================
+    // =================================================================================================================
+    protected void giveUniversalItems(Player player) {
+        Inventory inventory = player.getInventory();
+        giveUniversalInventory(new InventoryWrapper(inventory.items));
+        giveUniversalHotbar(new HotbarWrapper(inventory.items));
+        giveUniversalArmour(new ArmourWrapper(inventory.armor));
+        giveUniversalOffHand(new LeftHandWrapper(inventory.offhand));
     }
+
+    protected void giveUniversalInventory(InventoryWrapper inventory) {
+        inventory.add(Items.IRON_PICKAXE);   // TOOL
+        inventory.add(Items.DIAMOND_SWORD);  // WEAPON (melee)
+        inventory.add(Items.BOW);            // WEAPON (ranged)
+
+        inventory.add(Items.GOLDEN_CHESTPLATE);  // ARMOUR
+        inventory.add(Items.CARVED_PUMPKIN);     // EQUIPMENT
+        inventory.add(Items.SKELETON_SKULL);     // EQUIPMENT
+
+        inventory.add(Items.SPLASH_POTION);      // POTION
+        inventory.add(Items.EXPERIENCE_BOTTLE);  // POTION
+
+        inventory.add(Items.COOKED_BEEF);       // FOOD
+        inventory.add(Items.TORCH);             // DEFAULT LIGHT SOURCE
+        inventory.add(Items.REDSTONE_LAMP);     // POSSIBLE LIGHT SOURCE
+        inventory.add(Items.SPECTRAL_ARROW);    // AMMUNITION
+
+        inventory.add(Items.DIRT, 64);   // OTHER (block)
+        inventory.add(Items.GRASS, 32);  // OTHER (block)
+        inventory.add(Items.SUGAR_CANE);         // OTHER (item)
+    }
+
+    protected void giveUniversalHotbar(HotbarWrapper hotbar) {
+        hotbar.add(Items.CROSSBOW);                  // WEAPON (ranged)
+        hotbar.add(Items.DIAMOND_AXE);               // WEAPON (melee)
+        hotbar.add(Items.GOLDEN_APPLE, 32);  // FOOD
+        hotbar.add(Items.TORCH, 64);         // DEFAULT LIGHT SOURCE
+        hotbar.add(Items.COBBLESTONE, 64);   // OTHER (block)
+        hotbar.add(Items.COBBLESTONE, 64);   // OTHER (block)
+    }
+
+    protected void giveUniversalArmour(ArmourWrapper armour) {
+        armour.setHelmet(Items.CARVED_PUMPKIN);  // EQUIPMENT
+        armour.setBoots(Items.LEATHER_BOOTS);    // ARMOUR
+    }
+
+    protected void giveUniversalOffHand(LeftHandWrapper leftHand) {
+        leftHand.setLeftHand(Items.SHIELD);  // TOOL
+    }
+    // =================================================================================================================
+
+    // =================================================================================================================
+    // === Configuration ===============================================================================================
+    // =================================================================================================================
+    protected static ModConfig saveOnlyHotbar() {
+        ModConfig testConfig = new ModConfig();
+        testConfig.saveArmor = false;
+        testConfig.saveSecondHand = false;
+        return testConfig;
+    }
+    protected static ModConfig saveOnlyMainInventory() {
+        ModConfig testConfig = new ModConfig();
+        testConfig.saveArmor = false;
+        testConfig.saveHotbar = false;
+        testConfig.saveSecondHand = false;
+        testConfig.saveMainInventory = true;
+        return testConfig;
+    }
+    protected static ModConfig saveOnlyLightSources() {
+        ModConfig testConfig = new ModConfig();
+        testConfig.saveMainInventory = true;
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.AMMUNITION, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.OTHER, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.ARMOUR, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.EQUIPMENT, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.FOOD, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.POTION, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.TOOL, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.WEAPON, false);
+        return testConfig;
+    }
+    protected static ModConfig saveOtherInHotbar() {
+        ModConfig testConfig = saveOnlyHotbar();
+        testConfig.overlapResolution = OverlapResolution.STRICT;
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.AMMUNITION, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.OTHER, true);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.ARMOUR, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.EQUIPMENT, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.FOOD, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.POTION, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.TOOL, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.WEAPON, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.LIGHT_SOURCE_ON, false);
+        testConfig.vanillaItemTypesKeepingMap.put(VanillaItemTypes.POSSIBLE_LIGHT_SOURCE, false);
+        return testConfig;
+    }
+    protected static ModConfig saveOtherAndHotbar() {
+        ModConfig testConfig = saveOtherInHotbar();
+        testConfig.itemKeepingLogicOperator = LogicOperator.OR;
+        return testConfig;
+    }
+    // TODO: Consider if the current test configs are enough or if more needs to be added
+    // =================================================================================================================
 
     // Parametrized Test Generator
     @SuppressWarnings("unused")
@@ -35,70 +139,128 @@ public class DeathBehaviorTests implements FabricGameTest {
     public Collection<TestFunction> generateKeepInventoryTests() {
         List<TestFunction> tests = new ArrayList<>();
 
-        boolean[] keepHotbarConfigs = {true, false};
+        final TestEntry[] testEntries = {
+            // TODO: Fill the entries
+        };
+        final String batchName = "save_the_hotbar_test_item_filtration";
+        final String testPrefix = "test_item_filtration_";
 
-        for (boolean keepHotbar : keepHotbarConfigs) {
-            String testName = "test_death_keep_hotbar_" + keepHotbar;
-
+        for (TestEntry entry : testEntries) {
+            final String testName = testPrefix + entry.testName;
             tests.add(new TestFunction(
-                    "my_mod_batch",                  // Batch ID
+                    batchName,                       // Batch ID
                     testName,                        // Unique Test Name
                     FabricGameTest.EMPTY_STRUCTURE,  // Structure Template
-                    Rotation.NONE,                   // Rotation (Mojmap name)
-                    100,                             // Max ticks before failure
+                    Rotation.NONE,                   // Rotation
+                    10,                              // Max ticks before failure (0.5s) TODO: Check what is the true min
                     0L,                              // Setup ticks
-                    true,                            // Required to pass?
+                    true,                            // Required to pass? TODO: Check why
                     // The actual lambda containing your test logic (uses GameTestHelper)
-                    helper -> runParameterizedDeathTest(helper, keepHotbar)
+                    helper -> runParameterizedDeathTest(helper, entry.testConfig, entry.expectedResult)
             ));
         }
 
         return tests;
     }
+    record TestEntry(String testName, ModConfig testConfig, ExpectedItems expectedResult) {}
+    record ExpectedItems(ItemsPerSlots keptItems, ItemsPerSlots droppedItems) {}
+    record ItemsPerSlots(List<ItemStack> hotbarItems, List<ItemStack> inventoryItems, List<ItemStack> armourSlotsItems, ItemStack leftHandItem) {}
 
     // The core test logic executed by the generator
-    private void runParameterizedDeathTest(GameTestHelper helper, boolean keepHotbarConfig) {
-        // 1. Apply the parametrized configuration
-        ModConfig.saveHotbar = keepHotbarConfig;
+    private void runParameterizedDeathTest(GameTestHelper helper, ModConfig testConfig, ExpectedItems expectedResult) {
+        ModConfig.INSTANCE = testConfig;
+        ModConfig.INSTANCE.containDropMode = ContainDropMode.SACK;
+        ModConfig.INSTANCE.sackMaxSpawnRadius = 0;
 
-        // Force vanilla keepInventory to true
-        helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, helper.getLevel().getServer());
+//        helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, helper.getLevel().getServer());
+        // TODO: Check if the above is required or not
 
-        // 2. Spawn original player (No cast needed!)
-        net.minecraft.world.entity.player.Player originalPlayer = helper.makeMockSurvivalPlayer();
-        giveUniversalItems(originalPlayer);
+        final Player player = helper.makeMockSurvivalPlayer();
+        giveUniversalItems(player);
 
-        // 3. Kill the player
-        originalPlayer.hurt(helper.getLevel().damageSources().generic(), 1000.0f);
+        final Level level = helper.getLevel();
+        final BlockPos pos = player.blockPosition();
 
-        // 4. Assertions (Check the originalPlayer directly!)
-        if (keepHotbarConfig) {
-            if (!originalPlayer.getInventory().getItem(0).is(Items.DIAMOND_SWORD)) {
-                helper.fail("Player should have kept the Diamond Sword in hotbar!");
-            }
-        } else {
-            if (!originalPlayer.getInventory().getItem(0).isEmpty()) {
-                helper.fail("Player should NOT have kept the Diamond Sword in hotbar!");
-            }
+        player.hurt(level.damageSources().generic(), 1000.0f);
 
-            // Create a search box 10 blocks in all directions around where the player died
-            AABB searchBounds = originalPlayer.getBoundingBox().inflate(10.0D);
+        final Inventory postDeathInventory = player.getInventory();
 
-            // Look for dropped items in that search box
-            boolean droppedSword = false;
-            for (ItemEntity item : helper.getLevel().getEntitiesOfClass(ItemEntity.class, searchBounds, e -> true)) {
-                if (item.getItem().is(Items.DIAMOND_SWORD)) droppedSword = true;
-            }
-            if (!droppedSword) {
-                helper.fail("Diamond Sword should have dropped in the world!");
-            }
+        final GraveContainerBlockEntity sackContainer = (GraveContainerBlockEntity) level.getBlockEntity(pos);
+        assert sackContainer != null;
+        final NonNullList<ItemStack> sackItems = sackContainer.getItems();
+
+        // TODO: Check if the correct items stayed in the inventory and that the rest of them are in the Sack
+
+        helper.fail("Test unimplemented");
+    }
+
+
+
+    protected static class LimitedSizeWrapper {
+        protected byte counter = 0;
+        protected NonNullList<ItemStack> slots;
+        protected byte size;
+        protected byte offset;
+
+        public LimitedSizeWrapper(NonNullList<ItemStack> slots, int size, int offset) {
+            this.slots = slots;
+            this.size = (byte) size;
+            this.offset = (byte) offset;
         }
-
-        if (!originalPlayer.getInventory().getItem(39).isEmpty()) {
-            helper.fail("Helmet should have been dropped regardless of hotbar config!");
+        protected void add(ItemStack stack) {
+            if (counter >= size) throw new IndexOutOfBoundsException("Inventory is already full");
+            slots.set(offset + counter++, stack);
         }
-
-        // Test passes successfully
-        helper.succeed();
+        public void add(Item item, int amount) {
+            add(new ItemStack(item, amount));
+        }
+        public void add(Item item) {
+            add(item, 1);
+        }
+    }
+    protected static class InventoryWrapper extends LimitedSizeWrapper {
+        public InventoryWrapper(NonNullList<ItemStack> items) {
+            super(items, 27, 9);
+        }
+    }
+    protected static class HotbarWrapper extends LimitedSizeWrapper {
+        public HotbarWrapper(NonNullList<ItemStack> items) {
+            super(items, 9, 0);
+        }
+    }
+    protected static class ArmourWrapper {
+        protected NonNullList<ItemStack> slots;
+        public ArmourWrapper(NonNullList<ItemStack> slots) {
+            this.slots = slots;
+        }
+        public void setHelmet(Item helmet) {
+            setSlot((byte) 0, helmet);
+        }
+        @SuppressWarnings("unused")
+        public void setChestplate(Item chestplate) {
+            setSlot((byte) 1, chestplate);
+        }
+        @SuppressWarnings("unused")
+        public void setLeggings(Item leggings) {
+            setSlot((byte) 2, leggings);
+        }
+        public void setBoots(Item boots) {
+            setSlot((byte) 3, boots);
+        }
+        protected void setSlot(byte slot, Item item) {
+            slots.set(slot, new ItemStack(item));
+        }
+    }
+    protected static class LeftHandWrapper {
+        protected NonNullList<ItemStack> slots;
+        public LeftHandWrapper(NonNullList<ItemStack> slots) {
+            this.slots = slots;
+        }
+        public void setLeftHand(Item leftHand, int amount) {
+            slots.set(0, new ItemStack(leftHand, amount));
+        }
+        public void setLeftHand(Item leftHand) {
+            setLeftHand(leftHand, 1);
+        }
     }
 }

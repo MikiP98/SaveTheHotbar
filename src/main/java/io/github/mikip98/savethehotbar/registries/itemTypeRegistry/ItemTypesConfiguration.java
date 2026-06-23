@@ -61,7 +61,7 @@ public class ItemTypesConfiguration {
                 .addTags(ItemTags.ARROWS);
 
         vanillaItemTypes.get(VanillaItemTypes.ARMOUR)
-                #if MC_VERSION < 12106 .addClasses(ArmorItem.class) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
+                #if MC_VERSION < 12106 .addClasses(ArmorItem.class, DyeableArmorItem.class) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
         #if MC_VERSION < 12104

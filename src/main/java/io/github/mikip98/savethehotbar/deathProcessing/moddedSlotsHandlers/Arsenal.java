@@ -18,9 +18,9 @@ public class Arsenal implements SlotSupport {
 
     public static List<ItemStack> getItemsToDrop(Player player, ShouldDrop shouldDrop) {
         List<ItemStack> itemsToDrop = new ArrayList<>();
-        if (!ModConfig.saveArsenal || ModConfig.randomDropChance != 0) {
+        if (!ModConfig.INSTANCE.saveArsenal || ModConfig.INSTANCE.randomDropChance != 0) {
             final ItemStack backWeapon = BackWeaponComponent.getBackWeapon(player);
-            if (shouldDrop.apply(backWeapon, ModConfig.saveArsenal)) {
+            if (shouldDrop.apply(backWeapon, ModConfig.INSTANCE.saveArsenal)) {
                 itemsToDrop.add(backWeapon);
                 BackWeaponComponent.setBackWeapon(player, ItemStack.EMPTY);
             }
