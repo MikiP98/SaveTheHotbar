@@ -113,12 +113,19 @@ If you want support for another mod to be added, feel free to submit an [issue](
 
 - Updated support for latest *Pneumono Gravestones*
 - Moved config names and tooltips to MC language files
+- Add item filtering by type: weapon, armour, food, potion, etc.
+- Added support for MC versions:
+  - 1.20.6
+  - 1.21.1
+  - 1.21.4
+  - 1.21.8
+  - 1.21.11
+  - 26.1.2
+  - 26.2
 
 ### 🧭 Upcoming
 
-- Add item filtering by type: weapon, armour, food, potion, etc.
 - Option to **return items directly** to inventory after grave destruction
-  - Add an option for them to be returned into their original slot they were taken from
 - **Coloured tooltips** in the config
 - **`/back` command** with history support
 - Ports for newer MC versions: `1.20.4`, `1.20.6`, `1.21.1`, `1.21.4`, `1.21.8`, `1.21.11`, `26.1.x`
@@ -130,7 +137,28 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - Keep saturation after death
   - Min respawn saturation
   - Max respawn saturation
-- Consider adding some presets
+- Consider adding some setting presets
+- Add config options to disable categorising items by *JAVA classes*
+- Split `OTHER` item category into `OTHER ITEMS` and `OTHER BLOCKS`
+- Split `WEAPON` item category into `MEELE WEAPONS` and `RANGED WEAPONS`
+- Think about adding special item category for shields
+- Consider Splitting `TOOLS` category into `MINING TOOLS` and `OTHER TOOLS`
+- Consider adding the graves to the fabric `STORAGE`
+- Add a skull item as an Equipment that is not Armour to the tests
+- Improve the death and grave coordinate messages to not have `BlockPos{...}`
+- Disable debug grave drop messages
+- Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
+  - PlayerUtils
+  - BlockRegistry
+    - AbstractBlockRegistry to extend with all the registry methods
+    - SettingsDuplicator
+  - RenderLayerRegistry
+    - AbstractBlockRegistry to extend with all the registry methods
+  - *Other*
+- Rethink the whole death manager pipeline with less static class methods
+- Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
+- CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
+- Test how this mod behaves on servers
 
 ---
 

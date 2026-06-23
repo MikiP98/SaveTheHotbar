@@ -12,6 +12,7 @@ import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfi
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -19,9 +20,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.core.NonNullList;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
@@ -36,30 +35,32 @@ public class SlotHandler implements SlotSupport {
     }
 
     // ------------ CHECK FOR NON-KEPT ITEMS ---------------------------------------------------------------------------
-    public NonKeptItems getNonKeptItems() {
+    public List<ItemStack> getNonKeptItems() {
+        List<ItemStack> nonKeptItems = new ArrayList<>();
         LOGGER.info("Checking for vanilla non-kept items...");
-        final VanillaDropSet vanillaDropSet = getVanillaNonKeptItems();
+        getVanillaNonKeptItems(nonKeptItems);
         LOGGER.info("Checking for modded non-kept items...");
-        return new NonKeptItems(vanillaDropSet.vanillaDrop, vanillaDropSet.vanillaDropIDs, getModdedNonKeptItems());
+        getModdedNonKeptItems(nonKeptItems);
+        return nonKeptItems;
     }
-    public record NonKeptItems(List<ItemStack> vanillaDrop, List<Integer> vanillaSlotIds, Map<SupportedSlotMods, List<ItemStack>> moddedDrop) {}
 
     // ------------ Vanilla ------------
-    protected VanillaDropSet getVanillaNonKeptItems() {
+    protected void getVanillaNonKeptItems(List<ItemStack> nonKeptItems) {
         // Main -> Armor -> Offhand
-        List<ItemStack> vanillaDrop = new ArrayList<>();
-        List<Integer> vanillaDropIDs = new ArrayList<>();
-
-        // Keep hotbar
-        checkForDropHotbar(vanillaDrop, vanillaDropIDs, inventory.items);
-        // Keep armor
-        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveArmor, inventory.armor);
-        // Keep second hand
-        checkForDrop(vanillaDrop, vanillaDropIDs, ModConfig.saveSecondHand, inventory.offhand);
-
-        return new VanillaDropSet(vanillaDrop, vanillaDropIDs);
+        #if MC_VERSION < 12105
+        checkForDropHotbar(nonKeptItems, inventory.items);
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, inventory.armor);
+        checkForDrop(nonKeptItems, ModConfig.saveSecondHand, inventory.offhand);
+        #else
+        checkForDropHotbar(nonKeptItems, inventory.getNonEquipmentItems());
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.FEET));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.LEGS));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.BODY));
+        checkForDrop(nonKeptItems, ModConfig.saveArmor, player.getItemBySlot(EquipmentSlot.HEAD));
+        checkForDrop(nonKeptItems, ModConfig.saveSecondHand, player.getOffhandItem());
+        #endif
     }
-    protected void checkForDropHotbar(List<ItemStack> drop, List<Integer> dropIds, NonNullList<ItemStack> slots) {
+    protected void checkForDropHotbar(List<ItemStack> drop, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
             ItemStack stack = slots.get(i);
             final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.saveHotbar;
@@ -67,33 +68,23 @@ public class SlotHandler implements SlotSupport {
             final boolean shouldKeep = shouldKeep(shouldKeepHotbar || shouldKeepInventory, shouldKeepItem(stack));
             if (!stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack))) {
                 drop.add(slots.get(i).copyAndClear());
-                dropIds.add(i);
             }
         }
     }
-    protected void checkForDrop(List<ItemStack> drop, List<Integer> dropIds, boolean shouldKeep, NonNullList<ItemStack> slots) {
-        for (int i = 0; i < slots.size(); i++) {
-            ItemStack stack = slots.get(i);
-            if (shouldDrop(stack, shouldKeep)) {
-                drop.add(slots.get(i).copyAndClear());
-                dropIds.add(i);
-            }
-        }
+    protected void checkForDrop(List<ItemStack> drop, boolean shouldKeep, NonNullList<ItemStack> slots) {
+        slots.forEach(itemStack -> checkForDrop(drop, shouldKeep, itemStack));
     }
-    protected record VanillaDropSet(List<ItemStack> vanillaDrop, List<Integer> vanillaDropIDs) {}
+    protected void checkForDrop(List<ItemStack> drop, boolean shouldKeep, ItemStack itemStack) {
+        if (shouldDrop(itemStack, shouldKeep)) drop.add(itemStack.copyAndClear());
+    }
 
     // ------------ Modded ------------
-    protected Map<SupportedSlotMods, List<ItemStack>> getModdedNonKeptItems() {
-        // Mod Support
-        Map<SupportedSlotMods, List<ItemStack>> moddedDrop = new EnumMap<>(SupportedSlotMods.class);
-
+    protected void getModdedNonKeptItems(List<ItemStack> nonKeptItems) {
         // Keep Arsenal
         #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded())
-            moddedDrop.put(SupportedSlotMods.ARSENAL, Arsenal.getItemsToDrop(player, this::shouldDrop));
+            nonKeptItems.addAll(Arsenal.getItemsToDrop(player, this::shouldDrop));
         #endif
-
-        return moddedDrop;
     }
     // -----------------------------------------------------------------------------------------------------------------
 

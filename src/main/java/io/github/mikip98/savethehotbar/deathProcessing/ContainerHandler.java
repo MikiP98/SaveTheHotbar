@@ -3,6 +3,7 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.world.level.block.Block;
@@ -34,9 +35,7 @@ public class ContainerHandler {
     protected final Player player;
     protected final BlockPos position;
 
-    protected final List<ItemStack> vanillaDrop;
-    protected final List<Integer> vanillaSlotIds;
-    protected final Map<SupportedSlotMods, List<ItemStack>> moddedDrop;
+    protected final List<ItemStack> drop;
     protected final int exp;
 
     protected final DeathManager.ItemDropper rawItemDropFunction;
@@ -48,7 +47,7 @@ public class ContainerHandler {
 
     public ContainerHandler(
             Player player,
-            SlotHandler.NonKeptItems nonKeptItems,
+            List<ItemStack> drop,
             int exp,
             DeathManager.ItemDropper rawItemDropFunction
     ) {
@@ -56,16 +55,16 @@ public class ContainerHandler {
         this.player = player;
         this.position = validatePositionHeight(this.world, player.blockPosition());
 
-        this.vanillaDrop = nonKeptItems.vanillaDrop();
-        this.vanillaSlotIds = nonKeptItems.vanillaSlotIds();
-        this.moddedDrop = nonKeptItems.moddedDrop();
+        this.drop = drop;
         this.exp = exp;
         this.rawItemDropFunction = rawItemDropFunction;
     }
 
+    // TODO: Redo valid position finding
+
 
     public void handleDrop() {
-        if (vanillaDrop.isEmpty() && moddedDrop.values().stream().allMatch(List::isEmpty) && exp == 0) {
+        if (drop.isEmpty() && exp == 0) {
             LOGGER.info("No items nor exp to store or drop, not spawning any graves nor dropping anything");
             return;
         }
@@ -75,9 +74,9 @@ public class ContainerHandler {
             // Drop all items
             final String message = "Dropping inventory at " + position;
             LOGGER.info(message);
-            if (ModConfig.logDeathCoordinatesInChat) player.sendSystemMessage(Component.nullToEmpty(message));
+            if (ModConfig.logDeathCoordinatesInChat) PlayerUtils.sendMessage(player, message);
 
-            for (ItemStack stack : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
+            for (ItemStack stack : this.drop) {
                 dropItem(stack);
             }
         }
@@ -95,15 +94,18 @@ public class ContainerHandler {
             }
             case GRAVE -> {
                 if (!SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
-                    final String message = "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled. Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
+                    final String message =
+                            "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled." +
+                            "Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
                     LOGGER.error(message);
-                    player.displayClientMessage(Component.literal(message).withStyle(ChatFormatting.RED), false);
+                    PlayerUtils.sendMessage(player, Component.literal(message).withStyle(ChatFormatting.RED));
                     spawnSack();
                 }
             }
         }
     }
 
+    // TODO: Get rid of duplicate code from 'spawnSack()' and 'spawnHeadGrave()'
     protected void spawnSack() {
         // First -> Replaceable block in radius
         // Second -> Non-indestructible block in radius
@@ -112,7 +114,7 @@ public class ContainerHandler {
         world.setBlock(sackPos, SaveTheHotbar.SACK.defaultBlockState(), 3);
         LOGGER.info("Spawned a sack at {}", sackPos);
         if (ModConfig.logGraveCoordinatesInChat) {
-            player.sendSystemMessage(Component.literal("Grave coordinates: " + sackPos).withStyle(ChatFormatting.AQUA));
+            PlayerUtils.sendMessage(player, Component.literal("Grave coordinates: " + sackPos).withStyle(ChatFormatting.AQUA));
         }
         fillGrave(sackPos);
     }
@@ -127,7 +129,7 @@ public class ContainerHandler {
             world.setBlock(gravePos, head.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, facing), 3);
             LOGGER.info("Spawned a mob head grave at {}", gravePos);
             if (ModConfig.logGraveCoordinatesInChat) {
-                player.sendSystemMessage(Component.literal("Grave coordinates: " + gravePos).withStyle(ChatFormatting.AQUA));
+                PlayerUtils.sendMessage(player, Component.literal("Grave coordinates: " + gravePos).withStyle(ChatFormatting.AQUA));
             }
             fillGrave(gravePos);
         }
@@ -135,16 +137,20 @@ public class ContainerHandler {
 
     protected void fillGrave(BlockPos pos) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
+        LOGGER.info("Trying to put items and exp in the grave...");
         if (blockEntity instanceof GraveContainerBlockEntity graveContainerBlockEntity) {
-            graveContainerBlockEntity.setItems(vanillaDrop, moddedDrop);
+            LOGGER.info("Putting items and exp in the grave");
+            graveContainerBlockEntity.setItems(drop);
             graveContainerBlockEntity.setExp(exp);
+        } else {
+            LOGGER.error("Grave does not exist! Can't put items inside!");
+            handleNoItemContainerError(pos);
         }
-        else handleNoItemContainerError(pos);
     }
 
     protected void handleNoItemContainerError(BlockPos position) {
         String message = "Couldn't find the spawned item container! Items will be dropped :(  EMERGENCY HOPPERS SPAWN ATTEMPT!!!";
-        player.sendSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
+        PlayerUtils.sendMessage(player, Component.literal(message).withStyle(ChatFormatting.RED));
         LOGGER.error(message);
 
         // Spawn emergency hoppers (3x3 as 1x1 was too small to catch all the items)
@@ -168,10 +174,10 @@ public class ContainerHandler {
         }
 
         // Drop items
-        message = "Dropping " + vanillaDrop.size() + moddedDrop.values().stream().mapToInt(List::size).sum() + " items at " + position;
-        player.sendSystemMessage(Component.literal(message));
+        message = "Dropping " + this.drop.size() + " items at " + position;
+        PlayerUtils.sendMessage(player, message);
         LOGGER.info(message);
-        for (ItemStack item : Stream.concat(vanillaDrop.stream(), moddedDrop.values().stream().flatMap(List::stream)).toList()) {
+        for (ItemStack item : this.drop) {
             world.addFreshEntity(new ItemEntity(world, position.getX(), position.getY(), position.getZ(), item));
         }
     }
@@ -281,17 +287,34 @@ public class ContainerHandler {
         boolean validate(BlockPos position);
     }
 
+    protected static int getTopBuildLimit(Level world) {
+        #if MC_VERSION < 12100
+        return world.getMaxBuildHeight();
+        #else
+        return world.getMaxY();
+        #endif
+    }
+    protected static int getBottomBuildLimit(Level world) {
+        #if MC_VERSION < 12100
+        return world.getMinBuildHeight();
+        #else
+        return world.getMinY();
+        #endif
+    }
+
     protected static BlockPos validatePositionHeight(Level world, BlockPos position) {
-        if (position.getY() < world.getMinBuildHeight()) {
+        int maxBuildHeight = getTopBuildLimit(world);
+        int minBuildHeight = getBottomBuildLimit(world);
+        if (position.getY() <= minBuildHeight) {
             // +1 so that the recovered items won't just fall to the void
-            position = new BlockPos(position.getX(), world.getMinBuildHeight() + 1, position.getZ());
-        } else if (position.getY() > world.getMaxBuildHeight()) {
-            position = new BlockPos(position.getX(), world.getMaxBuildHeight() - 1, position.getZ());
+            position = new BlockPos(position.getX(), minBuildHeight + 1, position.getZ());
+        } else if (position.getY() > maxBuildHeight) {
+            position = new BlockPos(position.getX(), maxBuildHeight, position.getZ());
         }
         return position;
     }
     protected static boolean fitsInHeight(Level world, BlockPos position) {
         final int y = position.getY();
-        return y > world.getMinBuildHeight() && y < world.getMaxBuildHeight();
+        return y > getBottomBuildLimit(world) && y <= getTopBuildLimit(world);
     }
 }

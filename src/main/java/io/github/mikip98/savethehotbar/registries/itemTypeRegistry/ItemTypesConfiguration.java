@@ -2,9 +2,15 @@ package io.github.mikip98.savethehotbar.registries.itemTypeRegistry;
 
 import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
 import io.github.mikip98.savethehotbar.content.tags.ModItemTags;
+#if MC_VERSION <= 12004
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
+#else
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
+import net.minecraft.core.component.DataComponents;
+#endif
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+#if MC_VERSION == 12001 import net.minecraft.world.item.Item; #endif
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,22 +33,52 @@ public class ItemTypesConfiguration {
 
     protected static void registerVanillaConfiguration() {
         vanillaItemTypes.get(VanillaItemTypes.TOOL)
+                #if MC_VERSION < 12104
                 .addClasses(TieredItem.class)
+                #elif MC_VERSION < 12106
+                .addClasses(DiggerItem.class)
+                // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
+                #endif
+                #if MC_VERSION <= 12004
                 .addTags(ItemTags.TOOLS);
+                #else
+                .addTags(ConventionalItemTags.TOOLS);
+                #endif
 
         vanillaItemTypes.get(VanillaItemTypes.WEAPON)
-                .addClasses(SwordItem.class, AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
+                .addClasses(#if MC_VERSION < 12106 SwordItem.class, #endif AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
+                // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
+                #if MC_VERSION <= 12004
                 .addTags(ItemTags.SWORDS, ItemTags.AXES);
+                #elif MC_VERSION < 12104
+                .addTags(ConventionalItemTags.MELEE_WEAPONS_TOOLS, ConventionalItemTags.RANGED_WEAPONS_TOOLS);
+                #else
+                .addTags(ConventionalItemTags.MELEE_WEAPON_TOOLS, ConventionalItemTags.RANGED_WEAPON_TOOLS);
+                #endif
 
         vanillaItemTypes.get(VanillaItemTypes.AMMUNITION)
                 .addClasses(ArrowItem.class)
                 .addTags(ItemTags.ARROWS);
 
-        vanillaItemTypes.get(VanillaItemTypes.ARMOUR).addClasses(ArmorItem.class);
-        vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
+        vanillaItemTypes.get(VanillaItemTypes.ARMOUR)
+                #if MC_VERSION < 12106 .addClasses(ArmorItem.class) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
+                #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
-        vanillaItemTypes.get(VanillaItemTypes.FOOD).addPredicates(Item::isEdible);
-        vanillaItemTypes.get(VanillaItemTypes.POTION).addClasses(PotionItem.class);
+        #if MC_VERSION < 12104
+        vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
+        #endif
+
+        vanillaItemTypes.get(VanillaItemTypes.FOOD)
+                .addTags(ConventionalItemTags.FOODS)
+                #if MC_VERSION <= 12004
+                .addPredicates(Item::isEdible)
+                #else
+                .addPredicates((item) -> item.components().has(DataComponents.FOOD))
+                #endif;
+
+        vanillaItemTypes.get(VanillaItemTypes.POTION)
+                .addTags(ConventionalItemTags.POTIONS)
+                .addClasses(PotionItem.class);
 
         vanillaItemTypes.get(VanillaItemTypes.LIGHT_SOURCE_ON)
                 .addPredicates(item -> {

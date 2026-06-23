@@ -2,10 +2,13 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
-import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
+import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 #endif
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
+#if MC_VERSION >= 12100 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +20,8 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
@@ -45,19 +50,19 @@ public class DeathManager {
 
     public void managePlayerDeath() {
         if (ModConfig.logDeathCoordinatesInChat) {
-            player.sendSystemMessage(Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
+            PlayerUtils.sendMessage(player, Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
         }
 
         // --- Manage Curse of Vanishing ---
         LOGGER.info("Destroying Cursed Items...");
-        destroyCursedItems();
+        destroyVanishingCursedItems();
 
         LOGGER.info("Calculating new EXP amount...");
         final int exp = ModConfig.experienceCalculationMode.calculateExperience(player);
 
         LOGGER.info("Checking for non-kept items...");
         final SlotHandler slotHandler = new SlotHandler(inventory);
-        final SlotHandler.NonKeptItems nonKeptItems = slotHandler.getNonKeptItems();
+        final List<ItemStack> nonKeptItems = slotHandler.getNonKeptItems();
 
         LOGGER.info("Handling the non-kept items...");
         int storedExperience = 0;
@@ -81,11 +86,20 @@ public class DeathManager {
     }
 
     // ------------ CURSED ITEM DESTRUCTION ------------
-    protected void destroyCursedItems() {
+    protected void destroyVanishingCursedItems() {
         // --------- Vanilla ---------
-        destroyCursedItems(inventory.items);
-        destroyCursedItems(inventory.armor);
-        destroyCursedItems(inventory.offhand);
+        #if MC_VERSION < 12105
+        destroyVanishingCursedItems(inventory.items);
+        destroyVanishingCursedItems(inventory.armor);
+        destroyVanishingCursedItems(inventory.offhand);
+        #else
+        destroyVanishingCursedItems(inventory.getNonEquipmentItems());
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.FEET));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.LEGS));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.CHEST));
+        destroyVanishingCursedItem(player.getItemBySlot(EquipmentSlot.HEAD));
+        destroyVanishingCursedItem(player.getOffhandItem());
+        #endif
         // --------- Modded Slots ---------
         #if MC_VERSION == 12001
         if (SupportedSlotMods.ARSENAL.isLoaded()) Arsenal.destroyCursed(player);
@@ -93,8 +107,18 @@ public class DeathManager {
         // TODO: Make the enum store the function so that I can just iterate through the enum
         //  Like make it into a registry
     }
-    protected static void destroyCursedItems(NonNullList<ItemStack> slots) {
-        slots.forEach(slot -> { if (EnchantmentHelper.hasVanishingCurse(slot)) slot.setCount(0); });
+    protected static boolean hasVanishingCurse(ItemStack itemStack) {
+        #if MC_VERSION < 12100
+        return EnchantmentHelper.hasVanishingCurse(itemStack);
+        #else
+        return !itemStack.isEmpty() && EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP);
+        #endif
+    }
+    protected static void destroyVanishingCursedItems(NonNullList<ItemStack> slots) {
+        slots.forEach(DeathManager::destroyVanishingCursedItem);
+    }
+    protected static void destroyVanishingCursedItem(ItemStack itemStack) {
+        if (hasVanishingCurse(itemStack)) itemStack.setCount(0);
     }
     // -------------------------------------------------
 

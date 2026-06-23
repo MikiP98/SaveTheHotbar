@@ -3,17 +3,22 @@ package io.github.mikip98.savethehotbar.mixin;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 import io.github.mikip98.savethehotbar.modSupport.GravestoneConfiguration;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.MinecraftServer;
+#if MC_VERSION >= 12106 import net.minecraft.world.entity.LivingEntity; #endif
+#if MC_VERSION < 12106 import net.minecraft.world.entity.item.ItemEntity; #endif
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
+#if MC_VERSION < 12106 import net.minecraft.world.item.ItemStack; #endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.level.GameRules;
+#if MC_VERSION < 12111 import net.minecraft.world.level.GameRules; #endif
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+#if MC_VERSION < 12106 import org.jetbrains.annotations.Nullable; #endif
+#if MC_VERSION >= 12111 import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules; #endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,12 +31,15 @@ import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin {
+    #if MC_VERSION < 12106
     @Shadow
     public abstract @Nullable ItemEntity drop(ItemStack stack, boolean throwRandomly, boolean retainOwnership);
+    #endif
 
     @Shadow
     private @Final Inventory inventory;
 
+    #if MC_VERSION >= 12106 @SuppressWarnings("ConstantConditions") #endif
     @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
     private void dropInventory(CallbackInfo ci) {
         if (ModConfig.enable) {
@@ -44,7 +52,12 @@ public abstract class PlayerMixin {
                 // Enable Gravestone spawning with keepInventory if disabled
                 graveStoneCheck(world);
 
-                final DeathManager deathManager = new DeathManager(inventory, this::drop);
+                #if MC_VERSION < 12106
+                final DeathManager.ItemDropper itemDropper = this::drop;
+                #else
+                final DeathManager.ItemDropper itemDropper = ((LivingEntity) (Object) this)::drop;
+                #endif
+                final DeathManager deathManager = new DeathManager(inventory, itemDropper);
                 deathManager.managePlayerDeath();
                 if (!(ModConfig.containDrop && ModConfig.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
             } catch (Exception e) {
@@ -56,16 +69,42 @@ public abstract class PlayerMixin {
 
     @Unique
     private void doublePrintWarn(String message) {
-        inventory.player.displayClientMessage(Component.literal(message).withStyle(ChatFormatting.YELLOW), false);
+        PlayerUtils.sendMessage(inventory.player, Component.literal(message).withStyle(ChatFormatting.YELLOW));
         LOGGER.warn(message);
     }
 
     @Unique
     private void keepInventoryCheck(Level world) {
-        if (!world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        #if MC_VERSION < 12104
+        final GameRules gameRules = world.getGameRules();
+        #else
+        final MinecraftServer server = world.getServer();
+        if (server == null) {
+            doublePrintWarn("Unable to determine the 'keepInventory' game rule state! Make sure 'keepInventory' is enabled!");
+            return;
+        }
+            #if MC_VERSION < 12111 || MC_VERSION >= 260000
+            final GameRules gameRules = server.getGameRules();
+            #else
+            final GameRules gameRules = server.getWorldData().getGameRules();
+            #endif
+        #endif
+
+        #if MC_VERSION < 12111
+        GameRules.BooleanValue keepInventory = gameRules.getRule(GameRules.RULE_KEEPINVENTORY);
+        boolean isKeepInventory = keepInventory.get();
+        #else
+        boolean isKeepInventory = gameRules.get(GameRules.KEEP_INVENTORY);
+        #endif
+
+        if (!isKeepInventory) {
             doublePrintWarn("KeepInventory GameRule is False; 'SaveTheHotbar!' requires keepInventory to work; Changing keepInventory to True; If you want to disable 'SaveTheHotbar!', disable it in settings");
             if (!world.isClientSide()) {
-                world.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, world.getServer());
+                #if MC_VERSION < 12111
+                keepInventory.set(true, world.getServer());
+                #else
+                gameRules.set(GameRules.KEEP_INVENTORY, true, server);
+                #endif
             }
         }
     }

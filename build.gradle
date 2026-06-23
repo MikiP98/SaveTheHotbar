@@ -11,7 +11,7 @@ plugins {
 	id 'systems.manifold.manifold-gradle-plugin' version "${manifold_plugin_version}"
 }
 
-// Load version-specific properties dynamically
+// Load version-specific properties
 def activeVersion = project.properties['active_mc_version']
 def versionPropsFile = file("versions/${activeVersion}.properties")
 if (versionPropsFile.exists()) {
@@ -24,7 +24,7 @@ if (versionPropsFile.exists()) {
 
 def activeMcVersionNum = project.mc_version_number.toInteger()
 
-// Apply the correct Loom variant dynamically
+// Apply the correct Loom variant
 if (activeMcVersionNum < 260000) {
 	apply plugin: 'fabric-loom'
 } else {
@@ -57,7 +57,7 @@ repositories {
 	// Mod Menu
 	maven { url "https://maven.terraformersmc.com/releases/" }
 
-	// Arsenal
+	// Arsenal & Pneumono
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -69,23 +69,49 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
-	// Cardinal Components API (required for Arsenal)
-	maven {
-		name = 'Ladysnake Mods'
-		url = 'https://maven.ladysnake.org/releases'
+	if (activeMcVersionNum == 12001) {
+		// Cardinal Components API (required for Arsenal)
+		maven {
+			name = 'Ladysnake Mods'
+			url = 'https://maven.ladysnake.org/releases'
+		}
 	}
 }
 
 loom {
 	splitEnvironmentSourceSets()
+}
 
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "savethehotbar-test"
+		enableGameTests = true
+		eula = true
+	}
+}
+
+loom {
 	mods {
 		"savethehotbar" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
+		"savethehotbar-test" {
+			sourceSet sourceSets.gametest
+		}
 	}
+}
 
+configurations {
+	gametestAnnotationProcessor.extendsFrom(annotationProcessor)
+	gametestCompileOnly.extendsFrom(compileOnly)
+	gametestImplementation.extendsFrom(implementation)
+
+	if (activeMcVersionNum < 260000) {
+		gametestModCompileOnly.extendsFrom(modCompileOnly)
+		gametestModImplementation.extendsFrom(modImplementation)
+	}
 }
 
 dependencies {
@@ -150,12 +176,32 @@ processResources {
 				"data_pack_format": inputs.properties.data_pack_format
 	}
 
+	// Exclude the incorrect model/item definitions
+	if (activeMcVersionNum >= 12108) {
+		exclude 'assets/savethehotbar/models/item/**'
+	} else {
+		exclude 'assets/savethehotbar/items/**'
+	}
+
+	if (activeMcVersionNum < 12111) {
+		exclude 'assets/savethehotbar/textures/block/leather.png'
+	}
+
 	doLast {
 		// Minify JSON files to reduce the mod size a bit
 		fileTree(destinationDir)
 				.matching { include "**/*.json", "**/*.mcmeta" }
 				.forEach { File f ->
 					def json = new JsonSlurper().parse(f)
+
+					if (activeMcVersionNum >= 12111) {
+						if (json instanceof Map && json.textures instanceof Map) {
+							if (json.textures["0"] == "item/leather") {
+								json.textures["0"] = "savethehotbar:block/leather"
+							}
+						}
+					}
+
 					f.text = JsonOutput.toJson(json)
 				}
 	}
