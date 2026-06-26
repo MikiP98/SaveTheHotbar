@@ -8,6 +8,7 @@ import io.github.mikip98.savethehotbar.content.blocks.Sack;
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.SettingsDuplicator;
 #endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
+import io.github.mikip98.savethehotbar.registries.EventRegistry;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -60,6 +61,9 @@ public class SaveTheHotbar implements ModInitializer {
 		// Register and load the configuration
 		AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
 		ModConfig.INSTANCE = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+
+		// Event registry
+		EventRegistry.register();
 
 		// Block Registration
 		final BlockBehaviour.Properties universalSettings = BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();

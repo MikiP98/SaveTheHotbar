@@ -85,13 +85,7 @@ public class DeathManager {
             else if (ModConfig.INSTANCE.expControl.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
         }
 
-        // Manage HUNGER & SATURATION
-        final FoodData foodData = player.getFoodData();
-        final int currentFoodLevel = foodData.getFoodLevel();
-        final float currentSaturationLevel = foodData.getSaturationLevel();
-//        foodData.setFoodLevel(...);
-//        foodData.setSaturation(...);
-        // TODO
+        // HUNGER & SATURATION is managed in 'COPY_FROM' event in 'EventRegistry' class
     }
 
     // ------------ CURSED ITEM DESTRUCTION ------------
