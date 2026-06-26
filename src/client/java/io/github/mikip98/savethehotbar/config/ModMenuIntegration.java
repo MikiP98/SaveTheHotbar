@@ -2,10 +2,11 @@ package io.github.mikip98.savethehotbar.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import me.shedaniel.autoconfig.AutoConfig;
 
 public class ModMenuIntegration implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return ModConfigScreen::createScreen;
+        return parent -> AutoConfig.getConfigScreen(ModConfig.class, parent).get();
     }
 }

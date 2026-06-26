@@ -1,6 +1,6 @@
 package io.github.mikip98.savethehotbar.registries.itemTypeRegistry;
 
-import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
+import io.github.mikip98.savethehotbar.config.enums.ItemTypes;
 import io.github.mikip98.savethehotbar.content.tags.ModItemTags;
 #if MC_VERSION <= 12004
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
@@ -19,9 +19,9 @@ import net.minecraft.tags.ItemTags;
 import java.util.*;
 
 public class ItemTypesConfiguration {
-    public static Map<VanillaItemTypes, ItemTypeConfig> vanillaItemTypes = new EnumMap<>(VanillaItemTypes.class);
+    public static Map<ItemTypes, ItemTypeConfig> vanillaItemTypes = new EnumMap<>(ItemTypes.class);
     static {
-        for (VanillaItemTypes type : VanillaItemTypes.values()) {
+        for (ItemTypes type : ItemTypes.values()) {
             vanillaItemTypes.put(type, new ItemTypeConfig(ModItemTags.vanillaItemTypesTagOverridesMap.get(type)));
         }
     }
@@ -32,7 +32,7 @@ public class ItemTypesConfiguration {
     }
 
     protected static void registerVanillaConfiguration() {
-        vanillaItemTypes.get(VanillaItemTypes.TOOL)
+        vanillaItemTypes.get(ItemTypes.TOOL)
                 #if MC_VERSION < 12104
                 .addClasses(TieredItem.class)
                 #elif MC_VERSION < 12106
@@ -45,7 +45,7 @@ public class ItemTypesConfiguration {
                 .addTags(ConventionalItemTags.TOOLS);
                 #endif
 
-        vanillaItemTypes.get(VanillaItemTypes.WEAPON)
+        vanillaItemTypes.get(ItemTypes.WEAPON)
                 .addClasses(#if MC_VERSION < 12106 SwordItem.class, #endif AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
                 // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION <= 12004
@@ -56,19 +56,19 @@ public class ItemTypesConfiguration {
                 .addTags(ConventionalItemTags.MELEE_WEAPON_TOOLS, ConventionalItemTags.RANGED_WEAPON_TOOLS);
                 #endif
 
-        vanillaItemTypes.get(VanillaItemTypes.AMMUNITION)
+        vanillaItemTypes.get(ItemTypes.AMMUNITION)
                 .addClasses(ArrowItem.class)
                 .addTags(ItemTags.ARROWS);
 
-        vanillaItemTypes.get(VanillaItemTypes.ARMOUR)
+        vanillaItemTypes.get(ItemTypes.ARMOUR)
                 #if MC_VERSION < 12106 .addClasses(ArmorItem.class, DyeableArmorItem.class) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
         #if MC_VERSION < 12104
-        vanillaItemTypes.get(VanillaItemTypes.EQUIPMENT).addClasses(Equipable.class);
+        vanillaItemTypes.get(ItemTypes.EQUIPMENT).addClasses(Equipable.class);
         #endif
 
-        vanillaItemTypes.get(VanillaItemTypes.FOOD)
+        vanillaItemTypes.get(ItemTypes.FOOD)
                 .addTags(ConventionalItemTags.FOODS)
                 #if MC_VERSION <= 12004
                 .addPredicates(Item::isEdible)
@@ -76,17 +76,17 @@ public class ItemTypesConfiguration {
                 .addPredicates((item) -> item.components().has(DataComponents.FOOD))
                 #endif;
 
-        vanillaItemTypes.get(VanillaItemTypes.POTION)
+        vanillaItemTypes.get(ItemTypes.POTION)
                 .addTags(ConventionalItemTags.POTIONS)
                 .addClasses(PotionItem.class);
 
-        vanillaItemTypes.get(VanillaItemTypes.LIGHT_SOURCE_ON)
+        vanillaItemTypes.get(ItemTypes.LIGHT_SOURCE_ON)
                 .addPredicates(item -> {
                     if (item instanceof BlockItem blockItem)
                         return blockItem.getBlock().defaultBlockState().getLightEmission() > 0;
                     return false;
                 });
-        vanillaItemTypes.get(VanillaItemTypes.POSSIBLE_LIGHT_SOURCE)
+        vanillaItemTypes.get(ItemTypes.POSSIBLE_LIGHT_SOURCE)
                 .addPredicates(item -> {
                     if (item instanceof BlockItem blockItem)
                         return hasLuminantState(blockItem.getBlock());
@@ -94,9 +94,9 @@ public class ItemTypesConfiguration {
                 });
 
         // Validate that all Item Types have valid configurations (a.k.a. I haven't forgotten anything)
-        for (VanillaItemTypes type : VanillaItemTypes.values()) {
+        for (ItemTypes type : ItemTypes.values()) {
             ItemTypeConfig config = vanillaItemTypes.get(type);
-            if (type != VanillaItemTypes.OTHER && !config.isConfigured()) {
+            if (type != ItemTypes.OTHER && !config.isConfigured()) {
                 throw new IllegalStateException("Not all Item Types have a valid configuration");
             }
         }

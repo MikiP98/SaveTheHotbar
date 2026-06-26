@@ -1,5 +1,6 @@
 package io.github.mikip98.savethehotbar;
 
+import io.github.mikip98.savethehotbar.config.ClothConfigGUIRegistry;
 import net.fabricmc.api.ClientModInitializer;
 #if MC_VERSION < 260000
 	#if MC_VERSION < 12105
@@ -16,6 +17,8 @@ public class SaveTheHotbarClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		ClothConfigGUIRegistry.register();
+
 		#if MC_VERSION < 260000
 			final Block[] blocks = new Block[]{SaveTheHotbar.SKELETON_HEAD_GRAVE, SaveTheHotbar.ZOMBIE_HEAD_GRAVE};
 

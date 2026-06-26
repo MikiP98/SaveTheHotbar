@@ -160,6 +160,8 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
 - Test how this mod behaves on servers
 - Remove the `keepInventory` requirement (look into `ServerPlayerEvents.COPY_FROM` event)
+- Improve config options tooltips by adding some formatting
+- Add *after death effects* feature (e.g. speed to get to the death location quicker)
 
 ---
 

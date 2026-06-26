@@ -50,6 +50,5 @@
 	},
 	"breaks": {
 		"gravestones": "<1.2.2"
-	},
-	"configScreen": "io.github.mikip98.savethehotbar.config.ModConfigScreen"
+	}
 }
