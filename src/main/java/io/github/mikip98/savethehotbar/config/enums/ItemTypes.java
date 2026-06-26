@@ -1,6 +1,6 @@
-package io.github.mikip98.savethehotbar.config.enums.itemTypes;
+package io.github.mikip98.savethehotbar.config.enums;
 
-public enum VanillaItemTypes {
+public enum ItemTypes {
     TOOL,
     WEAPON,
     AMMUNITION,

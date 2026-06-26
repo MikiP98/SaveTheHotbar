@@ -52,6 +52,9 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 
+	// Humility VAL, ~~cloth-config extended~~
+	mavenLocal()
+
 	// cloth-config
 	maven { url "https://maven.shedaniel.me/" }
 	// Mod Menu
@@ -140,6 +143,7 @@ dependencies {
 	add(apiConfig, "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
+//	add(apiConfig, "me.shedaniel.cloth:basic-math:0.6.1")  // Remove later
 
 	// Gravestone support dependencies
 	add(compileOnlyConfig, "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}")

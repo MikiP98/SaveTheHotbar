@@ -1,15 +1,17 @@
 package io.github.mikip98.savethehotbar;
 
+import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.content.blocks.Sack;
-import io.github.mikip98.savethehotbar.config.io.ConfigReader;
 #if MC_VERSION >= 12104
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.SettingsDuplicator;
 #endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 #if MC_VERSION >= 12104
@@ -39,10 +41,6 @@ import java.util.function.Function;
 
 public class SaveTheHotbar implements ModInitializer {
 	public static final String MOD_ID = "savethehotbar";
-
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static Block SACK;
@@ -59,8 +57,9 @@ public class SaveTheHotbar implements ModInitializer {
 
 		LOGGER.info("SaveTheHotbar! has been initialized!");
 
-		// Load the configuration
-		ConfigReader.loadConfigFromFile();
+		// Register and load the configuration
+		AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
+		ModConfig.INSTANCE = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
 		// Block Registration
 		final BlockBehaviour.Properties universalSettings = BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();
@@ -79,13 +78,12 @@ public class SaveTheHotbar implements ModInitializer {
 				).build()
 		);
 
-
 		ItemTypesConfiguration.registerConfiguration();
 
-
 		// Register Pneumono Gravestones Callbacks
-		if (SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())
+		if (SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
 			PneumonoGravestonesCallbackRegistry.register();
+		}
 	}
 
 
