@@ -122,6 +122,8 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - 1.21.11
   - 26.1.2
   - 26.2
+- Internal config rework and change to the TOML format
+- Hunger & Saturation control after death
 
 ### 🧭 Upcoming
 
@@ -143,7 +145,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Split `WEAPON` item category into `MEELE WEAPONS` and `RANGED WEAPONS`
 - Think about adding special item category for shields
 - Consider Splitting `TOOLS` category into `MINING TOOLS` and `OTHER TOOLS`
-- Consider adding the graves to the fabric `STORAGE`
+- Consider adding the graves to the fabric `STORAGE` tag
 - Add a skull item as an Equipment that is not Armour to the tests
 - Improve the death and grave coordinate messages to not have `BlockPos{...}`
 - Disable debug grave drop messages
@@ -159,6 +161,10 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
 - CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
 - Test how this mod behaves on servers
+- Remove the `keepInventory` requirement (look into `ServerPlayerEvents.COPY_FROM` event)
+- Improve config options tooltips by adding some formatting
+- Add *after death effects* feature (e.g. speed to get to the death location quicker)
+- Consider skipping food data setting event code when in VANILLA modes, see TODO comment in 'EventRegistry', consider adding *Advanced* config section
 
 ---
 

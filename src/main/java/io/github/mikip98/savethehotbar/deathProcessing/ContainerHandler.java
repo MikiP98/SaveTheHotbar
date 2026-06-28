@@ -41,7 +41,7 @@ public class ContainerHandler {
     protected final DeathManager.ItemDropper rawItemDropFunction;
 
     protected void dropItem(ItemStack stack) {
-        rawItemDropFunction.dropItem(stack, ModConfig.INSTANCE.randomSpread, false);
+        rawItemDropFunction.dropItem(stack, ModConfig.INSTANCE.dropControl.randomSpread, false);
     }
 
 
@@ -69,7 +69,7 @@ public class ContainerHandler {
             return;
         }
         LOGGER.info("Handling drop...");
-        if (ModConfig.INSTANCE.containDrop) spawnGrave();
+        if (ModConfig.INSTANCE.dropControl.containDrop) spawnGrave();
         else {
             // Drop all items
             final String message = "Dropping inventory at " + position;
@@ -84,7 +84,7 @@ public class ContainerHandler {
     }
 
     protected void spawnGrave() {
-        switch (ModConfig.INSTANCE.containDropMode) {
+        switch (ModConfig.INSTANCE.dropControl.containDropMode) {
             case SACK -> spawnSack();
             case SKELETON_HEAD -> spawnHeadGrave(SaveTheHotbar.SKELETON_HEAD_GRAVE);
             case ZOMBIE_HEAD -> spawnHeadGrave(SaveTheHotbar.ZOMBIE_HEAD_GRAVE);
@@ -187,7 +187,7 @@ public class ContainerHandler {
      */
     protected @Nullable BlockPos findValidHeadGraveLocation() {
         return findValidSpawnPosition(
-                position, ModConfig.INSTANCE.mobGraveMaxSpawnRadius,
+                position, ModConfig.INSTANCE.dropControl.graveSpawningLogic.mobGraveMaxSpawnRadius,
                 (position1) -> {
                     if (fitsInHeight(world, position1) && world.getBlockState(position1).canBeReplaced()) {
                         BlockPos downPos = position1.below();
@@ -203,7 +203,7 @@ public class ContainerHandler {
     }
     protected boolean isTop(BlockState blockState, BlockPos pos) {
         // TODO: If configured, allow the grave to spawn if block is a top half block
-        if (ModConfig.INSTANCE.allowGravesToSpawnOnSlabs && blockState.getProperties().contains(BlockStateProperties.HALF)) {
+        if (ModConfig.INSTANCE.dropControl.graveSpawningLogic.allowGravesToSpawnOnSlabs && blockState.getProperties().contains(BlockStateProperties.HALF)) {
             final VoxelShape collisionShape = blockState.getCollisionShape(world, pos);
             return blockState.getValue(BlockStateProperties.HALF) == Half.TOP
                     && collisionShape.max(Direction.Axis.X) == 1.0d
@@ -225,11 +225,11 @@ public class ContainerHandler {
      */
     protected @NotNull BlockPos findSafestSackLocation() {
         BlockPos pos = findValidSpawnPosition(
-                position, ModConfig.INSTANCE.sackMaxSpawnRadius,
+                position, ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius,
                 (position1 -> fitsInHeight(world, position1) && world.getBlockState(position1).canBeReplaced())
         );
         if (pos == null) pos = findValidSpawnPosition(
-                position, ModConfig.INSTANCE.sackMaxSpawnRadius,
+                position, ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius,
                 (position1 -> fitsInHeight(world, position1) && world.getBlockState(position1).getBlock().defaultDestroyTime() != -1)
         );
         return pos != null ? pos : position;
@@ -288,14 +288,14 @@ public class ContainerHandler {
     }
 
     protected static int getTopBuildLimit(Level world) {
-        #if MC_VERSION < 12100
+        #if MC_VERSION < 12104
         return world.getMaxBuildHeight();
         #else
         return world.getMaxY();
         #endif
     }
     protected static int getBottomBuildLimit(Level world) {
-        #if MC_VERSION < 12100
+        #if MC_VERSION < 12104
         return world.getMinBuildHeight();
         #else
         return world.getMinY();

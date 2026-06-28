@@ -9,6 +9,7 @@ import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 #if MC_VERSION >= 12100 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
@@ -58,7 +59,7 @@ public class DeathManager {
         destroyVanishingCursedItems();
 
         LOGGER.info("Calculating new EXP amount...");
-        final int exp = ModConfig.INSTANCE.experienceCalculationMode.calculateExperience(player);
+        final int exp = ModConfig.INSTANCE.expControl.experienceCalculationMode.calculateExperience(player);
 
         LOGGER.info("Checking for non-kept items...");
         final SlotHandler slotHandler = new SlotHandler(inventory);
@@ -66,7 +67,7 @@ public class DeathManager {
 
         LOGGER.info("Handling the non-kept items...");
         int storedExperience = 0;
-        if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.STORE) {
+        if (ModConfig.INSTANCE.expControl.experienceBehaviour == ExperienceMode.STORE) {
             LOGGER.info("Experience will be stored in the grave...");
             storedExperience = exp;
         }
@@ -80,9 +81,11 @@ public class DeathManager {
         if (exp > 0) {
             LOGGER.info("Handling not stored experience...");
             // Drop teh EXP if the mode is set to 'DROP' or 'containDrop' is false as no grave will spawn
-            if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.DROP || !ModConfig.INSTANCE.containDrop) dropEXP(exp);
-            else if (ModConfig.INSTANCE.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
+            if (ModConfig.INSTANCE.expControl.experienceBehaviour == ExperienceMode.DROP || !ModConfig.INSTANCE.dropControl.containDrop) dropEXP(exp);
+            else if (ModConfig.INSTANCE.expControl.experienceBehaviour == ExperienceMode.KEEP) player.giveExperiencePoints(exp);
         }
+
+        // HUNGER & SATURATION is managed in 'COPY_FROM' event in 'EventRegistry' class
     }
 
     // ------------ CURSED ITEM DESTRUCTION ------------

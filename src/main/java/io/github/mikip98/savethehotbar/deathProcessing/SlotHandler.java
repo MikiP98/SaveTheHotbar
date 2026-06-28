@@ -2,7 +2,7 @@ package io.github.mikip98.savethehotbar.deathProcessing;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.OverlapResolution;
-import io.github.mikip98.savethehotbar.config.enums.itemTypes.VanillaItemTypes;
+import io.github.mikip98.savethehotbar.config.enums.ItemTypes;
 #if MC_VERSION == 12001
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
 #endif
@@ -12,7 +12,7 @@ import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfi
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
+#if MC_VERSION >= 12105 import net.minecraft.world.entity.EquipmentSlot; #endif
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -49,22 +49,22 @@ public class SlotHandler implements SlotSupport {
         // Main -> Armor -> Offhand
         #if MC_VERSION < 12105
         checkForDropHotbar(nonKeptItems, inventory.items);
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveArmor, inventory.armor);
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveSecondHand, inventory.offhand);
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveArmor, inventory.armor);
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveSecondHand, inventory.offhand);
         #else
         checkForDropHotbar(nonKeptItems, inventory.getNonEquipmentItems());
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveArmor, player.getItemBySlot(EquipmentSlot.FEET));
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveArmor, player.getItemBySlot(EquipmentSlot.LEGS));
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveArmor, player.getItemBySlot(EquipmentSlot.BODY));
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveArmor, player.getItemBySlot(EquipmentSlot.HEAD));
-        checkForDrop(nonKeptItems, ModConfig.INSTANCE.saveSecondHand, player.getOffhandItem());
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveArmor, player.getItemBySlot(EquipmentSlot.FEET));
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveArmor, player.getItemBySlot(EquipmentSlot.LEGS));
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveArmor, player.getItemBySlot(EquipmentSlot.BODY));
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveArmor, player.getItemBySlot(EquipmentSlot.HEAD));
+        checkForDrop(nonKeptItems, ModConfig.INSTANCE.slotControl.saveSecondHand, player.getOffhandItem());
         #endif
     }
     protected void checkForDropHotbar(List<ItemStack> drop, NonNullList<ItemStack> slots) {
         for (int i = 0; i < slots.size(); i++) {
             ItemStack stack = slots.get(i);
-            final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.saveHotbar;
-            final boolean shouldKeepInventory = !Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.saveMainInventory;
+            final boolean shouldKeepHotbar = Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.slotControl.saveHotbar;
+            final boolean shouldKeepInventory = !Inventory.isHotbarSlot(i) && ModConfig.INSTANCE.slotControl.saveMainInventory;
             final boolean shouldKeep = shouldKeep(shouldKeepHotbar || shouldKeepInventory, shouldKeepItem(stack));
             if (!stack.isEmpty() && (!shouldKeep || shouldDropRandomly(stack))) {
                 drop.add(slots.get(i).copyAndClear());
@@ -98,16 +98,16 @@ public class SlotHandler implements SlotSupport {
         return ModConfig.INSTANCE.itemKeepingLogicOperator.apply(shouldKeepSlot, shouldKeepItemType);
     }
     public static boolean shouldKeepItem(ItemStack itemStack) {
-        ArrayList<VanillaItemTypes> itemTypes = new ArrayList<>();
-        for (VanillaItemTypes type : VanillaItemTypes.values()) {
-            if (type == VanillaItemTypes.OTHER) continue;
+        ArrayList<ItemTypes> itemTypes = new ArrayList<>();
+        for (ItemTypes type : ItemTypes.values()) {
+            if (type == ItemTypes.OTHER) continue;
             final ItemTypeConfig config = ItemTypesConfiguration.vanillaItemTypes.get(type);
             if (config.isItemStackOfType(itemStack)) itemTypes.add(type);
         }
-        if (itemTypes.isEmpty()) itemTypes.add(VanillaItemTypes.OTHER);
+        if (itemTypes.isEmpty()) itemTypes.add(ItemTypes.OTHER);
 
-        Predicate<VanillaItemTypes> predicate = (itemType) -> ModConfig.INSTANCE.vanillaItemTypesKeepingMap.get(itemType);
-        if (ModConfig.INSTANCE.overlapResolution == OverlapResolution.LENIENT) {
+        Predicate<ItemTypes> predicate = (itemType) -> ModConfig.INSTANCE.itemTypeControl.itemTypesKeepingMap.get(itemType);
+        if (ModConfig.INSTANCE.itemTypeControl.overlapResolution == OverlapResolution.LENIENT) {
             return itemTypes.stream().anyMatch(predicate);
         } else {
             return itemTypes.stream().allMatch(predicate);
@@ -127,14 +127,14 @@ public class SlotHandler implements SlotSupport {
         return player.getRandom().nextFloat() < getRandomDropChance(stack.getRarity(), player);
     }
     protected static float getRandomDropChance(Rarity rarity, Player player) {
-        float dropChance = ModConfig.INSTANCE.randomDropChance;
+        float dropChance = ModConfig.INSTANCE.randomDropControl.randomDropChance;
 
         // Luck
         final MobEffectInstance luck = player.getEffect(MobEffects.LUCK);
-        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.INSTANCE.luckDropChanceDecrease);
+        if (luck != null) dropChance *= 1.0f - (luck.getAmplifier() * ModConfig.INSTANCE.randomDropControl.luckDropChanceDecrease);
 
         // Item rarity
-        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.INSTANCE.rarityDropChanceDecrease);
+        dropChance *= 1.0f - (rarityToPower(rarity) * ModConfig.INSTANCE.randomDropControl.rarityDropChanceDecrease);
 
         // rdc = 20%
         // rrdcd = 20%

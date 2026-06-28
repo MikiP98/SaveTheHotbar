@@ -59,7 +59,7 @@ public abstract class PlayerMixin {
                 #endif
                 final DeathManager deathManager = new DeathManager(inventory, itemDropper);
                 deathManager.managePlayerDeath();
-                if (!(ModConfig.INSTANCE.containDrop && ModConfig.INSTANCE.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
+                if (!(ModConfig.INSTANCE.dropControl.containDrop && ModConfig.INSTANCE.dropControl.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.error("An error occurred while dropping inventory", e);
@@ -111,7 +111,7 @@ public abstract class PlayerMixin {
 
     @Unique
     private void graveStoneCheck(Level world) {
-        if (ModConfig.INSTANCE.containDrop && ModConfig.INSTANCE.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
+        if (ModConfig.INSTANCE.dropControl.containDrop && ModConfig.INSTANCE.dropControl.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded()) {
             GravestoneConfiguration.gravestoneCheck(this::doublePrintWarn, world.getServer());
         }
     }
