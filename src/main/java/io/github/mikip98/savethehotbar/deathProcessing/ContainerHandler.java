@@ -288,14 +288,14 @@ public class ContainerHandler {
     }
 
     protected static int getTopBuildLimit(Level world) {
-        #if MC_VERSION < 12100
+        #if MC_VERSION < 12104
         return world.getMaxBuildHeight();
         #else
         return world.getMaxY();
         #endif
     }
     protected static int getBottomBuildLimit(Level world) {
-        #if MC_VERSION < 12100
+        #if MC_VERSION < 12104
         return world.getMinBuildHeight();
         #else
         return world.getMinY();

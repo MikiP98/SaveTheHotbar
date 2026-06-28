@@ -12,6 +12,7 @@ import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypeConfi
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+#if MC_VERSION >= 12105 import net.minecraft.world.entity.EquipmentSlot; #endif
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;

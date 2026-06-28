@@ -4,7 +4,11 @@ import io.github.mikip98.savethehotbar.config.annotations.FloatRange;
 import io.github.mikip98.savethehotbar.config.annotations.GlobalTooltip;
 import io.github.mikip98.savethehotbar.config.annotations.IntRange;
 import io.github.mikip98.savethehotbar.config.annotations.SkipGlobalTooltip;
+#if MC_VERSION < 260000
 import me.shedaniel.autoconfig.AutoConfig;
+#else
+import me.shedaniel.autoconfig.AutoConfigClient;
+#endif
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
@@ -24,7 +28,11 @@ import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
 public class ClothConfigGUIRegistry {
     public static void register() {
+        #if MC_VERSION < 260000
         GuiRegistry registry = AutoConfig.getGuiRegistry(ModConfig.class);
+        #else
+        GuiRegistry registry = AutoConfigClient.getGuiRegistry(ModConfig.class);
+        #endif
         registerCustomProviders(registry);
         registerCustomTransformers(registry);
     }
