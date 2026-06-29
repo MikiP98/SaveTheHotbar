@@ -128,17 +128,8 @@ If you want support for another mod to be added, feel free to submit an [issue](
 ### 🧭 Upcoming
 
 - Option to **return items directly** to inventory after grave destruction
-- **Coloured tooltips** in the config
 - **`/back` command** with history support
-- Ports for newer MC versions: `1.20.4`, `1.20.6`, `1.21.1`, `1.21.4`, `1.21.8`, `1.21.11`, `26.1.x`
 - Difficulty Random Drop Chance Increase setting
-- Add hunger related options:
-  - Keep hunger after death
-  - Min respawn hunger
-  - Max respawn hunger
-  - Keep saturation after death
-  - Min respawn saturation
-  - Max respawn saturation
 - Consider adding some setting presets
 - Add config options to disable categorising items by *JAVA classes*
 - Split `OTHER` item category into `OTHER ITEMS` and `OTHER BLOCKS`
@@ -149,6 +140,14 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Add a skull item as an Equipment that is not Armour to the tests
 - Improve the death and grave coordinate messages to not have `BlockPos{...}`
 - Disable debug grave drop messages
+- Rethink the whole death manager pipeline with less static class methods
+- Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
+- CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
+- Test how this mod behaves on servers
+- Remove the `keepInventory` requirement (look into `ServerPlayerEvents.COPY_FROM` event)
+- Improve config tooltips by adding some formatting (e.g. colouring)
+- Add *after death effects* feature (e.g. speed to get to the death location quicker)
+- Consider skipping food data setting event code when in VANILLA modes, see TODO comment in 'EventRegistry', consider adding *Advanced* config section
 - Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
   - PlayerUtils
   - BlockRegistry
@@ -157,14 +156,6 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - RenderLayerRegistry
     - AbstractBlockRegistry to extend with all the registry methods
   - *Other*
-- Rethink the whole death manager pipeline with less static class methods
-- Handle `[removal] SkipItemCallback in net.pneumono.gravestones.api has been deprecated and marked for removal`
-- CHECK IF THE ITEMS STORED IN GRAVES SURVIVE GAME RESTART ON ALL VERSIONS!!!
-- Test how this mod behaves on servers
-- Remove the `keepInventory` requirement (look into `ServerPlayerEvents.COPY_FROM` event)
-- Improve config options tooltips by adding some formatting
-- Add *after death effects* feature (e.g. speed to get to the death location quicker)
-- Consider skipping food data setting event code when in VANILLA modes, see TODO comment in 'EventRegistry', consider adding *Advanced* config section
 
 ---
 
