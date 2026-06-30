@@ -9,7 +9,8 @@
 	},
 	"entrypoints": {
 		"fabric-gametest": [
-			"io.github.mikip98.savethehotbar.DeathBehaviorTests"
+			"io.github.mikip98.savethehotbar.ItemFilteringTests",
+			"io.github.mikip98.savethehotbar.HungerTests"
 		]
 	}
 }

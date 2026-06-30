@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DeathBehaviorTests implements FabricGameTest {
+public class ItemFilteringTests implements FabricGameTest {
     // =================================================================================================================
     // === COMMON INVENTORY SETUP ======================================================================================
     // =================================================================================================================
@@ -313,9 +313,6 @@ public class DeathBehaviorTests implements FabricGameTest {
         ModConfig.INSTANCE = testConfig;
         ModConfig.INSTANCE.dropControl.containDropMode = ContainDropMode.SACK;
         ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
-
-//        helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, helper.getLevel().getServer());
-        // TODO: Check if the above is required or not
 
         final Player player = helper.makeMockSurvivalPlayer();
         giveUniversalItems(player);
