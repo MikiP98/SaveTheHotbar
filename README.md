@@ -124,6 +124,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - 26.2
 - Internal config rework and change to the TOML format
 - Hunger & Saturation control after death
+- Add *Hunger & Saturation* tests
 
 ### 🧭 Upcoming
 
@@ -148,6 +149,9 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Improve config tooltips by adding some formatting (e.g. colouring)
 - Add *after death effects* feature (e.g. speed to get to the death location quicker)
 - Consider skipping food data setting event code when in VANILLA modes, see TODO comment in 'EventRegistry', consider adding *Advanced* config section
+- Split `ItemFilteringTests` into `ItemTypeFilteringTests`, `ItemSlotFilteringTests` and `SlotAndTypeFilteringInteractionTests`
+- Add *EXP* tests
+- Add a separate config option to clamp food level to 20 (after all the calculations, enabled by default)
 - Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
   - PlayerUtils
   - BlockRegistry
