@@ -5,7 +5,7 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 public enum SaturationLevelCalculationMode {
     VANILLA(oldValue -> 5),
     KEEP(oldValue -> oldValue),
-    CLAMP(oldValue -> Math.max(Math.min(oldValue, ModConfig.INSTANCE.hungerControl.minSaturation), ModConfig.INSTANCE.hungerControl.maxSaturation)),
+    CLAMP(oldValue -> Math.max(Math.min(oldValue, ModConfig.INSTANCE.hungerControl.maxSaturation), ModConfig.INSTANCE.hungerControl.minSaturation)),
     FRACTION(oldValue -> oldValue * ModConfig.INSTANCE.hungerControl.saturationFraction),
     FRACTION_AND_CLAMP(oldValue -> CLAMP.calculate(FRACTION.calculate(oldValue))),
     SET(oldValue -> ModConfig.INSTANCE.hungerControl.maxSaturation);
