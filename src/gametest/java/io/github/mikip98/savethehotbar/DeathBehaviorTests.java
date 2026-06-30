@@ -136,11 +136,9 @@ public class DeathBehaviorTests implements FabricGameTest {
     public Collection<TestFunction> generateKeepInventoryTests() {
         List<TestFunction> tests = new ArrayList<>();
 
-        final TestEntry[] testEntries = {
-            // TODO: Fill the entries
-        };
         final String batchName = "save_the_hotbar_test_item_filtration";
         final String testPrefix = "test_item_filtration_";
+        final TestEntry[] testEntries = getTestEntries();
 
         for (TestEntry entry : testEntries) {
             final String testName = testPrefix + entry.testName;
@@ -159,9 +157,156 @@ public class DeathBehaviorTests implements FabricGameTest {
 
         return tests;
     }
+
+    private TestEntry[] getTestEntries() {
+
+        final ItemStack[] empty = new ItemStack[0];
+        final ItemStack shield = new ItemStack(Items.SHIELD);
+
+        final ItemStack[] fullHotbar = new ItemStack[]{
+                new ItemStack(Items.CROSSBOW),
+                new ItemStack(Items.DIAMOND_AXE),
+                new ItemStack(Items.GOLDEN_APPLE, 32),
+                new ItemStack(Items.TORCH, 64),
+                new ItemStack(Items.COBBLESTONE, 64),
+                new ItemStack(Items.COBBLESTONE, 64)
+        };
+
+        final ItemStack[] fullMainInv = new ItemStack[]{
+                new ItemStack(Items.IRON_PICKAXE),
+                new ItemStack(Items.DIAMOND_SWORD),
+                new ItemStack(Items.BOW),
+                new ItemStack(Items.GOLDEN_CHESTPLATE),
+                new ItemStack(Items.CARVED_PUMPKIN),
+                new ItemStack(Items.SKELETON_SKULL),
+                new ItemStack(Items.SPLASH_POTION),
+                new ItemStack(Items.EXPERIENCE_BOTTLE),
+                new ItemStack(Items.COOKED_BEEF),
+                new ItemStack(Items.TORCH),
+                new ItemStack(Items.REDSTONE_LAMP),
+                new ItemStack(Items.SPECTRAL_ARROW),
+                new ItemStack(Items.DIRT, 64),
+                new ItemStack(Items.GRASS, 32),
+                new ItemStack(Items.SUGAR_CANE)
+        };
+
+        final ItemStack[] fullArmor = new ItemStack[]{
+                new ItemStack(Items.CARVED_PUMPKIN),
+                new ItemStack(Items.LEATHER_BOOTS)
+        };
+
+        final ItemStack[] lightHotbarKept = new ItemStack[]{ new ItemStack(Items.TORCH, 64) };
+        final ItemStack[] lightHotbarDropped = new ItemStack[]{
+                new ItemStack(Items.CROSSBOW),
+                new ItemStack(Items.DIAMOND_AXE),
+                new ItemStack(Items.GOLDEN_APPLE, 32),
+                new ItemStack(Items.COBBLESTONE, 64),
+                new ItemStack(Items.COBBLESTONE, 64)
+        };
+
+        final ItemStack[] lightMainKept = new ItemStack[]{
+                new ItemStack(Items.TORCH),
+                new ItemStack(Items.REDSTONE_LAMP)
+        };
+
+        final ItemStack[] lightMainDropped = new ItemStack[]{
+                new ItemStack(Items.IRON_PICKAXE),
+                new ItemStack(Items.DIAMOND_SWORD),
+                new ItemStack(Items.BOW),
+                new ItemStack(Items.GOLDEN_CHESTPLATE),
+                new ItemStack(Items.CARVED_PUMPKIN),
+                new ItemStack(Items.SKELETON_SKULL),
+                new ItemStack(Items.SPLASH_POTION),
+                new ItemStack(Items.EXPERIENCE_BOTTLE),
+                new ItemStack(Items.COOKED_BEEF),
+                new ItemStack(Items.SPECTRAL_ARROW),
+                new ItemStack(Items.DIRT, 64),
+                new ItemStack(Items.GRASS, 32),
+                new ItemStack(Items.SUGAR_CANE)
+        };
+
+        final ItemStack[] otherHotbarKept = new ItemStack[]{
+                new ItemStack(Items.COBBLESTONE, 64),
+                new ItemStack(Items.COBBLESTONE, 64)
+        };
+
+        final ItemStack[] otherHotbarDropped = new ItemStack[]{
+                new ItemStack(Items.CROSSBOW),
+                new ItemStack(Items.DIAMOND_AXE),
+                new ItemStack(Items.GOLDEN_APPLE, 32),
+                new ItemStack(Items.TORCH, 64)
+        };
+
+        final ItemStack[] otherMainKept = new ItemStack[]{
+                new ItemStack(Items.DIRT, 64),
+                new ItemStack(Items.GRASS, 32),
+                new ItemStack(Items.SUGAR_CANE)
+        };
+
+        final ItemStack[] otherMainDropped = new ItemStack[]{
+                new ItemStack(Items.IRON_PICKAXE),
+                new ItemStack(Items.DIAMOND_SWORD),
+                new ItemStack(Items.BOW),
+                new ItemStack(Items.GOLDEN_CHESTPLATE),
+                new ItemStack(Items.CARVED_PUMPKIN),
+                new ItemStack(Items.SKELETON_SKULL),
+                new ItemStack(Items.SPLASH_POTION),
+                new ItemStack(Items.EXPERIENCE_BOTTLE),
+                new ItemStack(Items.COOKED_BEEF),
+                new ItemStack(Items.TORCH),
+                new ItemStack(Items.REDSTONE_LAMP),
+                new ItemStack(Items.SPECTRAL_ARROW)
+        };
+
+
+        return new TestEntry[]{
+                new TestEntry(
+                        "only_hotbar",
+                        saveOnlyHotbar(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(fullHotbar, empty, empty, ItemStack.EMPTY),
+                                new ItemsPerSlots(empty, fullMainInv, fullArmor, shield)
+                        )
+                ),
+                new TestEntry(
+                        "only_main_inventory",
+                        saveOnlyMainInventory(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(empty, fullMainInv, empty, ItemStack.EMPTY),
+                                new ItemsPerSlots(fullHotbar, empty, fullArmor, shield)
+                        )
+                ),
+                new TestEntry(
+                        "only_light_sources",
+                        saveOnlyLightSources(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(lightHotbarKept, lightMainKept, empty, ItemStack.EMPTY),
+                                new ItemsPerSlots(lightHotbarDropped, lightMainDropped, fullArmor, shield)
+                        )
+                ),
+                new TestEntry(
+                        "other_in_hotbar",
+                        saveOtherInHotbar(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(otherHotbarKept, empty, empty, ItemStack.EMPTY),
+                                new ItemsPerSlots(otherHotbarDropped, fullMainInv, fullArmor, shield)
+                        )
+                ),
+                new TestEntry(
+                        "other_and_hotbar",
+                        saveOtherAndHotbar(),
+                        new ExpectedItems(
+                                new ItemsPerSlots(fullHotbar, otherMainKept, empty, ItemStack.EMPTY),
+                                new ItemsPerSlots(empty, otherMainDropped, fullArmor, shield)
+                        )
+                )
+        };
+    }
+
+
     record TestEntry(String testName, ModConfig testConfig, ExpectedItems expectedResult) {}
     record ExpectedItems(ItemsPerSlots keptItems, ItemsPerSlots droppedItems) {}
-    record ItemsPerSlots(List<ItemStack> hotbarItems, List<ItemStack> inventoryItems, List<ItemStack> armourSlotsItems, ItemStack leftHandItem) {}
+    record ItemsPerSlots(ItemStack[] hotbarItems, ItemStack[] inventoryItems, ItemStack[] armourSlotsItems, ItemStack leftHandItem) {}
 
     // The core test logic executed by the generator
     private void runParameterizedDeathTest(GameTestHelper helper, ModConfig testConfig, ExpectedItems expectedResult) {
