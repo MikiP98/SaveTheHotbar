@@ -82,44 +82,44 @@ public class DeathBehaviorTests implements FabricGameTest {
     // =================================================================================================================
     protected static ModConfig saveOnlyHotbar() {
         ModConfig testConfig = new ModConfig();
-        testConfig.saveArmor = false;
-        testConfig.saveSecondHand = false;
+        testConfig.slotControl.saveArmor = false;
+        testConfig.slotControl.saveSecondHand = false;
         return testConfig;
     }
     protected static ModConfig saveOnlyMainInventory() {
         ModConfig testConfig = new ModConfig();
-        testConfig.saveArmor = false;
-        testConfig.saveHotbar = false;
-        testConfig.saveSecondHand = false;
-        testConfig.saveMainInventory = true;
+        testConfig.slotControl.saveArmor = false;
+        testConfig.slotControl.saveHotbar = false;
+        testConfig.slotControl.saveSecondHand = false;
+        testConfig.slotControl.saveMainInventory = true;
         return testConfig;
     }
     protected static ModConfig saveOnlyLightSources() {
         ModConfig testConfig = new ModConfig();
-        testConfig.saveMainInventory = true;
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.AMMUNITION, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.OTHER, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.ARMOUR, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.EQUIPMENT, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.FOOD, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.POTION, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.TOOL, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.WEAPON, false);
+        testConfig.slotControl.saveMainInventory = true;
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.AMMUNITION, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.OTHER, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.ARMOUR, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.EQUIPMENT, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.FOOD, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.POTION, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.TOOL, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.WEAPON, false);
         return testConfig;
     }
     protected static ModConfig saveOtherInHotbar() {
         ModConfig testConfig = saveOnlyHotbar();
-        testConfig.overlapResolution = OverlapResolution.STRICT;
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.AMMUNITION, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.OTHER, true);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.ARMOUR, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.EQUIPMENT, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.FOOD, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.POTION, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.TOOL, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.WEAPON, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.LIGHT_SOURCE_ON, false);
-        testConfig.vanillaItemTypesKeepingMap.put(ItemTypes.POSSIBLE_LIGHT_SOURCE, false);
+        testConfig.itemTypeControl.overlapResolution = OverlapResolution.STRICT;
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.AMMUNITION, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.OTHER, true);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.ARMOUR, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.EQUIPMENT, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.FOOD, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.POTION, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.TOOL, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.WEAPON, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.LIGHT_SOURCE_ON, false);
+        testConfig.itemTypeControl.itemTypesKeepingMap.put(ItemTypes.POSSIBLE_LIGHT_SOURCE, false);
         return testConfig;
     }
     protected static ModConfig saveOtherAndHotbar() {
@@ -311,8 +311,8 @@ public class DeathBehaviorTests implements FabricGameTest {
     // The core test logic executed by the generator
     private void runParameterizedDeathTest(GameTestHelper helper, ModConfig testConfig, ExpectedItems expectedResult) {
         ModConfig.INSTANCE = testConfig;
-        ModConfig.INSTANCE.containDropMode = ContainDropMode.SACK;
-        ModConfig.INSTANCE.sackMaxSpawnRadius = 0;
+        ModConfig.INSTANCE.dropControl.containDropMode = ContainDropMode.SACK;
+        ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
 
 //        helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, helper.getLevel().getServer());
         // TODO: Check if the above is required or not
