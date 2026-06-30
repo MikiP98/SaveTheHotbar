@@ -4,7 +4,13 @@ pluginManagement {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
-		mavenCentral()
+		maven {
+			name = 'Wagyourtail Releases'
+			url = 'https://maven.wagyourtail.xyz/releases'
+		}
 		gradlePluginPortal()
+		mavenCentral()
 	}
 }
+
+rootProject.name = 'savethehotbar'

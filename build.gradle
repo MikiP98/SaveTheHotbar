@@ -3,8 +3,7 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
 plugins {
-	id 'fabric-loom' version "${loom_version}" apply false
-	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+	id 'xyz.wagyourtail.unimined' version "${unimined_version}"
 	id 'maven-publish'
 
 	id 'io.freefair.lombok' version "${lombok_plugin_version}"
@@ -24,12 +23,12 @@ if (versionPropsFile.exists()) {
 
 def activeMcVersionNum = project.mc_version_number.toInteger()
 
-// Apply the correct Loom variant
-if (activeMcVersionNum < 260000) {
-	apply plugin: 'fabric-loom'
-} else {
-	apply plugin: 'net.fabricmc.fabric-loom'
-}
+//// Apply the correct Loom variant
+//if (activeMcVersionNum < 260000) {
+//	apply plugin: 'fabric-loom'
+//} else {
+//	apply plugin: 'net.fabricmc.fabric-loom'
+//}
 
 version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
@@ -81,81 +80,68 @@ repositories {
 	}
 }
 
-loom {
-	splitEnvironmentSourceSets()
-}
+unimined.minecraft {
+	version project.minecraft_version
 
-fabricApi {
-	configureTests {
-		createSourceSet = true
-		modId = "savethehotbar-test"
-		enableGameTests = true
-		eula = true
+	mappings {
+		mojmap()
+	}
+
+	fabric {
+		loader project.loader_version
 	}
 }
 
-loom {
-	mods {
-		"savethehotbar" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-		"savethehotbar-test" {
-			sourceSet sourceSets.gametest
-		}
-	}
-}
-
-configurations {
-	gametestAnnotationProcessor.extendsFrom(annotationProcessor)
-	gametestCompileOnly.extendsFrom(compileOnly)
-	gametestImplementation.extendsFrom(implementation)
-
-	if (activeMcVersionNum < 260000) {
-		gametestModCompileOnly.extendsFrom(modCompileOnly)
-		gametestModImplementation.extendsFrom(modImplementation)
-	}
-}
+//loom {
+//	splitEnvironmentSourceSets()
+//}
+//
+//fabricApi {
+//	configureTests {
+//		createSourceSet = true
+//		modId = "savethehotbar-test"
+//		enableGameTests = true
+//		eula = true
+//	}
+//}
+//
+//loom {
+//	mods {
+//		"savethehotbar" {
+//			sourceSet sourceSets.main
+//			sourceSet sourceSets.client
+//		}
+//		"savethehotbar-test" {
+//			sourceSet sourceSets.gametest
+//		}
+//	}
+//}
 
 dependencies {
 	// Manifold preprocessor
 	annotationProcessor "systems.manifold:manifold-preprocessor:${project.manifold_version}"
 	compileOnly "systems.manifold:manifold-preprocessor:${project.manifold_version}"
 
-	def loomGradle = activeMcVersionNum < 260000
-	String implementationConfig = loomGradle ? "modImplementation" : "implementation"
-	String apiConfig			= loomGradle ? "modApi"            : "api"
-	String compileOnlyConfig 	= loomGradle ? "modCompileOnly"    : "compileOnly"
-	String runtimeOnlyConfig 	= loomGradle ? "modRuntimeOnly"    : "runtimeOnly"
-
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	if (activeMcVersionNum < 260000) {
-		mappings loom.officialMojangMappings()
-	}
-
-	// Fabric base dependencies
-	add(implementationConfig, "net.fabricmc:fabric-loader:${project.loader_version}")
-	add(implementationConfig, "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
+	// Fabric API
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Mod config dependencies
-	add(apiConfig, "com.terraformersmc:modmenu:${project.modmenu_version}")
-	add(apiConfig, "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
-//	add(apiConfig, "me.shedaniel.cloth:basic-math:0.6.1")  // Remove later
 
 	// Gravestone support dependencies
-	add(compileOnlyConfig, "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}")
-	add(compileOnlyConfig, "maven.modrinth:pneumono_core:${project.pneumonocore_version}")
+	compileOnly "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}"
+	compileOnly "maven.modrinth:pneumono_core:${project.pneumonocore_version}"
 	//	add(runtimeOnlyConfig, "maven.modrinth:pneumono_gravestones:${project.pneumono_gravestones_version}")
 	//	add(runtimeOnlyConfig, "maven.modrinth:pneumono_core:${project.pneumonocore_version}")
 
 	// Modded slot support dependencies
 	if (activeMcVersionNum == 12001) {
-		add(compileOnlyConfig, "maven.modrinth:arsenal:${project.arsenal_version}")
-		add(compileOnlyConfig, "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}")
-		add(compileOnlyConfig, "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}")
+		modImplementation "maven.modrinth:arsenal:${project.arsenal_version}"
+		modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
+		modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
 	}
 }
 
