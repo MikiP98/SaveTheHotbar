@@ -65,7 +65,9 @@ public class ItemTypesConfiguration {
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
         #if MC_VERSION < 12104
-        vanillaItemTypes.get(ItemTypes.EQUIPMENT).addClasses(Equipable.class);
+        vanillaItemTypes.get(ItemTypes.EQUIPMENT)
+                .addClasses(Equipable.class)
+                .addPredicates(item -> item instanceof BlockItem blockItem && blockItem.getBlock() instanceof Equipable);
         #endif
 
         vanillaItemTypes.get(ItemTypes.FOOD)
@@ -78,7 +80,7 @@ public class ItemTypesConfiguration {
 
         vanillaItemTypes.get(ItemTypes.POTION)
                 .addTags(ConventionalItemTags.POTIONS)
-                .addClasses(PotionItem.class);
+                .addClasses(PotionItem.class, ExperienceBottleItem.class);
 
         vanillaItemTypes.get(ItemTypes.LIGHT_SOURCE_ON)
                 .addPredicates(item -> {
