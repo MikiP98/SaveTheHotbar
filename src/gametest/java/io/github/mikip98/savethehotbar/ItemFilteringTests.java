@@ -311,6 +311,7 @@ public class ItemFilteringTests implements FabricGameTest {
     // The core test logic executed by the generator
     private void runParameterizedDeathTest(GameTestHelper helper, ModConfig testConfig, ExpectedItems expectedResult) {
         ModConfig.INSTANCE = testConfig;
+        ModConfig.INSTANCE.dropControl.containDrop = true;
         ModConfig.INSTANCE.dropControl.containDropMode = ContainDropMode.SACK;
         ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
 
@@ -328,9 +329,130 @@ public class ItemFilteringTests implements FabricGameTest {
         assert sackContainer != null;
         final NonNullList<ItemStack> sackItems = sackContainer.getItems();
 
-        // TODO: Check if the correct items stayed in the inventory and that the rest of them are in the Sack
+        // Hotbar
+        for (ItemStack expectedKept : expectedResult.keptItems.hotbarItems) {
+            boolean found = false;
+            for (int i = 0; i < 9; ++i) {
+                final ItemStack stack = postDeathInventory.items.get(i);
+                if (ItemStack.matches(stack, expectedKept)) {
+                    found = true;
+                    stack.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (hotbar)");
+        }
+        for (int i = 0; i < 9; ++i) {
+            final ItemStack stack = postDeathInventory.items.get(i);
+            helper.assertTrue(
+                    stack.isEmpty(),
+                    "Non expected item found in post death (hotbar) inventory: " + stack
+            );
+        }
+        for (ItemStack expectedDrop : expectedResult.droppedItems.hotbarItems) {
+            boolean found = false;
+            for (ItemStack drop : sackItems) {
+                if (ItemStack.matches(drop, expectedDrop)) {
+                    found = true;
+                    drop.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from hotbar) has not been found in the the drop");
+        }
 
-        helper.fail("Test unimplemented");
+        // Inventory
+        for (ItemStack expectedKept : expectedResult.keptItems.inventoryItems) {
+            boolean found = false;
+            for (int i = 9; i < 27 + 9; ++i) {
+                final ItemStack stack = postDeathInventory.items.get(i);
+                if (ItemStack.matches(stack, expectedKept)) {
+                    found = true;
+                    stack.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (main inventory)");
+        }
+        for (int i = 9; i < 27 + 9; ++i) {
+            final ItemStack stack = postDeathInventory.items.get(i);
+            helper.assertTrue(
+                    stack.isEmpty(),
+                    "Non expected item found in post death (main inventory) inventory: " + stack
+            );
+        }
+        for (ItemStack expectedDrop : expectedResult.droppedItems.inventoryItems) {
+            boolean found = false;
+            for (ItemStack drop : sackItems) {
+                if (ItemStack.matches(drop, expectedDrop)) {
+                    found = true;
+                    drop.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from main inventory) has not been found in the the drop");
+        }
+
+        // Armour
+        for (ItemStack expectedKept : expectedResult.keptItems.armourSlotsItems) {
+            boolean found = false;
+            for (ItemStack stack : postDeathInventory.armor) {
+                if (ItemStack.matches(stack, expectedKept)) {
+                    found = true;
+                    stack.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (armour)");
+        }
+        for (ItemStack stack : postDeathInventory.armor) {
+            helper.assertTrue(
+                    stack.isEmpty(),
+                    "Non expected item found in post death (armour) inventory: " + stack
+            );
+        }
+        for (ItemStack expectedDrop : expectedResult.droppedItems.armourSlotsItems) {
+            boolean found = false;
+            for (ItemStack drop : sackItems) {
+                if (ItemStack.matches(drop, expectedDrop)) {
+                    found = true;
+                    drop.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from armour) has not been found in the the drop");
+        }
+
+        // Left Hand
+        final ItemStack expectedLeftHandItem = expectedResult.keptItems.leftHandItem;
+        final ItemStack leftHandItem = postDeathInventory.offhand.get(0);
+        if (expectedLeftHandItem != null) {
+            helper.assertTrue(ItemStack.matches(leftHandItem, expectedLeftHandItem), "Left hand item '" + leftHandItem + "' does not match the expected item '" + expectedLeftHandItem + "'");
+        } else {
+            helper.assertTrue(leftHandItem.isEmpty(), "Found unexpected left hand item: " + leftHandItem);
+        }
+        final ItemStack expectedLeftHandDrop = expectedResult.droppedItems.leftHandItem;
+        if (expectedLeftHandDrop != null) {
+            boolean found = false;
+            for (ItemStack drop : sackItems) {
+                if (ItemStack.matches(drop, expectedLeftHandDrop)) {
+                    found = true;
+                    drop.copyAndClear();
+                    break;
+                }
+            }
+            if (!found) helper.fail("Expected ItemStack '" + expectedLeftHandDrop + "' (from left hand) has not been found in the the drop");
+        }
+
+        // Last drop check
+        for (ItemStack drop : sackItems) {
+            helper.assertTrue(
+                    drop.isEmpty(),
+                    "Non expected item found in drop: " + drop
+            );
+        }
+
+        helper.succeed();
     }
 
 
