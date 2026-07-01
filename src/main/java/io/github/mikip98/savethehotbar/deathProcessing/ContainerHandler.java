@@ -288,10 +288,11 @@ public class ContainerHandler {
     }
 
     protected static int getTopBuildLimit(Level world) {
+        // Max getters return the height and not the coords so they need to be offset by 1 to accord for the 0
         #if MC_VERSION < 12104
-        return world.getMaxBuildHeight();
+        return world.getMaxBuildHeight() - 1;
         #else
-        return world.getMaxY();
+        return world.getMaxY() - 1;
         #endif
     }
     protected static int getBottomBuildLimit(Level world) {
