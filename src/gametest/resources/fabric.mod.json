@@ -10,7 +10,8 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"io.github.mikip98.savethehotbar.ItemFilteringTests",
-			"io.github.mikip98.savethehotbar.HungerTests"
+			"io.github.mikip98.savethehotbar.HungerTests",
+			"io.github.mikip98.savethehotbar.SaturationTests"
 		]
 	}
 }
