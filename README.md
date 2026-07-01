@@ -138,7 +138,6 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Think about adding special item category for shields
 - Consider Splitting `TOOLS` category into `MINING TOOLS` and `OTHER TOOLS`
 - Consider adding the graves to the fabric `STORAGE` tag
-- Add a skull item as an Equipment that is not Armour to the tests
 - Improve the death and grave coordinate messages to not have `BlockPos{...}`
 - Disable debug grave drop messages
 - Rethink the whole death manager pipeline with less static class methods
@@ -151,7 +150,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Consider skipping food data setting event code when in VANILLA modes, see TODO comment in 'EventRegistry', consider adding *Advanced* config section
 - Split `ItemFilteringTests` into `ItemTypeFilteringTests`, `ItemSlotFilteringTests` and `SlotAndTypeFilteringInteractionTests`
 - Add *EXP* tests
-- Add a separate config option to clamp food level to 20 (after all the calculations, enabled by default)
+- Add a separate config option to clamp food level and saturation to 20 (after all the calculations, enabled by default)
 - Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
   - PlayerUtils
   - BlockRegistry
