@@ -4,6 +4,7 @@ import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.WorldUtils;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 import net.minecraft.world.level.block.Block;
@@ -287,25 +288,9 @@ public class ContainerHandler {
         boolean validate(BlockPos position);
     }
 
-    protected static int getTopBuildLimit(Level world) {
-        // Max getters return the height and not the coords so they need to be offset by 1 to accord for the 0
-        #if MC_VERSION < 12104
-        return world.getMaxBuildHeight() - 1;
-        #else
-        return world.getMaxY() - 1;
-        #endif
-    }
-    protected static int getBottomBuildLimit(Level world) {
-        #if MC_VERSION < 12104
-        return world.getMinBuildHeight();
-        #else
-        return world.getMinY();
-        #endif
-    }
-
     protected static BlockPos validatePositionHeight(Level world, BlockPos position) {
-        int maxBuildHeight = getTopBuildLimit(world);
-        int minBuildHeight = getBottomBuildLimit(world);
+        int maxBuildHeight = WorldUtils.getTopBuildLimit(world);
+        int minBuildHeight = WorldUtils.getBottomBuildLimit(world);
         if (position.getY() <= minBuildHeight) {
             // +1 so that the recovered items won't just fall to the void
             position = new BlockPos(position.getX(), minBuildHeight + 1, position.getZ());
@@ -316,6 +301,6 @@ public class ContainerHandler {
     }
     protected static boolean fitsInHeight(Level world, BlockPos position) {
         final int y = position.getY();
-        return y > getBottomBuildLimit(world) && y <= getTopBuildLimit(world);
+        return y > WorldUtils.getBottomBuildLimit(world) && y <= WorldUtils.getTopBuildLimit(world);
     }
 }
