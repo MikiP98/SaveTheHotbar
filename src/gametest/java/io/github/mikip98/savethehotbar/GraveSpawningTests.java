@@ -1,22 +1,24 @@
 package io.github.mikip98.savethehotbar;
 
-import com.mojang.authlib.GameProfile;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
-import net.fabricmc.fabric.api.entity.FakePlayer;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.WorldUtils;
+#if MC_VERSION < 12108 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest; #endif
+#if MC_VERSION >= 12108 import net.fabricmc.fabric.api.gametest.v1.GameTest; #endif
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.gametest.framework.GameTestGenerator;
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.GameTestGenerator; #endif
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.GameTest; #endif
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.TestFunction;
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.TestFunction; #endif
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.LevelReader;
+#if MC_VERSION >= 12006 import net.minecraft.world.level.GameType; #endif
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +26,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.*;
 import java.util.function.Function;
 
-public class GraveSpawningTests implements FabricGameTest {
+import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
+import static io.github.mikip98.savethehotbar.Util.msg;
+
+public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
     protected static ModConfig getDropEverythingSackConfig() {
         ModConfig config = new ModConfig();
 
@@ -40,11 +45,11 @@ public class GraveSpawningTests implements FabricGameTest {
         return config;
     }
 
-
-
     private void clearTestArea(ServerLevel level, BlockPos center, int radius) {
-        final int minBuildHeight = level.getMinBuildHeight();
-        final int maxBuildHeight = level.getMaxBuildHeight() - 1;
+        LOGGER.warn("Running clearTestArea");
+
+        final int minBuildHeight = WorldUtils.getBottomBuildLimit(level);
+        final int maxBuildHeight = WorldUtils.getWorldHeight(level) - 1;
 
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
@@ -56,122 +61,196 @@ public class GraveSpawningTests implements FabricGameTest {
                     }
 
                     BlockPos targetPos = center.offset(x, y, z);
-                    if (!level.getBlockState(targetPos).isAir()) {
+                    BlockState targetState = level.getBlockState(targetPos);
+
+                    if (!targetState.isAir() && !targetState.is(Blocks.STRUCTURE_BLOCK)) {
                         level.removeBlock(targetPos, false);
                     }
                 }
             }
         }
+        LOGGER.warn("Finished running clearTestArea");
+    }
+
+    static final ModConfig configSackRad0 = getDropEverythingSackConfig();
+    static final ModConfig configSackRad1 = getDropEverythingSackConfig();
+    static final ModConfig configSackRad7 = getDropEverythingSackConfig();
+    static {
+        configSackRad0.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
+        configSackRad1.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 1;
+        configSackRad7.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 7;
+    }
+
+
+    // --- RADIUS 0 ---
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0BelowBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, level -> WorldUtils.getBottomBuildLimit(level) - 32, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
     }
 
     @SuppressWarnings("unused")
-    @GameTestGenerator
-    public Collection<TestFunction> generateSackBuildLimitTests() {
-        final String batchName = "save_the_hotbar_test_grave_spawning";
-        final String testPrefix = "test_grave_spawning_";
-
-        ModConfig configSackRad0 = getDropEverythingSackConfig();
-        configSackRad0.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
-
-        ModConfig configSackRad1 = getDropEverythingSackConfig();
-        configSackRad1.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 1;
-
-        ModConfig configSackRad7 = getDropEverythingSackConfig();
-        configSackRad7.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 7;
-
-        final Map<String, TestEntry> testEntries = Map.<String, TestEntry>ofEntries(
-                // --- RADIUS 0 ---
-                Map.entry("sack_radius_0_below_bottom_limit", new TestEntry(
-                        configSackRad0,level -> level.getMinBuildHeight() - 32, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_0_at_bottom_limit", new TestEntry(
-                        configSackRad0, LevelReader::getMinBuildHeight, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_0_at_bottom_limit_plus_1", new TestEntry(
-                        configSackRad0, level -> level.getMinBuildHeight() + 1, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_0_normal_height", new TestEntry(
-                        configSackRad0, level -> 63, level -> 63
-                )),
-                Map.entry("sack_radius_0_at_top_limit_minus_1", new TestEntry(
-                        configSackRad0, level -> level.getMaxBuildHeight() - 1, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_0_at_top_limit", new TestEntry(
-                        configSackRad0, LevelHeightAccessor::getMaxBuildHeight, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_0_above_top_limit", new TestEntry(
-                        configSackRad0, level -> level.getMaxBuildHeight() + 32, level -> level.getMaxBuildHeight() - 1
-                )),
-
-                // --- RADIUS 1 ---
-                Map.entry("sack_radius_1_below_bottom_limit", new TestEntry(
-                        configSackRad1, level -> level.getMinBuildHeight() - 32, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_1_at_bottom_limit", new TestEntry(
-                        configSackRad1, LevelReader::getMinBuildHeight, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_1_at_bottom_limit_plus_1", new TestEntry(
-                        configSackRad1, level -> level.getMinBuildHeight() + 1, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_1_at_top_limit_minus_1", new TestEntry(
-                        configSackRad1, level -> level.getMaxBuildHeight() - 1, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_1_at_top_limit", new TestEntry(
-                        configSackRad1, LevelHeightAccessor::getMaxBuildHeight, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_1_above_top_limit", new TestEntry(
-                        configSackRad1, level -> level.getMaxBuildHeight() + 32, level -> level.getMaxBuildHeight() - 1
-                )),
-
-                // --- RADIUS 7 ---
-                Map.entry("sack_radius_7_below_bottom_limit", new TestEntry(
-                        configSackRad7, level -> level.getMinBuildHeight() - 32, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_7_at_bottom_limit", new TestEntry(
-                        configSackRad7, LevelReader::getMinBuildHeight, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_7_at_bottom_limit_plus_1", new TestEntry(
-                        configSackRad7, level -> level.getMinBuildHeight() + 1, level -> level.getMinBuildHeight() + 1
-                )),
-                Map.entry("sack_radius_7_at_top_limit_minus_1", new TestEntry(
-                        configSackRad7, level -> level.getMaxBuildHeight() - 1, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_7_at_top_limit", new TestEntry(
-                        configSackRad7, LevelHeightAccessor::getMaxBuildHeight, level -> level.getMaxBuildHeight() - 1
-                )),
-                Map.entry("sack_radius_7_above_top_limit", new TestEntry(
-                        configSackRad7, level -> level.getMaxBuildHeight() + 32, level -> level.getMaxBuildHeight() - 1
-                ))
-
-                // TODO: Finish tests
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0AtBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, WorldUtils::getBottomBuildLimit, level -> WorldUtils.getBottomBuildLimit(level) + 1
         );
-
-        List<TestFunction> tests = new ArrayList<>(testEntries.size());
-        for (Map.Entry<String, TestEntry> entry : testEntries.entrySet()) {
-            final String testName = testPrefix + entry.getKey();
-            tests.add(new TestFunction(
-                    batchName,                       // Batch ID
-                    testName,                        // Unique Test Name
-                    FabricGameTest.EMPTY_STRUCTURE,  // Structure Template
-                    Rotation.NONE,                   // Rotation
-                    100,                             // Max ticks before failure
-                    0L,                              // Setup ticks
-                    true,                            // Required to pass
-                    helper -> runParameterizedSackTest(helper, entry.getValue())
-            ));
-        }
-        return tests;
     }
 
-    private void runParameterizedSackTest(GameTestHelper helper, TestEntry testParams) {
-        ModConfig.INSTANCE = testParams.config();
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0AtBottomLimitPlus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, level -> WorldUtils.getBottomBuildLimit(level) + 1, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0NormalHeight(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, level -> 63, level -> 63
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0AtTopLimitMinus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, level -> WorldUtils.getWorldHeight(level) - 1, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0AtTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, WorldUtils::getWorldHeight, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius0AboveTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad0, WorldUtils::getWorldHeight, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+
+    // --- RADIUS 1 ---
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1BelowBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, level -> WorldUtils.getBottomBuildLimit(level) - 32, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1AtBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, WorldUtils::getBottomBuildLimit, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1AtBottomLimitPlus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, level -> WorldUtils.getBottomBuildLimit(level) + 1, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1AtTopLimitMinus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, level -> WorldUtils.getWorldHeight(level) - 1, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1AtTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, WorldUtils::getWorldHeight, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius1AboveTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad1, level -> WorldUtils.getWorldHeight(level) + 32, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+
+    // --- RADIUS 7 ---
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7BelowBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, level -> WorldUtils.getBottomBuildLimit(level) - 32, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7AtBottomLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, WorldUtils::getBottomBuildLimit, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7AtBottomLimitPlus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, level -> WorldUtils.getBottomBuildLimit(level) + 1, level -> WorldUtils.getBottomBuildLimit(level) + 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7AtTopLimitMinus1(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, level -> WorldUtils.getWorldHeight(level) - 1, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7AtTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, WorldUtils::getWorldHeight, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+    public void testGraveSpawningSackRadius7AboveTopLimit(GameTestHelper helper) {
+        runParameterizedSackTest(
+                helper, configSackRad7, level -> WorldUtils.getWorldHeight(level) + 32, level -> WorldUtils.getWorldHeight(level) - 1
+        );
+    }
+    // TODO: Finish tests
+
+
+    private void runParameterizedSackTest(GameTestHelper helper, ModConfig config, Function<ServerLevel, Integer> deathYResolver, Function<ServerLevel, Integer> expectedYResolver) {
+        ModConfig.INSTANCE = config;
 
         final ServerLevel level = helper.getLevel();
 
-        final int deathY = testParams.deathYResolver().apply(level);
-        final int expectedY = testParams.expectedYResolver().apply(level);
+        final int deathY = deathYResolver.apply(level);
+        final int expectedY = expectedYResolver.apply(level);
 
-        final BlockPos basePos = helper.absolutePos(BlockPos.ZERO);
+        final BlockPos basePos = helper.absolutePos(new BlockPos(32, 32, 32));
+
         final BlockPos deathPos = new BlockPos(basePos.getX(), deathY, basePos.getZ());
         final BlockPos expectedBlockPos = new BlockPos(basePos.getX(), expectedY, basePos.getZ());
 
@@ -179,8 +258,6 @@ public class GraveSpawningTests implements FabricGameTest {
 
         simulateDeath(helper, level, deathPos, expectedBlockPos);
 
-        // Clean up the world manually after manipulating it outside the structure
-        level.removeBlock(expectedBlockPos, false);
         helper.succeed();
     }
 
@@ -195,7 +272,7 @@ public class GraveSpawningTests implements FabricGameTest {
 
     private record PriorityTestEntry(ModConfig config, int clearRadius, BlockPos expectedOffset, StructureBuilder structureBuilder) {}
 
-    private void fillCube(ServerLevel level, BlockPos center, int radius, net.minecraft.world.level.block.Block block) {
+    private void fillCube(ServerLevel level, BlockPos center, int radius, Block block) {
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
@@ -205,6 +282,14 @@ public class GraveSpawningTests implements FabricGameTest {
         }
     }
 
+    #if MC_VERSION < 12004
+    static final Block SHORT_GRASS = Blocks.GRASS;
+    #else
+    static final Block SHORT_GRASS = Blocks.SHORT_GRASS;
+    #endif
+
+    // TODO: Finish porting to 1.21.8+
+    #if MC_VERSION < 12108
     @SuppressWarnings("unused")
     @GameTestGenerator
     public Collection<TestFunction> generateSackPriorityTests() {
@@ -217,53 +302,55 @@ public class GraveSpawningTests implements FabricGameTest {
         ModConfig configSackRad2 = getDropEverythingSackConfig();
         configSackRad2.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 2;
 
+        // Remember that the spawning radius should be lower than 32, else structure block can be overwritten
+
         final Map<String, PriorityTestEntry> testEntries = Map.<String, PriorityTestEntry>ofEntries(
                 // --- RADIUS 1 ---
                 Map.entry("rad1_3x3_bedrock_cube", new PriorityTestEntry(
                         configSackRad1, 3, BlockPos.ZERO, // Expect center (0,0,0)
-                        (level, center) -> fillCube(level, center, 1, net.minecraft.world.level.block.Blocks.BEDROCK)
+                        (level, center) -> fillCube(level, center, 1, Blocks.BEDROCK)
                 )),
                 Map.entry("rad1_3x3_bedrock_1_stone", new PriorityTestEntry(
                         configSackRad1, 3, new BlockPos(1, 1, 1), // Expect offset (1,1,1)
                         (level, center) -> {
-                            fillCube(level, center, 1, net.minecraft.world.level.block.Blocks.BEDROCK);
-                            level.setBlock(center.offset(1, 1, 1), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+                            fillCube(level, center, 1, Blocks.BEDROCK);
+                            level.setBlock(center.offset(1, 1, 1), Blocks.STONE.defaultBlockState(), 3);
                         }
                 )),
                 Map.entry("rad1_3x3_bedrock_1_grass", new PriorityTestEntry(
                         configSackRad1, 3, new BlockPos(1, 1, 1), // Expect offset (1,1,1)
                         (level, center) -> {
-                            fillCube(level, center, 1, net.minecraft.world.level.block.Blocks.BEDROCK);
-                            level.setBlock(center.offset(1, 1, 1), net.minecraft.world.level.block.Blocks.GRASS.defaultBlockState(), 3);
+                            fillCube(level, center, 1, Blocks.BEDROCK);
+                            level.setBlock(center.offset(1, 1, 1), SHORT_GRASS.defaultBlockState(), 3);
                         }
                 )),
                 Map.entry("rad1_3x3_bedrock_stone_and_grass", new PriorityTestEntry(
                         configSackRad1, 3, new BlockPos(1, 1, 1), // Expect offset (1,1,1) due to replaceable priority
                         (level, center) -> {
-                            fillCube(level, center, 1, net.minecraft.world.level.block.Blocks.BEDROCK);
-                            level.setBlock(center.offset(1, 1, 1), net.minecraft.world.level.block.Blocks.GRASS.defaultBlockState(), 3); // Replaceable
-                            level.setBlock(center.offset(-1, -1, -1), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3); // Destructible
+                            fillCube(level, center, 1, Blocks.BEDROCK);
+                            level.setBlock(center.offset(1, 1, 1), SHORT_GRASS.defaultBlockState(), 3); // Replaceable
+                            level.setBlock(center.offset(-1, -1, -1), Blocks.STONE.defaultBlockState(), 3); // Destructible
                         }
                 )),
                 Map.entry("rad1_3x3_lava_pool", new PriorityTestEntry(
                         configSackRad1, 3, BlockPos.ZERO, // Expect center (0,0,0) replacing lava
-                        (level, center) -> fillCube(level, center, 1, net.minecraft.world.level.block.Blocks.LAVA)
+                        (level, center) -> fillCube(level, center, 1, Blocks.LAVA)
                 )),
 
                 // --- RADIUS 2 ---
                 Map.entry("rad2_5x5_stone_1_grass", new PriorityTestEntry(
                         configSackRad2, 5, new BlockPos(2, 2, 2), // Expect offset (2,2,2) because replaceable > distance
                         (level, center) -> {
-                            fillCube(level, center, 2, net.minecraft.world.level.block.Blocks.STONE);
-                            level.setBlock(center.offset(2, 2, 2), net.minecraft.world.level.block.Blocks.GRASS.defaultBlockState(), 3);
+                            fillCube(level, center, 2, Blocks.STONE);
+                            level.setBlock(center.offset(2, 2, 2), SHORT_GRASS.defaultBlockState(), 3);
                         }
                 )),
                 Map.entry("rad2_5x5_bedrock_2_stone_dist", new PriorityTestEntry(
                         configSackRad2, 5, new BlockPos(1, 0, 0), // Expect offset (1,0,0) because it is closer than (2,0,0)
                         (level, center) -> {
-                            fillCube(level, center, 2, net.minecraft.world.level.block.Blocks.BEDROCK);
-                            level.setBlock(center.offset(1, 0, 0), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3); // Closer
-                            level.setBlock(center.offset(2, 0, 0), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3); // Further
+                            fillCube(level, center, 2, Blocks.BEDROCK);
+                            level.setBlock(center.offset(1, 0, 0), Blocks.STONE.defaultBlockState(), 3); // Closer
+                            level.setBlock(center.offset(2, 0, 0), Blocks.STONE.defaultBlockState(), 3); // Further
                         }
                 ))
         );
@@ -283,12 +370,13 @@ public class GraveSpawningTests implements FabricGameTest {
         }
         return tests;
     }
+    #endif
 
     private void runPriorityTest(GameTestHelper helper, PriorityTestEntry params) {
         ModConfig.INSTANCE = params.config();
         final ServerLevel level = helper.getLevel();
 
-        final BlockPos basePos = helper.absolutePos(new BlockPos(0, 100, 0));
+        final BlockPos basePos = helper.absolutePos(new BlockPos(32, 32, 32));
 
         clearTestArea(level, basePos, params.clearRadius());
         params.structureBuilder().build(level, basePos);
@@ -304,7 +392,12 @@ public class GraveSpawningTests implements FabricGameTest {
 
 
     private void simulateDeath(GameTestHelper helper, ServerLevel level, BlockPos blockPos, BlockPos expectedPos) {
+        LOGGER.warn("Running simulateDeath");
+        #if MC_VERSION < 12006
         final Player player = helper.makeMockSurvivalPlayer();
+        #else
+        final Player player = helper.makeMockPlayer(GameType.SURVIVAL);  // TODO: Check if this can be used before 1.20.6
+        #endif
         player.setNoGravity(true);
         player.setPos(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
@@ -316,13 +409,13 @@ public class GraveSpawningTests implements FabricGameTest {
         final BlockState blockState = level.getBlockState(expectedPos);
         helper.assertTrue(
                 blockState.is(SaveTheHotbar.SACK),
-                "Sack did NOT spawn at expected pos: " + expectedPos + ", block found: " + blockState.getBlock().getName().getString()
+                msg("Sack did NOT spawn at expected pos: " + expectedPos + ", block found: " + blockState.getBlock().getName().getString())
         );
 
         final BlockEntity blockEntity = level.getBlockEntity(expectedPos);
         helper.assertTrue(
                 blockEntity instanceof GraveContainerBlockEntity,
-                "Block Entity at " + expectedPos + " is missing or is not a GraveContainerBlockEntity."
+                msg("Block Entity at " + expectedPos + " is missing or is not a GraveContainerBlockEntity.")
         );
         assert blockEntity instanceof GraveContainerBlockEntity;
         final GraveContainerBlockEntity graveContainerEntity = (GraveContainerBlockEntity) blockEntity;
@@ -330,8 +423,12 @@ public class GraveSpawningTests implements FabricGameTest {
 
         helper.assertTrue(
                 drop.stream().anyMatch((itemStack) -> ItemStack.isSameItem(itemStack, new ItemStack(Items.DIAMOND))),
-                "The original diamond item for grave trigger creation is missing, drop: " + drop
+                msg("The original diamond item for grave trigger creation is missing, drop: " + drop)
         );
         // TODO: Check if the the non-replaceable destructible block if such was replaced is inside
+
+        // Clean up the world manually after manipulating it outside the structure
+        graveContainerEntity.getItems().clear();
+        level.removeBlock(expectedPos, false);
     }
 }
