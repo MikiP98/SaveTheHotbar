@@ -6,17 +6,19 @@ import io.github.mikip98.savethehotbar.config.enums.LogicOperator;
 import io.github.mikip98.savethehotbar.config.enums.OverlapResolution;
 import io.github.mikip98.savethehotbar.config.enums.ItemTypes;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+#if MC_VERSION < 12108 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest; #endif
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.GameTestGenerator;
-import net.minecraft.gametest.framework.TestFunction;
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.GameTestGenerator; #endif
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.TestFunction; #endif
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 
@@ -24,10 +26,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ItemFilteringTests implements FabricGameTest {
+import static io.github.mikip98.savethehotbar.Util.msg;
+
+public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
+    #if MC_VERSION < 12004
+    static final Item GRASS_BLOCK_ITEM = Items.GRASS;
+    #else
+    static final Item GRASS_BLOCK_ITEM = Items.GRASS_BLOCK;
+    #endif
+
     // =================================================================================================================
     // === COMMON INVENTORY SETUP ======================================================================================
     // =================================================================================================================
+    // TODO: Finish porting to 1.21.8+
+    #if MC_VERSION < 12108
     protected void giveUniversalItems(Player player) {
         Inventory inventory = player.getInventory();
         giveUniversalInventory(new InventoryWrapper(inventory.items));
@@ -35,6 +47,7 @@ public class ItemFilteringTests implements FabricGameTest {
         giveUniversalArmour(new ArmourWrapper(inventory.armor));
         giveUniversalOffHand(new LeftHandWrapper(inventory.offhand));
     }
+    #endif
 
     protected void giveUniversalInventory(InventoryWrapper inventory) {
         inventory.add(Items.IRON_PICKAXE);   // TOOL
@@ -54,7 +67,7 @@ public class ItemFilteringTests implements FabricGameTest {
         inventory.add(Items.SPECTRAL_ARROW);    // AMMUNITION
 
         inventory.add(Items.DIRT, 64);   // OTHER (block)
-        inventory.add(Items.GRASS, 32);  // OTHER (block)
+        inventory.add(GRASS_BLOCK_ITEM, 32);  // OTHER (block)
         inventory.add(Items.SUGAR_CANE);         // OTHER (item)
     }
 
@@ -130,6 +143,8 @@ public class ItemFilteringTests implements FabricGameTest {
     // TODO: Consider if the current test configs are enough or if more needs to be added
     // =================================================================================================================
 
+    // TODO: Finish porting to 1.21.8+
+    #if MC_VERSION < 12108
     // Parametrized Test Generator
     @SuppressWarnings("unused")
     @GameTestGenerator
@@ -157,6 +172,7 @@ public class ItemFilteringTests implements FabricGameTest {
 
         return tests;
     }
+    #endif
 
     private TestEntry[] getTestEntries() {
 
@@ -186,7 +202,7 @@ public class ItemFilteringTests implements FabricGameTest {
                 new ItemStack(Items.REDSTONE_LAMP),
                 new ItemStack(Items.SPECTRAL_ARROW),
                 new ItemStack(Items.DIRT, 64),
-                new ItemStack(Items.GRASS, 32),
+                new ItemStack(GRASS_BLOCK_ITEM, 32),
                 new ItemStack(Items.SUGAR_CANE)
         };
 
@@ -221,7 +237,7 @@ public class ItemFilteringTests implements FabricGameTest {
                 new ItemStack(Items.COOKED_BEEF),
                 new ItemStack(Items.SPECTRAL_ARROW),
                 new ItemStack(Items.DIRT, 64),
-                new ItemStack(Items.GRASS, 32),
+                new ItemStack(GRASS_BLOCK_ITEM, 32),
                 new ItemStack(Items.SUGAR_CANE)
         };
 
@@ -239,7 +255,7 @@ public class ItemFilteringTests implements FabricGameTest {
 
         final ItemStack[] otherMainKept = new ItemStack[]{
                 new ItemStack(Items.DIRT, 64),
-                new ItemStack(Items.GRASS, 32),
+                new ItemStack(GRASS_BLOCK_ITEM, 32),
                 new ItemStack(Items.SUGAR_CANE)
         };
 
@@ -308,6 +324,8 @@ public class ItemFilteringTests implements FabricGameTest {
     record ExpectedItems(ItemsPerSlots keptItems, ItemsPerSlots droppedItems) {}
     record ItemsPerSlots(ItemStack[] hotbarItems, ItemStack[] inventoryItems, ItemStack[] armourSlotsItems, ItemStack leftHandItem) {}
 
+    // TODO: Finish porting to 1.21.8+
+    #if MC_VERSION < 12108
     // The core test logic executed by the generator
     private void runParameterizedDeathTest(GameTestHelper helper, ModConfig testConfig, ExpectedItems expectedResult) {
         ModConfig.INSTANCE = testConfig;
@@ -315,7 +333,11 @@ public class ItemFilteringTests implements FabricGameTest {
         ModConfig.INSTANCE.dropControl.containDropMode = ContainDropMode.SACK;
         ModConfig.INSTANCE.dropControl.graveSpawningLogic.sackMaxSpawnRadius = 0;
 
+        #if MC_VERSION < 12006
         final Player player = helper.makeMockSurvivalPlayer();
+        #else
+        final Player player = helper.makeMockPlayer(GameType.SURVIVAL);  // TODO: Check if this can be used before 1.20.6
+        #endif
         giveUniversalItems(player);
 
         final Level level = helper.getLevel();
@@ -340,7 +362,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (hotbar)");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (hotbar)"));
         }
         for (int i = 0; i < 9; ++i) {
             final ItemStack stack = postDeathInventory.items.get(i);
@@ -358,7 +380,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from hotbar) has not been found in the the drop");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from hotbar) has not been found in the the drop"));
         }
 
         // Inventory
@@ -372,7 +394,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (main inventory)");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (main inventory)"));
         }
         for (int i = 9; i < 27 + 9; ++i) {
             final ItemStack stack = postDeathInventory.items.get(i);
@@ -390,7 +412,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from main inventory) has not been found in the the drop");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from main inventory) has not been found in the the drop"));
         }
 
         // Armour
@@ -403,7 +425,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (armour)");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (armour)"));
         }
         for (ItemStack stack : postDeathInventory.armor) {
             helper.assertTrue(
@@ -420,7 +442,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from armour) has not been found in the the drop");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from armour) has not been found in the the drop"));
         }
 
         // Left Hand
@@ -441,7 +463,7 @@ public class ItemFilteringTests implements FabricGameTest {
                     break;
                 }
             }
-            if (!found) helper.fail("Expected ItemStack '" + expectedLeftHandDrop + "' (from left hand) has not been found in the the drop");
+            if (!found) helper.fail(msg("Expected ItemStack '" + expectedLeftHandDrop + "' (from left hand) has not been found in the the drop"));
         }
 
         // Last drop check
@@ -454,6 +476,7 @@ public class ItemFilteringTests implements FabricGameTest {
 
         helper.succeed();
     }
+    #endif
 
 
 

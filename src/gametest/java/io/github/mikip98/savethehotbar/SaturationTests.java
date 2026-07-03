@@ -4,17 +4,21 @@ import com.mojang.authlib.GameProfile;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.SaturationLevelCalculationMode;
 import net.fabricmc.fabric.api.entity.FakePlayer;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
-import net.minecraft.gametest.framework.GameTestGenerator;
+#if MC_VERSION < 12108 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest; #endif
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.GameTestGenerator; #endif
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.TestFunction;
+#if MC_VERSION < 12108 import net.minecraft.gametest.framework.TestFunction; #endif
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Rotation;
 
 import java.util.*;
 
-public class SaturationTests implements FabricGameTest {
+import static io.github.mikip98.savethehotbar.Util.msg;
+
+public class SaturationTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
+    // TODO: Finish porting to 1.21.8+
+    #if MC_VERSION < 12108
     @SuppressWarnings("unused")
     @GameTestGenerator
     public Collection<TestFunction> generateKeepInventoryTests() {
@@ -256,6 +260,7 @@ public class SaturationTests implements FabricGameTest {
         }
         return tests;
     }
+    #endif
 
     private record TestEntry(ModConfig config, float initialValue, float expectedValue) {}
 
@@ -280,7 +285,7 @@ public class SaturationTests implements FabricGameTest {
         final float afterDeathPlayerSaturation = respawnedPlayer.getFoodData().getSaturationLevel();
         helper.assertTrue(
                 afterDeathPlayerSaturation == testParams.expectedValue,
-                "Wrong saturation level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerSaturation + "'"
+                msg("Wrong saturation level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerSaturation + "'")
         );
         helper.succeed();
     }
