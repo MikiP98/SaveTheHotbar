@@ -152,6 +152,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Add *EXP* tests
 - Add a separate config option to clamp food level and saturation to 20 (after all the calculations, enabled by default)
 - Add world border item dropping and grave spawning clamping config options (disabled by default)
+- Get rid all all the warnings and deprecated method use on all the MC versions
 - Make a library with the MC version abstraction from duplicated code in this mod and HumilityAFM
   - PlayerUtils
   - BlockRegistry
