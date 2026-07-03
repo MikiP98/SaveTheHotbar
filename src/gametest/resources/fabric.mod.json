@@ -12,7 +12,8 @@
 			"io.github.mikip98.savethehotbar.ItemFilteringTests",
 			"io.github.mikip98.savethehotbar.HungerTests",
 			"io.github.mikip98.savethehotbar.SaturationTests",
-			"io.github.mikip98.savethehotbar.GraveSpawningTests"
+			"io.github.mikip98.savethehotbar.GraveSpawningTests",
+			"io.github.mikip98.savethehotbar.EXPTests"
 		]
 	}
 }
