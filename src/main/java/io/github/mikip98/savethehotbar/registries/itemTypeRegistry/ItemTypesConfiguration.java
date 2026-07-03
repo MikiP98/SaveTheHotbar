@@ -31,13 +31,16 @@ public class ItemTypesConfiguration {
         registerModdedConfiguration();
     }
 
+    // TODO: Change the component predicates to separate '.addDataComponents()'
     protected static void registerVanillaConfiguration() {
         vanillaItemTypes.get(ItemTypes.TOOL)
                 #if MC_VERSION < 12104
                 .addClasses(TieredItem.class)
                 #elif MC_VERSION < 12106
                 .addClasses(DiggerItem.class)
-                // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
+                #endif
+                #if MC_VERSION >= 12104
+                .addPredicates(item -> item.components().has(DataComponents.TOOL))
                 #endif
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.TOOLS);
@@ -46,7 +49,7 @@ public class ItemTypesConfiguration {
                 #endif
 
         vanillaItemTypes.get(ItemTypes.WEAPON)
-                .addClasses(#if MC_VERSION < 12106 SwordItem.class, #endif AxeItem.class, ProjectileWeaponItem.class, TridentItem.class)
+                .addClasses(#if MC_VERSION < 12106 SwordItem.class, #endif AxeItem.class, ProjectileWeaponItem.class, TridentItem.class #if MC_VERSION >= 12005 , MaceItem.class #endif) // TODO: Look into 'DataComponents.DAMAGE_TYPE' extraction
                 // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION <= 12004
                 .addTags(ItemTags.SWORDS, ItemTags.AXES);
@@ -64,23 +67,28 @@ public class ItemTypesConfiguration {
                 #if MC_VERSION < 12106 .addClasses(ArmorItem.class #if MC_VERSION < 12006, DyeableArmorItem.class #endif) #endif  // TODO: Consider adding predicates using 'ItemAttributeModifiers'/'DataComponents'
                 #if MC_VERSION >= 12006 .addTags(ConventionalItemTags.ARMORS) #endif;
 
-        #if MC_VERSION < 12104
         vanillaItemTypes.get(ItemTypes.EQUIPMENT)
+                #if MC_VERSION < 12104
                 .addClasses(Equipable.class)
                 .addPredicates(item -> item instanceof BlockItem blockItem && blockItem.getBlock() instanceof Equipable);
-        #endif
+                #else
+                .addPredicates(item -> item.components().has(DataComponents.EQUIPPABLE));
+                #endif
 
         vanillaItemTypes.get(ItemTypes.FOOD)
                 .addTags(ConventionalItemTags.FOODS)
                 #if MC_VERSION <= 12004
                 .addPredicates(Item::isEdible)
                 #else
-                .addPredicates((item) -> item.components().has(DataComponents.FOOD))
+                .addPredicates(item -> item.components().has(DataComponents.FOOD))
                 #endif;
 
         vanillaItemTypes.get(ItemTypes.POTION)
                 .addTags(ConventionalItemTags.POTIONS)
-                .addClasses(PotionItem.class, ExperienceBottleItem.class);
+                .addClasses(PotionItem.class, ExperienceBottleItem.class)
+                #if MC_VERSION >= 12005
+                .addPredicates(item -> item.components().has(DataComponents.POTION_CONTENTS))
+                #endif;
 
         vanillaItemTypes.get(ItemTypes.LIGHT_SOURCE_ON)
                 .addPredicates(item -> {

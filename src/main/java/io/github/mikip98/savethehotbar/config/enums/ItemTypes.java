@@ -6,7 +6,7 @@ public enum ItemTypes {
     AMMUNITION,
 
     ARMOUR,
-    #if MC_VERSION < 12104 EQUIPMENT, #endif
+    EQUIPMENT,
 
     FOOD,
     POTION,
