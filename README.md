@@ -161,6 +161,12 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - RenderLayerRegistry
     - AbstractBlockRegistry to extend with all the registry methods
   - *Other*
+- Check how the mod behaves on dedicated servers, and rethink client sent messages
+- Change config options `logDeathCoordinatesInChat` and `logGraveCoordinatesInChat` to enums with options:
+  - PREVENT / DON'T SEND  (server does not send the info, client can't display it)
+  - TO_EVERYONE  (server sends the info to public chat)
+  - TO_DEAD_PLAYER  (server sends the info to dead chat, client can't refuse to see this)
+  - ALLOW CLIENT TO DECIDE  (server does not send the info, but the client can send it to themselves)
 
 ---
 
