@@ -4,9 +4,6 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.content.blocks.Sack;
-#if MC_VERSION >= 12104
-import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.SettingsDuplicator;
-#endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.BlockRegistry;
 import io.github.mikip98.savethehotbar.registries.EventRegistry;
