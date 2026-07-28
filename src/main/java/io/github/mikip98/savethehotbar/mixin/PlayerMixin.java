@@ -3,7 +3,6 @@ package io.github.mikip98.savethehotbar.mixin;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
-import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 import io.github.mikip98.savethehotbar.modSupport.GravestoneConfiguration;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import net.minecraft.server.MinecraftServer;
@@ -69,7 +68,7 @@ public abstract class PlayerMixin {
 
     @Unique
     private void doublePrintWarn(String message) {
-        PlayerUtils.sendMessage(inventory.player, Component.literal(message).withStyle(ChatFormatting.YELLOW));
+        inventory.player.avlSendServerMessage(Component.literal(message).withStyle(ChatFormatting.YELLOW));
         LOGGER.warn(message);
     }
 

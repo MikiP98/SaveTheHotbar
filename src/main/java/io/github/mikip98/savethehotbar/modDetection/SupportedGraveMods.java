@@ -21,6 +21,7 @@ public enum SupportedGraveMods {
     }
 
     public boolean isLoaded() {
+        // Dependency checking provides a safety-net for two mods with the same ID
         return FabricLoader.getInstance().isModLoaded(this.modId) && (this.dependency == null || this.dependency.isLoaded());
     }
 }

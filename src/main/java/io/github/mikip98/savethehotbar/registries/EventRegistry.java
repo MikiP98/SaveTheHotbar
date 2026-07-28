@@ -4,7 +4,7 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.world.food.FoodData;
 
-public class EventRegistry {
+public final class EventRegistry {
     public static void register() {
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             if (!alive) {

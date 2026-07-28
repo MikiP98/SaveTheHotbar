@@ -5,7 +5,7 @@ import io.github.mikip98.savethehotbar.config.ModConfig;
 public enum FoodLevelCalculationMode {
     VANILLA(oldValue -> 20),
     KEEP(oldValue -> oldValue),
-    CLAMP(oldValue -> Math.max(Math.min(oldValue, ModConfig.INSTANCE.hungerControl.maxFoodLevel), ModConfig.INSTANCE.hungerControl.minFoodLevel)),
+    CLAMP(oldValue -> Math.clamp(oldValue, ModConfig.INSTANCE.hungerControl.minFoodLevel, ModConfig.INSTANCE.hungerControl.maxFoodLevel)),
     FRACTION(oldValue -> Math.round(oldValue * ModConfig.INSTANCE.hungerControl.foodLevelFraction)),
     FRACTION_AND_CLAMP(oldValue -> CLAMP.calculate(FRACTION.calculate(oldValue))),
     SET(oldValue -> ModConfig.INSTANCE.hungerControl.maxFoodLevel);

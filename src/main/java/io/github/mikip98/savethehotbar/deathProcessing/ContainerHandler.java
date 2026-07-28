@@ -1,12 +1,10 @@
 package io.github.mikip98.savethehotbar.deathProcessing;
 
-import io.github.mikip98.savethehotbar.SaveTheHotbar;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
 import io.github.mikip98.savethehotbar.config.ModConfig;
-import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
-import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.WorldUtils;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
-import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
+import io.github.mikip98.savethehotbar.registries.BlockRegistry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -26,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
@@ -75,7 +71,7 @@ public class ContainerHandler {
             // Drop all items
             final String message = "Dropping inventory at " + position;
             LOGGER.info(message);
-            if (ModConfig.INSTANCE.logDeathCoordinatesInChat) PlayerUtils.sendMessage(player, message);
+            if (ModConfig.INSTANCE.logDeathCoordinatesInChat) player.avlSendServerMessage(message); // TODO: Check if it works
 
             for (ItemStack stack : this.drop) {
                 dropItem(stack);
@@ -84,13 +80,14 @@ public class ContainerHandler {
         LOGGER.info("Drop has been handled");
     }
 
+    @SuppressWarnings("resource")
     protected void spawnGrave() {
         switch (ModConfig.INSTANCE.dropControl.containDropMode) {
             case SACK -> spawnSack();
-            case SKELETON_HEAD -> spawnHeadGrave(SaveTheHotbar.SKELETON_HEAD_GRAVE);
-            case ZOMBIE_HEAD -> spawnHeadGrave(SaveTheHotbar.ZOMBIE_HEAD_GRAVE);
+            case SKELETON_HEAD -> spawnHeadGrave(BlockRegistry.SKELETON_HEAD_GRAVE);
+            case ZOMBIE_HEAD -> spawnHeadGrave(BlockRegistry.ZOMBIE_HEAD_GRAVE);
             case RANDOM_HEAD -> {
-                Block head = player.getRandom().nextFloat() < 0.5 ? SaveTheHotbar.SKELETON_HEAD_GRAVE : SaveTheHotbar.ZOMBIE_HEAD_GRAVE;
+                Block head = player.getRandom().nextFloat() < 0.5 ? BlockRegistry.SKELETON_HEAD_GRAVE : BlockRegistry.ZOMBIE_HEAD_GRAVE;
                 spawnHeadGrave(head);
             }
             case GRAVE -> {
@@ -99,7 +96,15 @@ public class ContainerHandler {
                             "ERROR: Gravestones mod by 'Pneumono_' is not installed or is disabled." +
                             "Please download it from https://modrinth.com/mod/pneumono_gravestones; Spawning a Sack instead.";
                     LOGGER.error(message);
-                    PlayerUtils.sendMessage(player, Component.literal(message).withStyle(ChatFormatting.RED));
+                    if (!player.level().isClientSide()) {
+                        final Component messageComponent = Component.literal(message).withStyle(ChatFormatting.RED);
+                        final MinecraftServer server = player.getServer();
+                        if (server != null) {
+                            server.getPlayerList().broadcastSystemMessage(messageComponent, false);
+                        } else {
+                            player.avlSendMessage(messageComponent);
+                        }
+                    }
                     spawnSack();
                 }
             }
@@ -112,10 +117,10 @@ public class ContainerHandler {
         // Second -> Non-indestructible block in radius
         // Third -> The exact death position
         final BlockPos sackPos = findSafestSackLocation();
-        world.setBlock(sackPos, SaveTheHotbar.SACK.defaultBlockState(), 3);
+        world.setBlock(sackPos, BlockRegistry.SACK.defaultBlockState(), 3);
         LOGGER.info("Spawned a sack at {}", sackPos);
         if (ModConfig.INSTANCE.logGraveCoordinatesInChat) {
-            PlayerUtils.sendMessage(player, Component.literal("Grave coordinates: " + sackPos).withStyle(ChatFormatting.AQUA));
+            player.avlSendServerMessage(Component.literal("Grave coordinates: " + sackPos).withStyle(ChatFormatting.AQUA));
         }
         fillGrave(sackPos);
     }
@@ -130,7 +135,7 @@ public class ContainerHandler {
             world.setBlock(gravePos, head.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, facing), 3);
             LOGGER.info("Spawned a mob head grave at {}", gravePos);
             if (ModConfig.INSTANCE.logGraveCoordinatesInChat) {
-                PlayerUtils.sendMessage(player, Component.literal("Grave coordinates: " + gravePos).withStyle(ChatFormatting.AQUA));
+                player.avlSendServerMessage(Component.literal("Grave coordinates: " + gravePos).withStyle(ChatFormatting.AQUA));
             }
             fillGrave(gravePos);
         }
@@ -151,7 +156,7 @@ public class ContainerHandler {
 
     protected void handleNoItemContainerError(BlockPos position) {
         String message = "Couldn't find the spawned item container! Items will be dropped :(  EMERGENCY HOPPERS SPAWN ATTEMPT!!!";
-        PlayerUtils.sendMessage(player, Component.literal(message).withStyle(ChatFormatting.RED));
+        player.avlSendServerMessage(Component.literal(message).withStyle(ChatFormatting.RED));
         LOGGER.error(message);
 
         // Spawn emergency hoppers (3x3 as 1x1 was too small to catch all the items)
@@ -176,7 +181,7 @@ public class ContainerHandler {
 
         // Drop items
         message = "Dropping " + this.drop.size() + " items at " + position;
-        PlayerUtils.sendMessage(player, message);
+        player.avlSendServerMessage(message);
         LOGGER.info(message);
         for (ItemStack item : this.drop) {
             world.addFreshEntity(new ItemEntity(world, position.getX(), position.getY(), position.getZ(), item));
@@ -196,7 +201,7 @@ public class ContainerHandler {
                         // Because of that the check should not be run on the block pos below the grave as the block is guaranteed to exist,
                         // and the lowest block in the world should be a valid spawn location
                         BlockState blockState = world.getBlockState(downPos);
-                        return blockState != null && (blockState.isCollisionShapeFullBlock(world, downPos) || isTop(blockState, downPos)) && blockState.canOcclude();
+                        return (blockState.isCollisionShapeFullBlock(world, downPos) || isTop(blockState, downPos)) && blockState.canOcclude();
                     }
                     return false;
                 }
@@ -289,8 +294,8 @@ public class ContainerHandler {
     }
 
     protected static BlockPos validatePositionHeight(Level world, BlockPos position) {
-        int maxBuildHeight = WorldUtils.getTopBuildLimit(world);
-        int minBuildHeight = WorldUtils.getBottomBuildLimit(world);
+        int maxBuildHeight = world.avlGetTopBuildLimit();
+        int minBuildHeight = world.avlGetBottomBuildLimit();
         if (position.getY() <= minBuildHeight) {
             // +1 so that the recovered items won't just fall to the void
             position = new BlockPos(position.getX(), minBuildHeight + 1, position.getZ());
@@ -301,6 +306,6 @@ public class ContainerHandler {
     }
     protected static boolean fitsInHeight(Level world, BlockPos position) {
         final int y = position.getY();
-        return y > WorldUtils.getBottomBuildLimit(world) && y <= WorldUtils.getTopBuildLimit(world);
+        return y > world.avlGetBottomBuildLimit() && y <= world.avlGetTopBuildLimit();
     }
 }

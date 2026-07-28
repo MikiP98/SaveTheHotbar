@@ -122,6 +122,11 @@ dependencies {
 	annotationProcessor "systems.manifold:manifold-preprocessor:${project.manifold_version}"
 	compileOnly "systems.manifold:manifold-preprocessor:${project.manifold_version}"
 
+	// Manifold extensions
+	annotationProcessor "systems.manifold:manifold-ext:${project.manifold_version}"
+	compileOnly "systems.manifold:manifold-ext:${project.manifold_version}"
+	implementation "systems.manifold:manifold-ext-rt:${project.manifold_version}"
+
 	def loomGradle = activeMcVersionNum < 260000
 	String implementationConfig = loomGradle ? "modImplementation" : "implementation"
 	String apiConfig			= loomGradle ? "modApi"            : "api"
@@ -137,6 +142,8 @@ dependencies {
 	// Fabric base dependencies
 	add(implementationConfig, "net.fabricmc:fabric-loader:${project.loader_version}")
 	add(implementationConfig, "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
+
+	add(implementationConfig, "io.mikip98.humilityval:humility-val:${project.humility_val_version}+${project.minecraft_version}")
 
 	// Mod config dependencies
 	add(apiConfig, "com.terraformersmc:modmenu:${project.modmenu_version}")

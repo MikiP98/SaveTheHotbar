@@ -6,7 +6,6 @@ import io.github.mikip98.savethehotbar.config.enums.ExperienceMode;
 import io.github.mikip98.savethehotbar.deathProcessing.moddedSlotsHandlers.Arsenal;
 import io.github.mikip98.savethehotbar.modDetection.SupportedSlotMods;
 #endif
-import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.PlayerUtils;
 #if MC_VERSION >= 12100 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents; #endif
 import net.minecraft.world.food.FoodData;
@@ -51,7 +50,7 @@ public class DeathManager {
 
     public void managePlayerDeath() {
         if (ModConfig.INSTANCE.logDeathCoordinatesInChat) {
-            PlayerUtils.sendMessage(player, Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
+            player.avlSendServerMessage(Component.literal("Death coordinates: " + player.blockPosition()).withStyle(ChatFormatting.AQUA));
         }
 
         // --- Manage Curse of Vanishing ---

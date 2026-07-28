@@ -8,9 +8,11 @@ import io.github.mikip98.savethehotbar.content.blocks.Sack;
 import io.github.mikip98.savethehotbar.mcVersionAgnosticUtils.SettingsDuplicator;
 #endif
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
+import io.github.mikip98.savethehotbar.registries.BlockRegistry;
 import io.github.mikip98.savethehotbar.registries.EventRegistry;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
+import io.mikip98.humilityval.registries.BlockRegistrar;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
@@ -44,10 +46,6 @@ public class SaveTheHotbar implements ModInitializer {
 	public static final String MOD_ID = "savethehotbar";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static Block SACK;
-	public static Block SKELETON_HEAD_GRAVE;
-	public static Block ZOMBIE_HEAD_GRAVE;
-
 	public static BlockEntityType<GraveContainerBlockEntity> GRAVE_CONTAINER_BLOCK_ENTITY;
 
 	@Override
@@ -66,11 +64,7 @@ public class SaveTheHotbar implements ModInitializer {
 		EventRegistry.register();
 
 		// Block Registration
-		final BlockBehaviour.Properties universalSettings = BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();
-
-		SACK = registerWithItem("sack", Sack::new, universalSettings);
-		SKELETON_HEAD_GRAVE = registerWithItem("skeleton_head_grave", MobHeadGrave::new, universalSettings);
-		ZOMBIE_HEAD_GRAVE = registerWithItem("zombie_head_grave", MobHeadGrave::new, universalSettings);
+		BlockRegistry.init();
 
 		// Register Sack Block Entity
 		GRAVE_CONTAINER_BLOCK_ENTITY = Registry.register(
@@ -78,7 +72,7 @@ public class SaveTheHotbar implements ModInitializer {
 				getId("sack_block_entity"),
 				FabricBlockEntityTypeBuilder.create(
 						GraveContainerBlockEntity::new,
-						SACK, SKELETON_HEAD_GRAVE, ZOMBIE_HEAD_GRAVE
+						BlockRegistry.SACK, BlockRegistry.SKELETON_HEAD_GRAVE, BlockRegistry.ZOMBIE_HEAD_GRAVE
 				).build()
 		);
 
