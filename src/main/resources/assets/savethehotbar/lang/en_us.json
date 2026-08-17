@@ -76,7 +76,7 @@
 	"text.autoconfig.saveTheHotbar.option.hungerControl.maxSaturation": "Maximal Saturation",
 	"text.autoconfig.saveTheHotbar.option.hungerControl.maxSaturation.@Tooltip": "Maximal player saturation level after death when CLAMP-ed, or the exact level when in SET mode",
 	"text.autoconfig.saveTheHotbar.option.hungerControl.saturationFraction": "Player Saturation Multiplayer",
-	"text.autoconfig.saveTheHotbar.option.hungerControl.saturationFraction.@Tooltip": "On death saturation level multiplayer when in FRACTION modes\n- Values below <1 will reduce the player saturation level on death\n- Values above >1 will increase the player saturation level on death",
+	"text.autoconfig.saveTheHotbar.option.hungerControl.saturationFraction.@Tooltip": "On death saturation level multiplayer when in FRACTION modes\n- Values below <1.0 will reduce the player saturation level on death\n- Values above >1.0 will increase the player saturation level on death",
 
 	"text.autoconfig.saveTheHotbar.option.randomDropControl": "Random Drop Control",
 	"text.autoconfig.saveTheHotbar.option.randomDropControl.@Tooltip": "Random chance for an otherwise kept item to not be kept on death",
