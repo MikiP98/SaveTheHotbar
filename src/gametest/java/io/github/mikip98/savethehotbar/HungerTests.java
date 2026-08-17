@@ -14,8 +14,6 @@ import net.minecraft.world.level.block.Rotation;
 
 import java.util.*;
 
-import static io.github.mikip98.savethehotbar.Util.msg;
-
 public class HungerTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
     // TODO: Finish porting to 1.21.8+
     #if MC_VERSION < 12108
@@ -285,7 +283,7 @@ public class HungerTests #if MC_VERSION < 12108 implements FabricGameTest #endif
         final int afterDeathPlayerHunger = respawnedPlayer.getFoodData().getFoodLevel();
         helper.assertTrue(
                 afterDeathPlayerHunger == testParams.expectedValue,
-                msg("Wrong hunger level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerHunger + "'")
+                "Wrong hunger level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerHunger + "'"
         );
         helper.succeed();
     }

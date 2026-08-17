@@ -12,21 +12,17 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestHelper;
 #if MC_VERSION < 12108 import net.minecraft.gametest.framework.GameTestGenerator; #endif
 #if MC_VERSION < 12108 import net.minecraft.gametest.framework.TestFunction; #endif
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import static io.github.mikip98.savethehotbar.Util.msg;
 
 public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
     #if MC_VERSION < 12004
@@ -362,7 +358,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (hotbar)"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (hotbar)");
         }
         for (int i = 0; i < 9; ++i) {
             final ItemStack stack = postDeathInventory.items.get(i);
@@ -380,7 +376,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from hotbar) has not been found in the the drop"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from hotbar) has not been found in the the drop");
         }
 
         // Inventory
@@ -394,7 +390,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (main inventory)"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (main inventory)");
         }
         for (int i = 9; i < 27 + 9; ++i) {
             final ItemStack stack = postDeathInventory.items.get(i);
@@ -412,7 +408,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from main inventory) has not been found in the the drop"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from main inventory) has not been found in the the drop");
         }
 
         // Armour
@@ -425,7 +421,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (armour)"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedKept + "' has not been found in the post death inventory (armour)");
         }
         for (ItemStack stack : postDeathInventory.armor) {
             helper.assertTrue(
@@ -442,7 +438,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedDrop + "' (from armour) has not been found in the the drop"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedDrop + "' (from armour) has not been found in the the drop");
         }
 
         // Left Hand
@@ -463,7 +459,7 @@ public class ItemFilteringTests #if MC_VERSION < 12108 implements FabricGameTest
                     break;
                 }
             }
-            if (!found) helper.fail(msg("Expected ItemStack '" + expectedLeftHandDrop + "' (from left hand) has not been found in the the drop"));
+            if (!found) helper.fail("Expected ItemStack '" + expectedLeftHandDrop + "' (from left hand) has not been found in the the drop");
         }
 
         // Last drop check

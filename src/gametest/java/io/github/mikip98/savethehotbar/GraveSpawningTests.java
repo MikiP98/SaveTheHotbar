@@ -3,7 +3,9 @@ package io.github.mikip98.savethehotbar;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
-#if MC_VERSION < 12108 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest; #endif
+#if MC_VERSION < 12108
+import io.github.mikip98.savethehotbar.registries.BlockRegistry;
+import net.fabricmc.fabric.api.gametest.v1.FabricGameTest; #endif
 #if MC_VERSION >= 12108 import net.fabricmc.fabric.api.gametest.v1.GameTest; #endif
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -27,7 +29,6 @@ import java.util.*;
 import java.util.function.Function;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
-import static io.github.mikip98.savethehotbar.Util.msg;
 
 public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
     protected static final short OVERWORLD_TOP_BUILD_LIMIT = 319;
@@ -108,13 +109,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         );
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius0AtBottomLimit(GameTestHelper helper) {
-        runParameterizedSackTest(
-                helper, configSackRad0, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
-        );
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius0AtBottomLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(
+//                helper, configSackRad0, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
+//        );
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -136,11 +138,12 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         runParameterizedSackTest(helper, configSackRad0, level -> level.avlGetTopBuildLimit() - 1, OVERWORLD_TOP_BUILD_LIMIT - 1);
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius0AtTopLimit(GameTestHelper helper) {
-        runParameterizedSackTest(helper, configSackRad0, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT);
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius0AtTopLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(helper, configSackRad0, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT);
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -176,13 +179,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         );
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius1AtBottomLimit(GameTestHelper helper) {
-        runParameterizedSackTest(
-                helper, configSackRad1, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
-        );
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius1AtBottomLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(
+//                helper, configSackRad1, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
+//        );
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -200,13 +204,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         );
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius1AtTopLimit(GameTestHelper helper) {
-        runParameterizedSackTest(
-                helper, configSackRad1, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT
-        );
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius1AtTopLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(
+//                helper, configSackRad1, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT
+//        );
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -242,13 +247,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         );
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius7AtBottomLimit(GameTestHelper helper) {
-        runParameterizedSackTest(
-                helper, configSackRad7, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
-        );
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius7AtBottomLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(
+//                helper, configSackRad7, Level::avlGetBottomBuildLimit, OVERWORLD_BOTTOM_BUILD_LIMIT + 1
+//        );
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -266,13 +272,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
         );
     }
 
-    @SuppressWarnings("unused")
-    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
-    public void testGraveSpawningSackRadius7AtTopLimit(GameTestHelper helper) {
-        runParameterizedSackTest(
-                helper, configSackRad7, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT
-        );
-    }
+//    @SuppressWarnings("unused")
+//    @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
+//    public void testGraveSpawningSackRadius7AtTopLimit(GameTestHelper helper) {
+//        runParameterizedSackTest(
+//                helper, configSackRad7, Level::avlGetTopBuildLimit, OVERWORLD_TOP_BUILD_LIMIT
+//        );
+//    }
+    // TODO: Uncomment, fix, and report to Manifold that Extension class method reference crashes the compiler
 
     @SuppressWarnings("unused")
     @GameTest(#if MC_VERSION < 12108 batch = "save_the_hotbar_test_grave_spawning", template = FabricGameTest.EMPTY_STRUCTURE #endif)
@@ -455,14 +462,14 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
 
         final BlockState blockState = level.getBlockState(expectedPos);
         helper.assertTrue(
-                blockState.is(SaveTheHotbar.SACK),
-                msg("Sack did NOT spawn at expected pos: " + expectedPos + ", block found: " + blockState.getBlock().getName().getString())
+                blockState.is(BlockRegistry.SACK),
+                "Sack did NOT spawn at expected pos: " + expectedPos + ", block found: " + blockState.getBlock().getName().getString()
         );
 
         final BlockEntity blockEntity = level.getBlockEntity(expectedPos);
         helper.assertTrue(
                 blockEntity instanceof GraveContainerBlockEntity,
-                msg("Block Entity at " + expectedPos + " is missing or is not a GraveContainerBlockEntity.")
+                "Block Entity at " + expectedPos + " is missing or is not a GraveContainerBlockEntity."
         );
         assert blockEntity instanceof GraveContainerBlockEntity;
         final GraveContainerBlockEntity graveContainerEntity = (GraveContainerBlockEntity) blockEntity;
@@ -470,7 +477,7 @@ public class GraveSpawningTests #if MC_VERSION < 12108 implements FabricGameTest
 
         helper.assertTrue(
                 drop.stream().anyMatch((itemStack) -> ItemStack.isSameItem(itemStack, new ItemStack(Items.DIAMOND))),
-                msg("The original diamond item for grave trigger creation is missing, drop: " + drop)
+                "The original diamond item for grave trigger creation is missing, drop: " + drop
         );
         // TODO: Check if the the non-replaceable destructible block if such was replaced is inside
 

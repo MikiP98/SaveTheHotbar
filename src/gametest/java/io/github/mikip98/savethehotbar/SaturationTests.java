@@ -14,8 +14,6 @@ import net.minecraft.world.level.block.Rotation;
 
 import java.util.*;
 
-import static io.github.mikip98.savethehotbar.Util.msg;
-
 public class SaturationTests #if MC_VERSION < 12108 implements FabricGameTest #endif {
     // TODO: Finish porting to 1.21.8+
     #if MC_VERSION < 12108
@@ -285,7 +283,7 @@ public class SaturationTests #if MC_VERSION < 12108 implements FabricGameTest #e
         final float afterDeathPlayerSaturation = respawnedPlayer.getFoodData().getSaturationLevel();
         helper.assertTrue(
                 afterDeathPlayerSaturation == testParams.expectedValue,
-                msg("Wrong saturation level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerSaturation + "'")
+                "Wrong saturation level after death! Expected '" + testParams.expectedValue + "', got '" + afterDeathPlayerSaturation + "'"
         );
         helper.succeed();
     }
