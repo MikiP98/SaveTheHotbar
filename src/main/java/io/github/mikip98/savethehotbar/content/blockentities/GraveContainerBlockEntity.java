@@ -1,14 +1,14 @@
 package io.github.mikip98.savethehotbar.content.blockentities;
 
 import io.github.mikip98.savethehotbar.SaveTheHotbar;
-import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
+#if MC_VERSION >= 12105 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager; #endif
+import io.mikip98.humilityval.content.block.entity.AVLBlockEntity;
+import io.mikip98.humilityval.content.block.entity.AVLDataInput;
+import io.mikip98.humilityval.content.block.entity.AVLDataOutput;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.world.level.Level;
+#if MC_VERSION >= 12006 import net.minecraft.core.HolderLookup; #endif
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +29,7 @@ import java.util.List;
 
 import static io.github.mikip98.savethehotbar.SaveTheHotbar.LOGGER;
 
-public class GraveContainerBlockEntity extends BlockEntity implements GraveContainerInventory, WorldlyContainer {
+public class GraveContainerBlockEntity extends AVLBlockEntity implements GraveContainerInventory, WorldlyContainer {
     protected NonNullList<ItemStack> items = NonNullList.create();
     @Getter @Setter
     protected int exp = 0;
@@ -53,58 +53,20 @@ public class GraveContainerBlockEntity extends BlockEntity implements GraveConta
         this.setChanged();
     }
 
-    #if MC_VERSION < 12006
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        final int size = tag.getInt("Size");
-        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, this.items);
-        this.exp = tag.getInt("Experience");
+    protected void avlSaveAdditional(AVLDataOutput out) {
+        out.putInt("size", this.items.size());
+        out.saveItems(this.items);
+        out.putInt("experience", this.exp);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        tag.putInt("Size", this.items.size());
-        ContainerHelper.saveAllItems(tag, items);
-        tag.putInt("Experience", this.exp);
-        super.saveAdditional(tag);
-    }
-
-    #elif MC_VERSION < 12105
-    @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        final int size = tag.getInt("Size");
+    protected void avlLoadAdditional(AVLDataInput in) {
+        final int size = in.getIntOr("size", 0);
         this.items = NonNullList.withSize(size, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, this.items, registries);
-        this.exp = tag.getInt("Experience");
+        in.loadItems(this.items);
+        this.exp = in.getIntOr("experience", 0);
     }
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Size", this.items.size());
-        tag.putInt("Experience", this.exp);
-        ContainerHelper.saveAllItems(tag, this.items, registries);
-        super.saveAdditional(tag, registries);
-    }
-
-    #else
-    @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        final int size = input.getIntOr("Size", 0);
-        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(input, this.items);
-        this.exp = input.getIntOr("Experience", 0);
-    }
-    @Override
-    protected void saveAdditional(ValueOutput output) {
-        output.putInt("Size", this.items.size());
-        output.putInt("Experience", this.exp);
-        ContainerHelper.saveAllItems(output, this.items, false);
-        super.saveAdditional(output);
-    }
-    #endif
 
     @Nullable
     @Override
