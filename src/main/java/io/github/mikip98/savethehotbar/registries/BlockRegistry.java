@@ -17,7 +17,7 @@ public final class BlockRegistry {
     public static final Block ZOMBIE_HEAD_GRAVE;
 
     static {
-        final BlockRegistrar registrar = new BlockRegistrar(MOD_ID, new ItemRegistrar(MOD_ID));
+        final BlockRegistrar registrar = new BlockRegistrar(MOD_ID);
 
         final Supplier<BlockBehaviour.Properties> universalSettingsSupplier = () ->
                 BlockBehaviour.Properties.of().strength(0.333F, Float.MAX_VALUE).noOcclusion();
