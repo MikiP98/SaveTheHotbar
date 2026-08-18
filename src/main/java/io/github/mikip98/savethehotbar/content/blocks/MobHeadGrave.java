@@ -73,7 +73,7 @@ public class MobHeadGrave extends GraveContainer {
 
     @SuppressWarnings("deprecation")
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case NORTH -> voxelShapeNorth;
             case SOUTH -> voxelShapeSouth;
@@ -84,7 +84,7 @@ public class MobHeadGrave extends GraveContainer {
     }
     @SuppressWarnings("deprecation")
     @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case NORTH -> collisionShapeNorth;
             case SOUTH -> collisionShapeSouth;
