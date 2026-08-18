@@ -9,11 +9,13 @@ import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.NotNull;
 
 public class Sack extends GraveContainer {
+    protected static final VoxelShape shape = Shapes.box(0.3125, 0.0, 0.3125, 0.6875, 0.375, 0.6875);
+
     public Sack(Properties settings) { super(settings); }
 
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return Shapes.box(0.3125, 0.0, 0.3125, 0.6875, 0.375, 0.6875);
+        return shape;
     }
 }
