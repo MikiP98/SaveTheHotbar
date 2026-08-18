@@ -74,16 +74,17 @@ public class GraveContainerBlockEntity extends AVLBlockEntity implements GraveCo
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    @Override
-    #if MC_VERSION < 12006
-    public @NotNull CompoundTag getUpdateTag() {
-        return saveWithoutMetadata();
-    }
-    #else
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return saveWithoutMetadata(provider);
-    }
-    #endif
+    // TODO: Found the below is not needed on 1.20.1, double check it is also not required upstream
+//    @Override
+//    #if MC_VERSION < 12006
+//    public @NotNull CompoundTag getUpdateTag() {
+//        return saveWithoutMetadata();
+//    }
+//    #else
+//    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+//        return saveWithoutMetadata(provider);
+//    }
+//    #endif
 
 
     @Override
