@@ -170,6 +170,7 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Item durability penalty on death
 - Dimensional control?
 - Status effects on respawn config
+- Improve `HumilityVAL` dependency handling in `fabric.mod.json`
 
 ---
 
