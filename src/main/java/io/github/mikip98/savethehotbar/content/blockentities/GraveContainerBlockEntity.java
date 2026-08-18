@@ -8,10 +8,10 @@ import io.mikip98.humilityval.content.block.entity.AVLDataOutput;
 import lombok.Getter;
 import lombok.Setter;
 #if MC_VERSION >= 12006 import net.minecraft.core.HolderLookup; #endif
+#if MC_VERSION >= 12105 import net.minecraft.world.level.Level; #endif
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -74,7 +74,7 @@ public class GraveContainerBlockEntity extends AVLBlockEntity implements GraveCo
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    // TODO: Found the below is not needed on 1.20.1, double check it is also not required upstream
+    // TODO: Found the below is not needed on 1.20.1 and 1.21.8, double check it is also not required upstream
 //    @Override
 //    #if MC_VERSION < 12006
 //    public @NotNull CompoundTag getUpdateTag() {
