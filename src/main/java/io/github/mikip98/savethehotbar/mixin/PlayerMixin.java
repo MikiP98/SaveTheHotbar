@@ -1,5 +1,6 @@
 package io.github.mikip98.savethehotbar.mixin;
 
+import com.mojang.authlib.minecraft.client.MinecraftClient;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
@@ -16,8 +17,10 @@ import net.minecraft.ChatFormatting;
 #if MC_VERSION < 12111 import net.minecraft.world.level.GameRules; #endif
 import net.minecraft.world.level.Level;
 #if MC_VERSION < 12106 import org.jetbrains.annotations.Nullable; #endif
-#if MC_VERSION >= 12111 import net.minecraft.world.level.gamerules.GameRule;
-import net.minecraft.world.level.gamerules.GameRules; #endif
+#if MC_VERSION >= 12111
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules;
+#endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -60,8 +63,8 @@ public abstract class PlayerMixin {
                 deathManager.managePlayerDeath();
                 if (!(ModConfig.INSTANCE.dropControl.containDrop && ModConfig.INSTANCE.dropControl.containDropMode == ContainDropMode.GRAVE && SupportedGraveMods.PNEUMONO_GRAVESTONES.isLoaded())) ci.cancel();
             } catch (Exception e) {
-                e.printStackTrace();
-                LOGGER.error("An error occurred while dropping inventory", e);
+                LOGGER.error("An error occurred while dropping inventory: ", e);
+                LOGGER.error(e.getStackTrace().toString());
             }
         }
     }
@@ -74,20 +77,12 @@ public abstract class PlayerMixin {
 
     @Unique
     private void keepInventoryCheck(Level world) {
-        #if MC_VERSION < 12104
-        final GameRules gameRules = world.getGameRules();
-        #else
         final MinecraftServer server = world.getServer();
         if (server == null) {
             doublePrintWarn("Unable to determine the 'keepInventory' game rule state! Make sure 'keepInventory' is enabled!");
             return;
         }
-            #if MC_VERSION < 12111 || MC_VERSION >= 260000
-            final GameRules gameRules = server.getGameRules();
-            #else
-            final GameRules gameRules = server.getWorldData().getGameRules();
-            #endif
-        #endif
+        final GameRules gameRules = server.getGameRules();
 
         #if MC_VERSION < 12111
         GameRules.BooleanValue keepInventory = gameRules.getRule(GameRules.RULE_KEEPINVENTORY);
