@@ -167,6 +167,9 @@ If you want support for another mod to be added, feel free to submit an [issue](
   - TO_EVERYONE  (server sends the info to public chat)
   - TO_DEAD_PLAYER  (server sends the info to dead chat, client can't refuse to see this)
   - ALLOW CLIENT TO DECIDE  (server does not send the info, but the client can send it to themselves)
+- Item durability penalty on death
+- Dimensional control?
+- Status effects on respawn config
 
 ---
 
