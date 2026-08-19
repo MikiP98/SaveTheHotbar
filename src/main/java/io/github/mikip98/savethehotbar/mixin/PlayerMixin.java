@@ -1,6 +1,5 @@
 package io.github.mikip98.savethehotbar.mixin;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import io.github.mikip98.savethehotbar.config.enums.ContainDropMode;
 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager;
 import io.github.mikip98.savethehotbar.config.ModConfig;
@@ -39,7 +38,7 @@ public abstract class PlayerMixin {
     #endif
 
     @Shadow
-    private @Final Inventory inventory;
+    @Final Inventory inventory;
 
     #if MC_VERSION >= 12106 @SuppressWarnings("ConstantConditions") #endif
     @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
