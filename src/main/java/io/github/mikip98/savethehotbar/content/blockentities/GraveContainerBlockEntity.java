@@ -1,7 +1,7 @@
 package io.github.mikip98.savethehotbar.content.blockentities;
 
-import io.github.mikip98.savethehotbar.SaveTheHotbar;
 #if MC_VERSION >= 12105 import io.github.mikip98.savethehotbar.deathProcessing.DeathManager; #endif
+import io.github.mikip98.savethehotbar.registries.BlockEntityRegistry;
 import io.mikip98.humilityval.content.block.entity.AVLBlockEntity;
 import io.mikip98.humilityval.content.block.entity.AVLDataInput;
 import io.mikip98.humilityval.content.block.entity.AVLDataOutput;
@@ -35,7 +35,7 @@ public class GraveContainerBlockEntity extends AVLBlockEntity implements GraveCo
     protected int exp = 0;
 
     public GraveContainerBlockEntity(BlockPos pos, BlockState state) {
-        super(SaveTheHotbar.GRAVE_CONTAINER_BLOCK_ENTITY, pos, state);
+        super(BlockEntityRegistry.GRAVE_CONTAINER_BLOCK_ENTITY, pos, state);
     }
 
     @Override
