@@ -2,31 +2,16 @@ package io.github.mikip98.savethehotbar;
 
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.content.blockentities.GraveContainerBlockEntity;
-import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
-import io.github.mikip98.savethehotbar.content.blocks.Sack;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.BlockRegistry;
 import io.github.mikip98.savethehotbar.registries.EventRegistry;
 import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackRegistry;
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
-import io.mikip98.humilityval.registries.BlockRegistrar;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-#if MC_VERSION >= 12104
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-#endif
-import net.minecraft.world.item.Item;
-#if MC_VERSION >= 12104
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-#endif
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 #if MC_VERSION < 12111
@@ -36,8 +21,6 @@ import net.minecraft.resources.Identifier;
 #endif
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Function;
 
 public class SaveTheHotbar implements ModInitializer {
 	public static final String MOD_ID = "savethehotbar";

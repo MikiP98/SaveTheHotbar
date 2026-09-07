@@ -2,8 +2,7 @@ package io.github.mikip98.savethehotbar.registries;
 
 import io.github.mikip98.savethehotbar.content.blocks.MobHeadGrave;
 import io.github.mikip98.savethehotbar.content.blocks.Sack;
-import io.mikip98.humilityval.registries.BlockRegistrar;
-import io.mikip98.humilityval.registries.ItemRegistrar;
+import io.mikip98.humilityval.framework.registrars.BlockRegistrar;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
