@@ -28,7 +28,7 @@
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl": "Item Type Control",
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl.@Tooltip": "Which item types should be kept after death",
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl.overlapResolution": "Item Category Overlap Resolution",
-	"text.autoconfig.saveTheHotbar.option.itemTypeControl.overlapResolution.@Tooltip": "Weather the item should be kept when all of it's categories are kept or at least one of them\n- LENIENT -> Item has to be of at least one of the kept item types\n- STRICT -> All of item's item types have to be kept",
+	"text.autoconfig.saveTheHotbar.option.itemTypeControl.overlapResolution.@Tooltip": "Weather the item should be kept when all of its categories are kept or at least one of them\n- LENIENT -> Item has to be of at least one of the kept item types\n- STRICT -> All of item's item types have to be kept",
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl.itemTypesKeepingMap.tool": "Keep Tools",
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl.itemTypesKeepingMap.tool.@Tooltip": "Keep tools after death",
 	"text.autoconfig.saveTheHotbar.option.itemTypeControl.itemTypesKeepingMap.weapon": "Keep Weapons",
