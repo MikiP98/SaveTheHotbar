@@ -79,6 +79,9 @@ repositories {
 			url = 'https://maven.ladysnake.org/releases'
 		}
 	}
+
+	// Night Config
+	mavenCentral()
 }
 
 loom {
@@ -127,11 +130,14 @@ dependencies {
 	compileOnly "systems.manifold:manifold-ext:${project.manifold_version}"
 	implementation "systems.manifold:manifold-ext-rt:${project.manifold_version}"
 
+	// Night Config
+	implementation include("com.electronwill.night-config:toml:${project.night_config_version}")
+
 	def loomGradle = activeMcVersionNum < 260000
 	String implementationConfig = loomGradle ? "modImplementation" : "implementation"
 	String apiConfig			= loomGradle ? "modApi"            : "api"
 	String compileOnlyConfig 	= loomGradle ? "modCompileOnly"    : "compileOnly"
-	String runtimeOnlyConfig 	= loomGradle ? "modRuntimeOnly"    : "runtimeOnly"
+//	String runtimeOnlyConfig 	= loomGradle ? "modRuntimeOnly"    : "runtimeOnly"
 
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

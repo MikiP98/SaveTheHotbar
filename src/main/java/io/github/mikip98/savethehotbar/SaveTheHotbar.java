@@ -1,5 +1,6 @@
 package io.github.mikip98.savethehotbar;
 
+import io.github.mikip98.savethehotbar.config.AutoCommentedTomlSerializer;
 import io.github.mikip98.savethehotbar.config.ModConfig;
 import io.github.mikip98.savethehotbar.modDetection.SupportedGraveMods;
 import io.github.mikip98.savethehotbar.registries.BlockEntityRegistry;
@@ -9,7 +10,6 @@ import io.github.mikip98.savethehotbar.registries.PneumonoGravestonesCallbackReg
 import io.github.mikip98.savethehotbar.registries.itemTypeRegistry.ItemTypesConfiguration;
 import io.mikip98.humilityval.Util;
 import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 #if MC_VERSION < 12111 import net.minecraft.resources.ResourceLocation; #endif
 #if MC_VERSION >= 12111 import net.minecraft.resources.Identifier; #endif
@@ -25,7 +25,7 @@ public class SaveTheHotbar implements ModInitializer {
 		LOGGER.info("SaveTheHotbar! has been initialized!");
 
 		// Config
-		AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
+		AutoConfig.register(ModConfig.class, AutoCommentedTomlSerializer::new);
 		ModConfig.INSTANCE = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
 		EventRegistry.register();
