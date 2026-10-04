@@ -6,7 +6,6 @@ import io.mikip98.humilityval.client.registries.render_layer.BlockRenderLayerReg
 import net.fabricmc.api.ClientModInitializer;
 
 public class SaveTheHotbarClient implements ClientModInitializer {
-
 	@Override
 	public void onInitializeClient() {
 		ClothConfigGUIRegistry.register();
