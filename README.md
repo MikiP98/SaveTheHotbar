@@ -171,6 +171,8 @@ If you want support for another mod to be added, feel free to submit an [issue](
 - Dimensional control?
 - Status effects on respawn config
 - Improve `HumilityVAL` dependency handling in `fabric.mod.json`
+- Add tests checking if the config was properly created alongside the default or changed content and comments
+- Ensure the TOML 1.1 spec is in use
 
 ---
 
