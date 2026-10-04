@@ -1,9 +1,6 @@
 package io.github.mikip98.savethehotbar.config;
 
-import io.github.mikip98.savethehotbar.config.annotations.FloatRange;
-import io.github.mikip98.savethehotbar.config.annotations.GlobalTooltip;
-import io.github.mikip98.savethehotbar.config.annotations.IntRange;
-import io.github.mikip98.savethehotbar.config.annotations.SkipGlobalTooltip;
+import io.github.mikip98.savethehotbar.config.annotations.*;
 import io.github.mikip98.savethehotbar.config.enums.*;
 import io.github.mikip98.savethehotbar.config.enums.ItemTypes;
 import me.shedaniel.autoconfig.ConfigData;
@@ -13,10 +10,10 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import java.util.EnumMap;
 import java.util.Map;
 
-@GlobalTooltip
 @Config(name = "saveTheHotbar")
+@ConfigExtension.Gui.GlobalTooltip
 public class ModConfig implements ConfigData {
-    // Do not remove 'transient' keyword, else AutoConfig will serialize it and enter infinite recursive loop
+    // Do not remove 'transient' keyword, else AutoConfig will serialize it and enter infinite recursive loop (#199)
     @ConfigEntry.Gui.Excluded
     public static transient ModConfig INSTANCE;
 
@@ -53,7 +50,7 @@ public class ModConfig implements ConfigData {
     public static class ItemTypeControl {
         @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
         public OverlapResolution overlapResolution = OverlapResolution.LENIENT;
-        @SkipGlobalTooltip
+        @ConfigExtension.Gui.SkipGlobalTooltip
         public Map<ItemTypes, Boolean> itemTypesKeepingMap = getItemTypesKeepingMap();
 
         protected static Map<ItemTypes, Boolean> getItemTypesKeepingMap() {
@@ -74,7 +71,7 @@ public class ModConfig implements ConfigData {
         public ExperienceMode experienceBehaviour = ExperienceMode.DROP;
         @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
         public ExperienceCalculation experienceCalculationMode = ExperienceCalculation.FRACTION;
-        @FloatRange(min = 0.0f, max = 1.0f)
+        @ConfigExtension.Gui.FloatRange(min = 0.0f, max = 1.0f)
         public float experienceFraction = 0.2f;
     }
 
@@ -85,15 +82,15 @@ public class ModConfig implements ConfigData {
     public static class HungerControl {
         @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
         public FoodLevelCalculationMode foodLevelCalculationMode = FoodLevelCalculationMode.VANILLA;
-        @IntRange(min = 0) public int minFoodLevel = 6;
-        @IntRange(min = 0) public int maxFoodLevel = 12;
-        @FloatRange(min = 0.0f) public float foodLevelFraction = 0.5f;
+        @ConfigExtension.Gui.IntRange(min = 0) public int minFoodLevel = 6;
+        @ConfigExtension.Gui.IntRange(min = 0) public int maxFoodLevel = 12;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f) public float foodLevelFraction = 0.5f;
 
         @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
         public SaturationLevelCalculationMode saturationLevelCalculationMode = SaturationLevelCalculationMode.VANILLA;
-        @FloatRange(min = 0.0f) public float minSaturation = 2.0f;
-        @FloatRange(min = 0.0f) public float maxSaturation = 8.0f;
-        @FloatRange(min = 0.0f) public float saturationFraction = 0.5f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f) public float minSaturation = 2.0f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f) public float maxSaturation = 8.0f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f) public float saturationFraction = 0.5f;
     }
 
     // --- Random Drop Control
@@ -101,9 +98,9 @@ public class ModConfig implements ConfigData {
     public RandomDropControl randomDropControl = new RandomDropControl();
 
     public static class RandomDropControl {
-        @FloatRange(min = 0.0f, max = 1.0f) public float randomDropChance = 0.0f;
-        @FloatRange(min = 0.0f, max = 1.0f) public float rarityDropChanceDecrease = 0.2f;
-        @FloatRange(min = 0.0f, max = 1.0f) public float luckDropChanceDecrease = 0.2f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f, max = 1.0f) public float randomDropChance = 0.0f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f, max = 1.0f) public float rarityDropChanceDecrease = 0.2f;
+        @ConfigExtension.Gui.FloatRange(min = 0.0f, max = 1.0f) public float luckDropChanceDecrease = 0.2f;
     }
 
     // --- Drop Control ---
@@ -120,8 +117,8 @@ public class ModConfig implements ConfigData {
         public GraveSpawningLogic graveSpawningLogic = new GraveSpawningLogic();
 
         public static class GraveSpawningLogic {
-            @IntRange(min = 0) public int sackMaxSpawnRadius = 1;
-            @IntRange(min = 0) public int mobGraveMaxSpawnRadius = 32;
+            @ConfigExtension.Gui.IntRange(min = 0) public int sackMaxSpawnRadius = 1;
+            @ConfigExtension.Gui.IntRange(min = 0) public int mobGraveMaxSpawnRadius = 32;
             public boolean allowGravesToSpawnOnSlabs = false;
         }
     }

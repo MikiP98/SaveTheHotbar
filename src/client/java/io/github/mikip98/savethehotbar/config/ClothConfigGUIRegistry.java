@@ -1,14 +1,8 @@
 package io.github.mikip98.savethehotbar.config;
 
-import io.github.mikip98.savethehotbar.config.annotations.FloatRange;
-import io.github.mikip98.savethehotbar.config.annotations.GlobalTooltip;
-import io.github.mikip98.savethehotbar.config.annotations.IntRange;
-import io.github.mikip98.savethehotbar.config.annotations.SkipGlobalTooltip;
-#if MC_VERSION < 260000
-import me.shedaniel.autoconfig.AutoConfig;
-#else
-import me.shedaniel.autoconfig.AutoConfigClient;
-#endif
+import io.github.mikip98.savethehotbar.config.annotations.ConfigExtension;
+#if MC_VERSION < 260000 import me.shedaniel.autoconfig.AutoConfig; #endif
+#if MC_VERSION >= 260000 import me.shedaniel.autoconfig.AutoConfigClient; #endif
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
@@ -108,7 +102,7 @@ public class ClothConfigGUIRegistry {
     protected static void registerFloatRangeStringFieldProvider(GuiRegistry registry) {
         registry.registerAnnotationProvider(
                 (i13n, field, config, defaults, guiProvider) -> {
-                    FloatRange bounds = field.getAnnotation(FloatRange.class);
+                    ConfigExtension.Gui.FloatRange bounds = field.getAnnotation(ConfigExtension.Gui.FloatRange.class);
                     float min = bounds.min();
                     float max = bounds.max();
 
@@ -137,14 +131,14 @@ public class ClothConfigGUIRegistry {
                     }
                 },
                 field -> field.getType() == float.class,
-                FloatRange.class
+                ConfigExtension.Gui.FloatRange.class
         );
     }
 
     protected static void registerIntRangeStringFieldProvider(GuiRegistry registry) {
         registry.registerAnnotationProvider(
                 (i13n, field, config, defaults, guiProvider) -> {
-                    IntRange bounds = field.getAnnotation(IntRange.class);
+                    ConfigExtension.Gui.IntRange bounds = field.getAnnotation(ConfigExtension.Gui.IntRange.class);
                     int min = bounds.min();
                     int max = bounds.max();
 
@@ -173,7 +167,7 @@ public class ClothConfigGUIRegistry {
                     }
                 },
                 field -> field.getType() == int.class,
-                IntRange.class
+                ConfigExtension.Gui.IntRange.class
         );
     }
 
@@ -186,7 +180,7 @@ public class ClothConfigGUIRegistry {
                     return guis.stream()
                             .peek(gui -> {
                                 if (!(gui instanceof TextListEntry)) {
-                                    GlobalTooltip globalTooltip = getGlobalTooltip(field);
+                                    ConfigExtension.Gui.GlobalTooltip globalTooltip = getGlobalTooltip(field);
 
                                     assert globalTooltip != null;
                                     final int count = globalTooltip.count();
@@ -212,25 +206,26 @@ public class ClothConfigGUIRegistry {
                             })
                             .collect(Collectors.toList());
                 },
-                field -> getGlobalTooltip(field) != null && !field.isAnnotationPresent(SkipGlobalTooltip.class) && !field.isAnnotationPresent(ConfigEntry.Gui.Tooltip.class)
+                field -> getGlobalTooltip(field) != null && !field.isAnnotationPresent(ConfigExtension.Gui.SkipGlobalTooltip.class) && !field.isAnnotationPresent(ConfigEntry.Gui.Tooltip.class)
         );
     }
 
     // TODO: REMOVE THIS IF THIS GETS MERGED INTO CLOTH-CONFIG DIRECTLY
     /**
-     * Checks if any of the parent classes have the {@link GlobalTooltip} annotation
-     * @return {@link GlobalTooltip} annotation instance if found, else null
+     * Checks if any of the parent classes have the {@link ConfigExtension.Gui.GlobalTooltip} annotation
+     * @return {@link ConfigExtension.Gui.GlobalTooltip} annotation instance if found, else null
      */
-    public static GlobalTooltip getGlobalTooltip(Field field) {
+    public static ConfigExtension.Gui.GlobalTooltip getGlobalTooltip(Field field) {
         Class<?> currentClass = field.getDeclaringClass();
         while (currentClass != null) {
-            if (currentClass.isAnnotationPresent(GlobalTooltip.class)) {
-                return currentClass.getAnnotation(GlobalTooltip.class);
+            if (currentClass.isAnnotationPresent(ConfigExtension.Gui.GlobalTooltip.class)) {
+                return currentClass.getAnnotation(ConfigExtension.Gui.GlobalTooltip.class);
             }
             currentClass = currentClass.getEnclosingClass();
         }
         return null;
     }
+    // TOOD: Simplify this to how this looks in AutoCommentedTomlSerializer
 
     // TODO: REMOVE THIS IF THIS GETS MERGED INTO CLOTH-CONFIG DIRECTLY
     @SuppressWarnings({"unchecked", "rawtypes"})
