@@ -188,6 +188,11 @@ processResources {
 				"minecraft_version": inputs.properties.minecraft_version
 	}
 
+	filesMatching("savethehotbar.mixins.json") {
+		expand "java_version": inputs.properties.java_version
+	}
+
+	// TODO: Is this required?
 	filesMatching("**/*.mcmeta") {
 		expand "resource_pack_format": inputs.properties.resource_pack_format,
 				"data_pack_format": inputs.properties.data_pack_format
@@ -245,6 +250,24 @@ jar {
 
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
+	}
+	from("LICENSE-AGPL") {
+		rename { "${it}_$projectName"}
+	}
+
+	dependsOn('downloadManifoldLicense')
+	from(layout.buildDirectory.file("tmp/licenses/LICENSE_Manifold"))
+}
+tasks.register('downloadManifoldLicense') {
+	def destFile = layout.buildDirectory.file("tmp/licenses/LICENSE_Manifold").get().asFile
+	outputs.file(destFile)
+
+	doLast {
+		destFile.parentFile.mkdirs()
+		ant.get(
+				src: 'https://raw.githubusercontent.com/manifold-systems/manifold/master/LICENSE',
+				dest: destFile
+		)
 	}
 }
 
