@@ -22,7 +22,7 @@ public class SaveTheHotbar implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("SaveTheHotbar! has been initialized!");
+		LOGGER.info("SaveTheHotbar! is initializing!");
 
 		// Config
 		AutoConfig.register(ModConfig.class, AutoCommentedTomlSerializer::new);
